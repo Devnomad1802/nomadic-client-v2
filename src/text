@@ -1,0 +1,122 @@
+[
+  {
+    "_id": "66224628b005bf1bd58eb167",
+    "title": "Desert",
+    "price": "497",
+    "nights": "3",
+    "subTitle": "Desert Asia 300",
+    "days": "4",
+    "location": "LahoreMurry",
+    "pickUp": "Murry",
+    "dropOff": "Kohat",
+    "bannerImage": "/uploads/1713522216131.png",
+    "cardImage": "/uploads/1713522216370.png",
+    "categories": [
+      "Mountain"
+    ],
+    "overview": "An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.",
+    "itenarryImg": "/uploads/1713522216408.png",
+    "type": "Batch",
+    "numberOfDays": "[{\"selectDays\":\"9\"},{\"selectDays\":\"12\"},{\"selectDays\":\"30\"},{\"selectDays\":\"18\"},{\"selectDays\":\"21\"}]",
+    "numberOfSeats": "[{\"batchSeats\":\"5\"},{\"batchSeats\":\"10\"},{\"batchSeats\":\"20\"},{\"batchSeats\":\"22\"},{\"batchSeats\":\"6\"}]",
+    "selectDate": [
+      {
+        "BatchDate": "2024-09-12"
+      },
+      {
+        "BatchDate": "2024-09-25"
+      },
+      {
+        "BatchDate": "2024-08-25"
+      },
+      {
+        "BatchDate": "2024-05-25"
+      },
+      {
+        "BatchDate": "2024-06-07"
+      }
+    ],
+    "date": "2024-04-03T00:00:00.000Z",
+    "firstBookingPrice": "30",
+    "Inclusion": "An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.",
+    "Exclusion": "An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.",
+    "ThingsToCarry": "An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.",
+    "Cancellation": "An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.",
+    "discount": [
+      "Z9YXC,XY7EO"
+    ],
+    "gallaryImages": [
+      "/uploads/1713522216562.png"
+    ],
+    "reviews": [
+      "Dubai"
+    ],
+    "ratings": [
+      "4"
+    ],
+    "vendors": [
+      "Rover,Ethen"
+    ],
+    "enableBooking": false,
+    "enableEnquire": true,
+    "addsection": "[{\"section\":1,\"array\":[{\"Title\":\"Bike\",\"TitlePrice\":\"500\",\"section\":\"Travel route\"},{\"Title\":\"Bus\",\"TitlePrice\":\"3000\"}]},{\"section\":2,\"array\":[{\"Title\":\"single\",\"TitlePrice\":\"50\",\"section\":\"Ro0ms\"},{\"Title\":\"dubble\",\"TitlePrice\":\"80\"}]}]",
+    "addDays": "[{\"day\":1,\"title\":\"norway\",\"Description\":1,\"description\":\"An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.\"},{\"day\":2,\"title\":\"overview\",\"description\":\"An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.An overview is a general summary of something. An overview gives the big picture, while leaving out the minor details.\"}]",
+    "__v": 0
+  },
+  {
+    "_id": "663dc1fc3f8dae7563467443",
+    "title": "Explore Bhutan's Magic ! ",
+    "price": "33499",
+    "nights": "6",
+    "subTitle": "BAGDOGRA -THIMPHU - PARO - BAGDOGRA",
+    "days": "7",
+    "location": "BHUTAN",
+    "pickUp": "BAGDOGRA",
+    "dropOff": "BAGDOGRA",
+    "bannerImage": "/uploads/1715323388284.jpg",
+    "cardImage": "/uploads/1715323388315.jpg",
+    "categories": [
+      "Asia"
+    ],
+    "overview": "Nestled in the heart of the Himalayas, Bhutan, known as the \"Land of the Thunder Dragon,\" exudes an irresistible allure. With its pristine natural landscapes, vibrant cultural tapestry, and unwavering focus on Gross National Happiness, Bhutan offers a unique and immersive travel experience. From the bustling gateway of Phuentsholing to the tranquil valleys of Thimphu, Punakha, and Paro, each destination reveals a different facet of Bhutan's rich heritage and enchanting beauty. Whether exploring the bustling markets of Thimphu or embarking on a spiritual trek to the iconic Tiger's Nest Temple in Paro, Bhutan beckons with open arms, promising an unforgettable journey of discovery and wonder.",
+    "itenarryImg": "/uploads/1715323388334.jpg",
+    "type": "",
+    "numberOfDays": "[{\"selectDays\":0}]",
+    "numberOfSeats": "[{\"batchSeats\":\"10\"}]",
+    "selectDate": [
+      {
+        "BatchDate": "2024-06-01"
+      }
+    ],
+    "date": "2024-06-01T00:00:00.000Z",
+    "firstBookingPrice": "20000",
+    "Inclusion": "Accommodation on sharing basis at all destinations as per the itinerary. \r\nBreakfast and dinner . [ Dinner on Day 1, 2 meals (breakfast and dinner) on Days 2, 3, 4, 5, and 6, and 1 breakfast on Day 7 ] .\r\nEntry Permit for Bhutan for 6 days, including all Inner Line Permits.\r\nComfortable Non-AC vehicle for all days as per the itinerary (Day 1 - Day 7)\r\nReliable, experienced and adept English-speaking local guide \r\nTravel Insurance\r\nSDF (Bhutan Sustainable Development Fees) - 1200/- per night per person\r\nDriver charges, driver accommodation, fuel and inter-state toll\r\n\r\n",
+    "Exclusion": "Personal expenses like Telephone, Laundry, Tips and Table Drinks etc. \r\nGST (5%) is applicable extra\r\nPersonal expenses like tips to drivers, camera/video camera charges, camel safari, river rafting, laundry, telephone bills, tips, etc\r\nAny lunch and other meals not mentioned in package inclusions\r\nAny cost incurred due to extension,change of itinerary due to natural calamities,road, blocks,vehicle breakdown, union issues and factors beyond our control \r\nAny Airfare / Rail fare other than what in mentioned in “Inclusions”                                                                   \r\nAnything that is not mentioned in the Inclusion.",
+    "ThingsToCarry": "Authentic Government ID Card - Passport: Ensure that your passport is valid for at least 6 months from the date of departure from India. This is a requirement for entry into Bhutan.\r\nCovid Vaccination Certificate: As part of the ongoing safety measures, please carry a valid Covid vaccination certificate. This is essential for your travel and stay in Bhutan.\r\nDeparture Time from Bagdogra Airport to Phuentsholing: Please note that the departure time from Bagdogra airport to Phuentsholing is approximately 12pm. Kindly plan your travel and arrival accordingly.\r\nHaving these essentials ready will help ensure a smooth and enjoyable travel experience to the beautiful land of Bhutan.",
+    "Cancellation": "Authentic Government ID Card - Passport: Ensure that your passport is valid for at least 6 months from the date of departure from India. This is a requirement for entry into Bhutan.\r\nCovid Vaccination Certificate: As part of the ongoing safety measures, please carry a valid Covid vaccination certificate. This is essential for your travel and stay in Bhutan.\r\nDeparture Time from Bagdogra Airport to Phuentsholing: Please note that the departure time from Bagdogra airport to Phuentsholing is approximately 12pm. Kindly plan your travel and arrival accordingly.\r\nHaving these essentials ready will help ensure a smooth and enjoyable travel experience to the beautiful land of Bhutan.",
+    "discount": [
+      "Np4TR"
+    ],
+    "gallaryImages": [
+      "/uploads/1715323388335.jpg",
+      "/uploads/1715323388336.jpg",
+      "/uploads/1715323388337.jpg",
+      "/uploads/1715323388339.jpg",
+      "/uploads/1715323388340.jpg"
+    ],
+    "reviews": [
+      "Buttan"
+    ],
+    "ratings": [
+      "4"
+    ],
+    "vendors": [
+      "Jhone"
+    ],
+    "enableBooking": true,
+    "enableEnquire": false,
+    "addsection": "[{\"section\":1,\"array\":[{\"Title\":\"SOLO\",\"TitlePrice\":\"34599\",\"section\":\"TYPE OF PACKAGE\"},{\"Title\":\"GROUP\",\"TitlePrice\":\"30599\"}]}]",
+    "addDays": "[{\"day\":1,\"title\":\"Bagdogra - Phuentsholing Transfer \",\"Description\":1,\"description\":\"Welcome to Phuentsholing, a vibrant crossroads where Bhutanese, Nepalese, and Indian cultures blend harmoniously. Explore the iconic Bhutan Gate, delve into the spiritual Zangto Pelri Lhakhang, and enjoy a serene stroll along Torsa River Side. Shop at Phuentsholing Market and prepare for an immersive Bhutanese adventure.\"},{\"day\":2,\"title\":\"Phuentsholing - Thimphu Transfer\",\"description\":\"Transfer to Thimphu via Kharbandi Gumba & Waterfalls - Visit Amo Chhu Crocodile Breeding Centre, Karbandi Monastery, and explore Thimphu's cultural gems, serene landscapes, and vibrant markets. Rest in Thimphu for the adventures ahead.\"},{\"day\":3,\"title\":\"Thimphu - Punakha-Dochula Sightseeing - Thimphu\",\"description\":\"Embark on a picturesque journey after breakfast, exploring Punakha and the breathtaking Dochula Pass. Adorned with 108 memorial chortens and colorful prayer flags, Dochula Pass pays tribute to Bhutan's brave soldiers. In Punakha, experience the historical Punakha Dzong, majestically located at the confluence of the Po Chhu and Mo Chhu rivers. Walk the ancient Punakha Suspension Bridge over the Mo Chhu, and visit Chimi Lhakhang, the renowned fertility temple, for its unique blessings.\"},{\"day\":4,\"title\":\"Timphu Sightseeing - Paro Transfer   \",\"description\":\"Explore Thimphu's treasures, including Buddha Dordenma's towering statue and Tashichho Dzong's sacred beauty. Visit Changangkha Lhakhang, the elegant Memorial Chorten, and discover Bhutanese heritage at the Folk Heritage Museum. Marvel at the Simtokha Dzong fortress and meet the Takin at Motithang Preserve. Immerse in art at the National Institute and Royal Textile Academy. Dive into Bhutan's history at the National Library and Simply Bhutan Museum. Enjoy panoramic views from BBS Tower and absorb the charm of Clock Tower Square. Transfer to Paro, home to historic temples and the challenging Paro Airport.\"},{\"day\":5,\"title\":\"Hike Tiger's Nest - Paro Local Sightseeing\",\"description\":\"After breakfast, embark on the iconic Tiger’s Nest hike and explore Paro's local attractions. Night stay in Paro. Highlights include: Tiger’s Nest Hike: A remarkable monastery perched above Paro Valley, offering religious and historical significance along with stunning architecture. Rinpung Dzong: A spiritual marvel in the heart of Paro city, known for its architectural grandeur and spiritual aura. National Museum of Bhutan: Showcasing Bhutan's rich culture and history through captivating exhibits, paintings, and artifacts. Drukgyel Dzong: An ancient fortress in ruins, once symbolizing Bhutan's triumph over Tibet, with ongoing efforts for restoration. Paro Airport View: Visit the Bird's Eye View Point for an impressive panoramic vista of Paro city and the renowned Paro International Airport. Please note that if any spots are inadvertently missed, they can be visited on the following day.\"},{\"day\":6,\"title\":\"Departure From Bhutan\",\"description\":\"Transfer to Jaigaon, enjoying Bhutan's scenic beauty. Check-in at a Phuentsholing hotel for an overnight stay. Take a leisurely stroll through the local market in the evening.\"},{\"day\":7,\"title\":\"Farewell To  Bhutan's Bliss\",\"description\":\"As the sun rises, we embark on a heartfelt journey to bid adieu to the enchanting realm of Bhutan. Our path takes us through the captivating landscapes of waterfalls and scenic vistas, a final embrace of the country's natural beauty. Arriving at Bagdogra Airport, we reflect upon the cherished moments and experiences we've gathered in the Land of Happiness. With gratitude in our hearts and promises of a return, we say our farewells, carrying with us a treasure trove of unforgettable memories. Until we meet again, Bhutan.\"}]",
+    "__v": 0
+  }
+]
