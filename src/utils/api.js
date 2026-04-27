@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // export const baseUrl = "http://localhost:5000/api";
 // this si thesting for repo push
-export const baseUrl = "https://api.nomadictownies.com/api/";
-export const baseImage = "https://api.nomadictownies.com/api";
+export const baseUrl = "https://nomadic-server-v2-production.up.railway.app/api/";
+export const baseImage = "https://nomadic-server-v2-production.up.railway.app/api";
 
 export const api = createApi({
   reducerPath: "apis",
