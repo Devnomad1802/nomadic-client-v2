@@ -106,8 +106,8 @@ export default function UpcomingTab() {
       console.log("data", data);
       const parsedData = data.data.map((trip) => ({
         ...trip,
-        selectDate: JSON.parse(trip.selectDate),
-        ratings: JSON.parse(trip.ratings),
+        selectDate: trip.selectDate ? JSON.parse(trip.selectDate) : [],
+        ratings: Array.isArray(trip.ratings) ? trip.ratings : (trip.ratings ? JSON.parse(trip.ratings) : []),
       }));
 
       const monthTripsObj = {
