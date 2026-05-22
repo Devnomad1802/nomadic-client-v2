@@ -218,7 +218,7 @@ const BookingOverview = () => {
 
         // Construct options for Razorpay
         const options = {
-          key: "rzp_test_R767IuvrU4JvCl", // Add your Razorpay key here
+          key: "rzp_test_Slffqw3YxojtUf", // Add your Razorpay key here
           amount: Math.round(selectedValue * 100),
           currency,
           name: "Nomadic Townies",
