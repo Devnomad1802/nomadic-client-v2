@@ -193,10 +193,10 @@ const DetailUpcomming = ({ tripDetail }) => {
             }}
           >
             <BatchListTab
-              selectDate={JSON.parse(tripDetail?.selectDate)}
-              endSelectDate={JSON.parse(tripDetail?.endSelectDate)}
-              numberOfSeats={JSON.parse(tripDetail?.numberOfSeats)}
-              numberOfDays={JSON.parse(tripDetail?.numberOfDays)}
+              selectDate={tripDetail?.selectDate ? JSON.parse(tripDetail.selectDate) : []}
+              endSelectDate={tripDetail?.endSelectDate ? JSON.parse(tripDetail.endSelectDate) : []}
+              numberOfSeats={tripDetail?.numberOfSeats ? JSON.parse(tripDetail.numberOfSeats) : []}
+              numberOfDays={tripDetail?.numberOfDays ? JSON.parse(tripDetail.numberOfDays) : []}
             />
           </Box>
           <Box

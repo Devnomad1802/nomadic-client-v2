@@ -25,7 +25,7 @@ const Savedtrips = () => {
         const parsedData = res.map((trip) => {
           return {
             ...trip,
-            selectDate: JSON.parse(trip.selectDate),
+            selectDate: trip.selectDate ? JSON.parse(trip.selectDate) : [],
           };
         });
         setFavoriteTrip(parsedData);

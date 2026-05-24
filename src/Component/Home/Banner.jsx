@@ -32,7 +32,7 @@ const Banner = () => {
     if (data?.data) {
       const parsedData = data.data.map((trip) => ({
         ...trip,
-        selectDate: JSON.parse(trip.selectDate),
+        selectDate: trip.selectDate ? JSON.parse(trip.selectDate) : [],
       }));
       setTrendingData(parsedData);
     }

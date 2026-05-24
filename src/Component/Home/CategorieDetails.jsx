@@ -33,7 +33,7 @@ const CategorieDetails = () => {
       const parsedData = res?.data?.map((trip) => {
         return {
           ...trip,
-          selectDate: JSON.parse(trip.selectDate),
+          selectDate: trip.selectDate ? JSON.parse(trip.selectDate) : [],
         };
       });
       setCategoryData(parsedData);
