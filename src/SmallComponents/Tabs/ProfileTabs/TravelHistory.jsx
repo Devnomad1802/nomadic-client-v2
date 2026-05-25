@@ -180,8 +180,6 @@ const TravelHistory = () => {
         } = item;
 
         // Define the status for Payment Status (you can use any logic based on your needs)
-        const paymentStatusLabel =
-          paymentStatus === "firstPayment" ? "Partial" : "Completed";
 
         const travelHistory = [
           {
@@ -246,6 +244,8 @@ const TravelHistory = () => {
         const finalTotal =
           itemTotal + gstAndDiscountTotal - coupenDiscount - total; // Add everything together
         console.log("finalTotal", finalTotal.toFixed(0));
+        const paymentStatusLabel =
+          Number(finalTotal) <= 0 ? "Completed" : "Partial";
 
         const array = [
           { value: total, title: "Amount Paid", color: "#4B5563" },
@@ -259,17 +259,17 @@ const TravelHistory = () => {
           {
             name: "Amount Paid",
             price: "",
-            total: <> {`${(Number(total) * -1).toFixed(0)}`}</>,
+            total: <>{`-${Number(total).toFixed(0)}`}</>,
+          },
+          {
+            name: "Discount",
+            price: "",
+            total: <>{`-${Number(coupenDiscount).toFixed(0)}`}</>,
           },
           {
             name: "GST @5%",
             price: "",
             total: Number(cardData?.gstTax).toFixed(0),
-          },
-          {
-            name: "Discount",
-            price: "",
-            total: <>{`-${(Number(coupenDiscount) * -1).toFixed(0)}`}</>,
           },
           {
             name: "Total",
@@ -436,9 +436,9 @@ const TravelHistory = () => {
                         Payment Status
                       </Typography>
                       <Typography
-                        sx={{ color: "#FBC800", mt: 1, textAlign: "left" }}
+                        sx={{ color: Number(finalTotal) <= 0 ? "#16A34A" : "#FBC800", mt: 1, textAlign: "left" }}
                       >
-                        Partial
+                        {paymentStatusLabel}
                       </Typography>
                     </Box>
                   </Box>
@@ -579,42 +579,54 @@ const TravelHistory = () => {
                       );
                     })}
                   </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "20px 0px",
-                      mt: 2,
-                    }}
-                  >
-                    <Typography sx={{ color: "#6D7280", textAlign: "start" }}>
-                      Note: Balance amount of $10,000/- can be paid upto Wed, 8
-                      May, 2024
-                    </Typography>
-                    <Typography sx={{ color: "#9CA3AF", textAlign: "start" }}>
-                      Payment Processing fee of 3% will be charged in next step.
-                    </Typography>
-                    <Button
-                      onClick={() => handleOrder(finalTotal, item)}
+                  {Number(finalTotal) > 0 && (
+                    <Box
                       sx={{
-                        color: "#fff",
-                        background: "#EC3F18",
-                        borderRadius: "25px",
-                        px: 4,
-                        py: 1.5,
-                        fontSize: "16px",
-                        fontWeight: 600,
-                        textTransform: "capitalize",
-                        boxShadow: "0px 4px 12px rgba(236, 63, 24, 0.3)",
-                        "&:hover": {
-                          background: "#D6360E",
-                          boxShadow: "0px 6px 16px rgba(236, 63, 24, 0.4)",
-                        },
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "20px 0px",
+                        mt: 2,
                       }}
                     >
-                      Proceed to pay &#8377; {finalTotal.toFixed(0)}
-                    </Button>
-                  </Box>
+                      <Typography sx={{ color: "#6D7280", textAlign: "start" }}>
+                        Note: Balance amount of &#8377; {Number(finalTotal).toFixed(0)}/- can be paid up to{" "}
+                        {cardData?.cardDate?.batchDate
+                          ? new Date(
+                              new Date(cardData.cardDate.batchDate).getTime() -
+                                15 * 24 * 60 * 60 * 1000
+                            ).toLocaleDateString(undefined, {
+                              weekday: "short",
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : ""}
+                      </Typography>
+                      <Typography sx={{ color: "#9CA3AF", textAlign: "start" }}>
+                        Payment Processing fee of 3% will be charged in next step.
+                      </Typography>
+                      <Button
+                        onClick={() => handleOrder(finalTotal, item)}
+                        sx={{
+                          color: "#fff",
+                          background: "#EC3F18",
+                          borderRadius: "25px",
+                          px: 4,
+                          py: 1.5,
+                          fontSize: "16px",
+                          fontWeight: 600,
+                          textTransform: "capitalize",
+                          boxShadow: "0px 4px 12px rgba(236, 63, 24, 0.3)",
+                          "&:hover": {
+                            background: "#D6360E",
+                            boxShadow: "0px 6px 16px rgba(236, 63, 24, 0.4)",
+                          },
+                        }}
+                      >
+                        Proceed to pay &#8377; {finalTotal.toFixed(0)}
+                      </Button>
+                    </Box>
+                  )}
                 </Box>
               </Box>
               <Box
