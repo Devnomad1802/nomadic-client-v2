@@ -44,7 +44,7 @@ const OrderApi = api.injectEndpoints({
 
     getPartialTrip: builder.mutation({
       query: ({ userId }) => ({
-        url: "/getPartialPaymentBookings",
+        url: "/getUserHoistoryTripsBookings",
         method: "POST",
         body: { userId },
       }),
