@@ -168,7 +168,7 @@ const TravelHistory = () => {
         Travel History
       </Typography>
 
-      {partilyArray.slice().reverse().map((item, index) => {
+      {partilyArray.slice().map((item, index) => {
         // Extract properties from each item
         const {
           paymentDetail,
