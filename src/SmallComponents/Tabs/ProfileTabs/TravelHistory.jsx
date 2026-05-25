@@ -329,7 +329,7 @@ const TravelHistory = () => {
                       textAlign: "left",
                     }}
                   >
-                    Explore Bhutan&apos;s Magic !
+                    {item?.trip?.title || "Trip"}
                   </Typography>
                   <Typography
                     sx={{
