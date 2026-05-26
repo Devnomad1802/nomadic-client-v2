@@ -17,7 +17,7 @@ const PhoneNumber = ({ setRegisterData, registerData, defaultPhone }) => {
     >
       <PhoneInput
         country={"in"}
-        value={registerData?.phone || defaultPhone} // Pass only the phone property
+        value={(() => { const raw = registerData?.phone || defaultPhone || ""; const digits = String(raw).replace(/\D/g, ""); return digits.length === 10 ? `91${digits}` : digits; })()}
         onChange={(phone) => {
           if (typeof setRegisterData === "function") {
             setRegisterData({ ...registerData, phone }); // Update the phone property in registerData
