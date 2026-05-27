@@ -199,7 +199,7 @@ const Navbar = () => {
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "center",
-              gap: { xs: "0px 16px", md: "0px 50px" },
+              gap: { xs: "0px 16px", md: "0px 30px" },
             }}
           >
             <Box onClick={goHome} sx={{ cursor: "pointer", mt: { xs: 0, md: 1 } }}>
@@ -210,7 +210,7 @@ const Navbar = () => {
               sx={{
                 display: { xs: "none", lg: "flex" },
                 justifyContent: "flex-start",
-                gap: "0px 6px",
+                gap: "0px 10px",
                 alignItems: "center",
               }}
             >
