@@ -1,7 +1,6 @@
 import { Box, Hidden } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "../Component/Navbar/Navbar";
-import Header from "../Component/Navbar/Header";
 import Footer from "../Component/Footer";
 
 const Parent = () => {
@@ -11,12 +10,7 @@ const Parent = () => {
         background: "#fff",
       }}
     >
-      <Hidden lgDown>
-        <Navbar />
-      </Hidden>
-      <Hidden lgUp>
-        <Header />
-      </Hidden>
+      <Navbar />
 
       <Box>
         <Box
