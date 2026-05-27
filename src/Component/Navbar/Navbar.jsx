@@ -168,7 +168,7 @@ const Navbar = () => {
               onClick={() => handleTripClick(trip._id)}
               sx={dropdownItemSx}
             >
-              {trip.title}
+              {trip.location ? trip.location.charAt(0) + trip.location.slice(1).toLowerCase() : (trip.title || "Trip")}
             </Typography>
           ))
         )}
@@ -367,7 +367,7 @@ const Navbar = () => {
                           onClick={() => handleTripClick(trip._id)}
                           sx={{ pl: 4, py: 1, fontSize: "14px", color: TEXT, cursor: "pointer", "&:hover": { color: ORANGE } }}
                         >
-                          {trip.title}
+                          {trip.location ? trip.location.charAt(0) + trip.location.slice(1).toLowerCase() : (trip.title || "Trip")}
                         </Typography>
                       ))
                     )}
