@@ -21,13 +21,14 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useGetTripsByCagtegoryMutation } from "../../services/categoriesApis";
+import { useGetAllBlogsQuery } from "../../services/blogApi";
 
 const menuItems = [
   { name: "International Trips", category: "INTERNATIONAL" },
   { name: "India Trips", category: "INDIA" },
   { name: "Group Tours", category: "GROUP TOURS", comingSoon: true },
   { name: "Workshops", category: "WORKSHOPS", comingSoon: true },
-  { name: "Blogs", link: "/blogs" },
+  { name: "Blogs", isBlog: true },
 ];
 
 const ORANGE = "#CD482A";
@@ -39,13 +40,16 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(null);
 
-  const [activeCategory, setActiveCategory] = useState(null);
+  const [activeMenu, setActiveMenu] = useState(null);
   const [dropdownTrips, setDropdownTrips] = useState({});
   const [loadingCategory, setLoadingCategory] = useState(null);
 
   const navigate = useNavigate();
   const { userDbData } = useSelector((store) => store.global);
   const [GetTripsByCagtegory] = useGetTripsByCagtegoryMutation();
+  const { data: blogsData } = useGetAllBlogsQuery();
+  const allBlogs = blogsData?.data || [];
+  const recentBlogs = allBlogs.slice(0, 5);
 
   const fetchCategoryTrips = async (category) => {
     if (dropdownTrips[category]) return;
@@ -62,20 +66,28 @@ const Navbar = () => {
   };
 
   const handleHoverEnter = (item) => {
-    if (item.comingSoon) {
-      setActiveCategory(item.category);
-      return;
-    }
-    if (item.category) {
-      setActiveCategory(item.category);
-      fetchCategoryTrips(item.category);
-    }
+    setActiveMenu(item.name);
+    if (item.category && !item.comingSoon) fetchCategoryTrips(item.category);
   };
 
   const handleTripClick = (tripId) => {
-    setActiveCategory(null);
+    setActiveMenu(null);
     setMobileOpen(false);
     navigate(`/UpCommingDetails/${tripId}`);
+    window.scrollTo(0, 0);
+  };
+
+  const handleBlogClick = (blogId) => {
+    setActiveMenu(null);
+    setMobileOpen(false);
+    navigate(`/blogs/Details/${blogId}`);
+    window.scrollTo(0, 0);
+  };
+
+  const handleViewAllBlogs = () => {
+    setActiveMenu(null);
+    setMobileOpen(false);
+    navigate("/blogs");
     window.scrollTo(0, 0);
   };
 
@@ -84,10 +96,17 @@ const Navbar = () => {
     window.scrollTo(0, 0);
   };
 
-  const renderDropdownPanel = (item) => {
-    const trips = dropdownTrips[item.category] || [];
-    const isLoading = loadingCategory === item.category;
+  const dropdownItemSx = {
+    px: 2,
+    py: 1.2,
+    fontSize: "14px",
+    color: TEXT,
+    cursor: "pointer",
+    textAlign: "left",
+    "&:hover": { background: "#F9FAFB", color: ORANGE },
+  };
 
+  const renderDropdownPanel = (item) => {
     return (
       <Box
         sx={{
@@ -104,32 +123,50 @@ const Navbar = () => {
           mt: 1,
         }}
       >
-        {item.comingSoon ? (
+        {item.isBlog ? (
+          recentBlogs.length === 0 ? (
+            <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "14px" }}>
+              No blogs available
+            </Typography>
+          ) : (
+            <>
+              {recentBlogs.map((blog) => (
+                <Typography
+                  key={blog._id}
+                  onClick={() => handleBlogClick(blog._id)}
+                  sx={dropdownItemSx}
+                >
+                  {blog.title}
+                </Typography>
+              ))}
+              <Box sx={{ borderTop: "1px solid #E5E7EB", mt: 0.5, pt: 0.5 }}>
+                <Typography
+                  onClick={handleViewAllBlogs}
+                  sx={{ ...dropdownItemSx, color: ORANGE, fontWeight: 600 }}
+                >
+                  View all blogs →
+                </Typography>
+              </Box>
+            </>
+          )
+        ) : item.comingSoon ? (
           <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "14px" }}>
             Coming soon
           </Typography>
-        ) : isLoading ? (
+        ) : loadingCategory === item.category ? (
           <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
             <CircularProgress size={20} sx={{ color: ORANGE }} />
           </Box>
-        ) : trips.length === 0 ? (
+        ) : (dropdownTrips[item.category] || []).length === 0 ? (
           <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "14px" }}>
             No trips available
           </Typography>
         ) : (
-          trips.map((trip) => (
+          (dropdownTrips[item.category] || []).map((trip) => (
             <Typography
               key={trip._id}
               onClick={() => handleTripClick(trip._id)}
-              sx={{
-                px: 2,
-                py: 1.2,
-                fontSize: "14px",
-                color: TEXT,
-                cursor: "pointer",
-                textAlign: "left",
-                "&:hover": { background: "#F9FAFB", color: ORANGE },
-              }}
+              sx={dropdownItemSx}
             >
               {trip.title}
             </Typography>
@@ -177,53 +214,32 @@ const Navbar = () => {
                 alignItems: "center",
               }}
             >
-              {menuItems.map((item, index) => {
-                if (item.link) {
-                  return (
-                    <NavLink
-                      key={index}
-                      to={item.link}
-                      onClick={() => window.scrollTo(0, 0)}
-                      style={({ isActive }) => ({
-                        textDecoration: "none",
-                        padding: "10px",
-                        fontSize: "16px",
-                        color: isActive ? ORANGE : TEXT,
-                        fontWeight: isActive ? 700 : 400,
-                        fontFamily: "Inter",
-                      })}
-                    >
-                      {item.name}
-                    </NavLink>
-                  );
-                }
-                return (
+              {menuItems.map((item, index) => (
+                <Box
+                  key={index}
+                  onMouseEnter={() => handleHoverEnter(item)}
+                  onMouseLeave={() => setActiveMenu(null)}
+                  sx={{ position: "relative" }}
+                >
                   <Box
-                    key={index}
-                    onMouseEnter={() => handleHoverEnter(item)}
-                    onMouseLeave={() => setActiveCategory(null)}
-                    sx={{ position: "relative" }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "2px",
+                      padding: "10px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      fontFamily: "Inter",
+                      color: activeMenu === item.name ? ORANGE : TEXT,
+                      fontWeight: activeMenu === item.name ? 700 : 400,
+                    }}
                   >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "2px",
-                        padding: "10px",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                        fontFamily: "Inter",
-                        color: activeCategory === item.category ? ORANGE : TEXT,
-                        fontWeight: activeCategory === item.category ? 700 : 400,
-                      }}
-                    >
-                      {item.name}
-                      <KeyboardArrowDownIcon sx={{ fontSize: "18px" }} />
-                    </Box>
-                    {activeCategory === item.category && renderDropdownPanel(item)}
+                    {item.name}
+                    <KeyboardArrowDownIcon sx={{ fontSize: "18px" }} />
                   </Box>
-                );
-              })}
+                  {activeMenu === item.name && renderDropdownPanel(item)}
+                </Box>
+              ))}
             </Box>
           </Box>
 
@@ -286,32 +302,16 @@ const Navbar = () => {
 
           <List>
             {menuItems.map((item, index) => {
-              if (item.link) {
-                return (
-                  <ListItemButton
-                    key={index}
-                    onClick={() => {
-                      setMobileOpen(false);
-                      navigate(item.link);
-                      window.scrollTo(0, 0);
-                    }}
-                    sx={{ color: TEXT, fontSize: "16px" }}
-                  >
-                    {item.name}
-                  </ListItemButton>
-                );
-              }
-
-              const isExpanded = mobileExpanded === item.category;
-              const trips = dropdownTrips[item.category] || [];
-
+              const isExpanded = mobileExpanded === item.name;
               return (
                 <Box key={index}>
                   <ListItemButton
                     onClick={() => {
-                      const next = isExpanded ? null : item.category;
+                      const next = isExpanded ? null : item.name;
                       setMobileExpanded(next);
-                      if (next && !item.comingSoon) fetchCategoryTrips(item.category);
+                      if (next && item.category && !item.comingSoon) {
+                        fetchCategoryTrips(item.category);
+                      }
                     }}
                     sx={{ color: TEXT, justifyContent: "space-between" }}
                   >
@@ -324,7 +324,31 @@ const Navbar = () => {
                     />
                   </ListItemButton>
                   <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                    {item.comingSoon ? (
+                    {item.isBlog ? (
+                      recentBlogs.length === 0 ? (
+                        <Typography sx={{ pl: 4, py: 1, color: "#9CA3AF", fontSize: "14px" }}>
+                          No blogs available
+                        </Typography>
+                      ) : (
+                        <>
+                          {recentBlogs.map((blog) => (
+                            <Typography
+                              key={blog._id}
+                              onClick={() => handleBlogClick(blog._id)}
+                              sx={{ pl: 4, py: 1, fontSize: "14px", color: TEXT, cursor: "pointer", "&:hover": { color: ORANGE } }}
+                            >
+                              {blog.title}
+                            </Typography>
+                          ))}
+                          <Typography
+                            onClick={handleViewAllBlogs}
+                            sx={{ pl: 4, py: 1, fontSize: "14px", color: ORANGE, fontWeight: 600, cursor: "pointer" }}
+                          >
+                            View all blogs →
+                          </Typography>
+                        </>
+                      )
+                    ) : item.comingSoon ? (
                       <Typography sx={{ pl: 4, py: 1, color: "#9CA3AF", fontSize: "14px" }}>
                         Coming soon
                       </Typography>
@@ -332,23 +356,16 @@ const Navbar = () => {
                       <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
                         <CircularProgress size={18} sx={{ color: ORANGE }} />
                       </Box>
-                    ) : trips.length === 0 ? (
+                    ) : (dropdownTrips[item.category] || []).length === 0 ? (
                       <Typography sx={{ pl: 4, py: 1, color: "#9CA3AF", fontSize: "14px" }}>
                         No trips available
                       </Typography>
                     ) : (
-                      trips.map((trip) => (
+                      (dropdownTrips[item.category] || []).map((trip) => (
                         <Typography
                           key={trip._id}
                           onClick={() => handleTripClick(trip._id)}
-                          sx={{
-                            pl: 4,
-                            py: 1,
-                            fontSize: "14px",
-                            color: TEXT,
-                            cursor: "pointer",
-                            "&:hover": { color: ORANGE },
-                          }}
+                          sx={{ pl: 4, py: 1, fontSize: "14px", color: TEXT, cursor: "pointer", "&:hover": { color: ORANGE } }}
                         >
                           {trip.title}
                         </Typography>
