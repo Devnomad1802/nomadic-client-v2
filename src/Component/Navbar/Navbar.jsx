@@ -223,10 +223,10 @@ const Navbar = () => {
                 >
                   <Box
                     sx={{
-                      display: "flex",
+                      display: "flex", whiteSpace: "nowrap",
                       alignItems: "center",
                       gap: "2px",
-                      padding: "10px",
+                      padding: "10px 8px",
                       cursor: "pointer",
                       fontSize: "16px",
                       fontFamily: "Inter",
