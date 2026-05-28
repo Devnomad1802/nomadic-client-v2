@@ -14,7 +14,7 @@ const About = ({ aboutSection }) => {
     <Box
       sx={{
         position: "relative",
-        height: { xs: "800px", sm: "1560px" },
+        height: { xs: "800px", sm: "1100px" },
         width: "100%",
         backgroundImage: `url(${aboutSection})`,
         backgroundPosition: { xs: "center", md: "left" },
