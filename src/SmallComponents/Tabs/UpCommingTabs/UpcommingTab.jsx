@@ -183,7 +183,6 @@ export default function UpcomingTab() {
         >
           {monthTrips &&
             Object.keys(monthTrips)
-              .filter((month) => monthTrips[month].length > 0)
               .map((month, index) => (
                 <AntTab
                   key={index}
@@ -213,7 +212,6 @@ export default function UpcomingTab() {
           <>
             {monthTrips &&
               Object.keys(monthTrips)
-                .filter((month) => monthTrips[month].length > 0)
                 .map((month, index) => (
                   <TabPanel key={index} value={value} index={index}>
                     {value === index && (
