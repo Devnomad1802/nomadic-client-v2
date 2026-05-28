@@ -14,7 +14,7 @@ const About = ({ aboutSection }) => {
     <Box
       sx={{
         position: "relative",
-        height: { xs: "800px", sm: "1100px" },
+        py: { xs: 6, md: 10 },
         width: "100%",
         backgroundImage: `url(${aboutSection})`,
         backgroundPosition: { xs: "center", md: "left" },
@@ -22,14 +22,13 @@ const About = ({ aboutSection }) => {
         backgroundSize: { xs: "100% 100%", sm: "cover" },
       }}
     >
-      <Categories />
       <Container
         maxWidth="xl"
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: { xs: "start", sm: "start" },
-          height: "50%",
+          
           justifyContent: "flex-start",
           pt: { xs: 10, md: 15 }
         }}
