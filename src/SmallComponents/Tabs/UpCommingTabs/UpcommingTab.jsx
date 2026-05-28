@@ -127,10 +127,21 @@ export default function UpcomingTab() {
       };
 
       parsedData.forEach((trip) => {
-        const firstDate = new Date(trip.selectDate[0].BatchDate);
-        const month = firstDate.toLocaleString("default", { month: "long" });
-        monthTripsObj[month].push(trip);
-        monthTripsObj["All"].push(trip); // Add each trip to "All"
+        const batches = Array.isArray(trip.selectDate) ? trip.selectDate : [];
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        let addedToAll = false;
+        batches.forEach((b) => {
+          if (!b || !b.BatchDate) return;
+          const date = new Date(b.BatchDate);
+          if (isNaN(date) || date < now) return;
+          const month = date.toLocaleString("default", { month: "long" });
+          if (monthTripsObj[month]) monthTripsObj[month].push(trip);
+          if (!addedToAll) {
+            monthTripsObj["All"].push(trip);
+            addedToAll = true;
+          }
+        });
       });
 
       const sortedMonths = Object.keys(monthTripsObj).sort((a, b) =>
@@ -183,6 +194,11 @@ export default function UpcomingTab() {
         >
           {monthTrips &&
             Object.keys(monthTrips)
+              .filter((month) => {
+                if (month === "All") return true;
+                const m = { January:0, February:1, March:2, April:3, May:4, June:5, July:6, August:7, September:8, October:9, November:10, December:11 };
+                return m[month] >= new Date().getMonth();
+              })
               .map((month, index) => (
                 <AntTab
                   key={index}
@@ -212,6 +228,11 @@ export default function UpcomingTab() {
           <>
             {monthTrips &&
               Object.keys(monthTrips)
+                .filter((month) => {
+                  if (month === "All") return true;
+                  const m = { January:0, February:1, March:2, April:3, May:4, June:5, July:6, August:7, September:8, October:9, November:10, December:11 };
+                  return m[month] >= new Date().getMonth();
+                })
                 .map((month, index) => (
                   <TabPanel key={index} value={value} index={index}>
                     {value === index && (
