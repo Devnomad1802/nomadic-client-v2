@@ -83,6 +83,7 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
       </Hidden>
 
     
+      <Categories />
       <About aboutSection={aboutSection} />
       <Reviews />
       {/* <Hidden smDown>
