@@ -11,33 +11,35 @@ const ReviewSwiper = ({ reviesData }) => {
   const matches = useMediaQuery("(min-width:900px)");
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 5, sm: 8, md: 8 } }}>
-      <Box sx={{ color: "#fff" }}>
+      <Box>
         <Swiper
           slidesPerView={matches ? 3 : 1}
-          spaceBetween={matches ? 16 : 12}
+          spaceBetween={matches ? 24 : 16}
           pagination={{ clickable: true }}
           modules={[Pagination, Autoplay]}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           className="mySwiper"
-          style={{ color: "#000" }}
+          style={{ paddingBottom: "48px" }}
         >
           {reviesData &&
             reviesData?.map((item, index) => (
-              <SwiperSlide key={index} style={{ background: "none" }}>
+              <SwiperSlide key={index} style={{ background: "none", height: "auto" }}>
                 <Box
                   sx={{
-                    mb: 6,
-                    mx: { xs: 2, md: 0 },
                     backgroundColor: "#FFFFFF",
-                    borderRadius: "16px",
-                    boxShadow: "0px 4px 20px rgba(0,0,0,0.08)",
+                    borderRadius: "20px",
+                    boxShadow: "0px 8px 32px rgba(0,0,0,0.10)",
                     width: "100%",
-                    maxWidth: "352px",
-                    minHeight: "376px",
+                    height: "392px",
                     display: "flex",
                     flexDirection: "column",
-                    p: 3,
+                    p: "32px",
                     boxSizing: "border-box",
+                    overflow: "hidden",
+                    transition: "box-shadow 0.3s ease",
+                    "&:hover": {
+                      boxShadow: "0px 16px 48px rgba(0,0,0,0.16)",
+                    },
                   }}
                 >
                   <Box
@@ -45,8 +47,9 @@ const ReviewSwiper = ({ reviesData }) => {
                       display: "flex",
                       flexDirection: "row",
                       alignItems: "center",
-                      gap: "14px",
-                      mb: "16px",
+                      gap: "16px",
+                      mb: "20px",
+                      flexShrink: 0,
                     }}
                   >
                     <Box
@@ -71,9 +74,9 @@ const ReviewSwiper = ({ reviesData }) => {
                     <Box>
                       <Typography
                         sx={{
-                          color: "#111827",
+                          color: "#1A1A2E",
                           fontWeight: 700,
-                          fontSize: "16px",
+                          fontSize: "17px",
                           fontFamily: "Inter",
                           lineHeight: "1.3",
                         }}
@@ -86,25 +89,27 @@ const ReviewSwiper = ({ reviesData }) => {
                           fontSize: "13px",
                           fontFamily: "Inter",
                           lineHeight: "1.5",
-                          mt: "2px",
+                          mt: "3px",
                         }}
                       >
                         {item?.Job}
                       </Typography>
                     </Box>
                   </Box>
-
-                  <Box sx={{ mb: "14px" }}>
+                  <Box sx={{ mb: "16px", flexShrink: 0 }}>
                     <BasicRating ratings={item?.rating} />
                   </Box>
-
                   <Typography
                     sx={{
                       color: "#4B5563",
                       fontSize: "14px",
                       fontFamily: "Inter",
-                      lineHeight: "1.7",
+                      lineHeight: "1.75",
                       textAlign: "left",
+                      overflow: "hidden",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 5,
+                      WebkitBoxOrient: "vertical",
                     }}
                   >
                     {item?.Review}
