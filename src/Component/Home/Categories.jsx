@@ -36,7 +36,7 @@ const Categories = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ zIndex: 1, pt: 10, position: "relative" }}>
+    <Container maxWidth="xl" sx={{ zIndex: 1, pt: 10, position: "relative", px: { xs: 0, sm: 0, md: 0 }, overflow: "hidden" }}>
       <Typography
         sx={{
           color: "#4B5563",
