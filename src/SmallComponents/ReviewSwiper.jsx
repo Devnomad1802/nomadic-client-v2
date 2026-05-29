@@ -23,7 +23,7 @@ const ReviewSwiper = ({ reviesData }) => {
         >
           {reviesData &&
             reviesData?.map((item, index) => (
-              <SwiperSlide key={index} style={{ background: "none", height: "auto" }}>
+              <SwiperSlide key={index} style={{ background: "none" }}>
                 <Box
                   sx={{
                     backgroundColor: "#FFFFFF",
@@ -46,32 +46,49 @@ const ReviewSwiper = ({ reviesData }) => {
                     sx={{
                       display: "flex",
                       flexDirection: "row",
-                      alignItems: "center",
+                      alignItems: "flex-start",
                       gap: "16px",
-                      mb: "20px",
+                      mb: "24px",
                       flexShrink: 0,
                     }}
                   >
                     <Box
                       sx={{
-                        width: "64px",
-                        height: "64px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
                         flexShrink: 0,
-                        borderRadius: "50%",
-                        overflow: "hidden",
+                        gap: "10px",
                       }}
                     >
-                      <img
-                        src={`${item?.Profile_Image}`}
-                        alt={item?.Name}
-                        style={{
-                          height: "100%",
-                          width: "100%",
-                          objectFit: "cover",
+                      <Box
+                        sx={{
+                          width: "72px",
+                          height: "72px",
+                          borderRadius: "50%",
+                          overflow: "hidden",
                         }}
-                      />
+                      >
+                        <img
+                          src={`${item?.Profile_Image}`}
+                          alt={item?.Name}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Box>
+                      <BasicRating ratings={item?.rating} />
                     </Box>
-                    <Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        pt: "8px",
+                      }}
+                    >
                       <Typography
                         sx={{
                           color: "#1A1A2E",
@@ -89,15 +106,12 @@ const ReviewSwiper = ({ reviesData }) => {
                           fontSize: "13px",
                           fontFamily: "Inter",
                           lineHeight: "1.5",
-                          mt: "3px",
+                          mt: "4px",
                         }}
                       >
                         {item?.Job}
                       </Typography>
                     </Box>
-                  </Box>
-                  <Box sx={{ mb: "16px", flexShrink: 0 }}>
-                    <BasicRating ratings={item?.rating} />
                   </Box>
                   <Typography
                     sx={{
