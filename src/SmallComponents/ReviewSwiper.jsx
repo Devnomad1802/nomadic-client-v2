@@ -1,134 +1,115 @@
 /* eslint-disable react/prop-types */
 import "swiper/css";
 import "swiper/css/pagination";
-
 import "./styles.css";
-import { Container } from "@mui/material";
-import { comma } from "../Images";
-// import required modules
+import { Container, Box, Typography, useMediaQuery } from "@mui/material";
 import { Pagination, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Box, Typography, useMediaQuery } from "@mui/material";
 import BasicRating from "./Rating";
 
 const ReviewSwiper = ({ reviesData }) => {
   const matches = useMediaQuery("(min-width:900px)");
   return (
-    <Container
-      maxWidth="xl"
-      sx={{
-        py: { xs: 5, sm: 10, md: 10 },
-      }}
-    >
-
-
+    <Container maxWidth="xl" sx={{ py: { xs: 5, sm: 8, md: 8 } }}>
       <Box sx={{ color: "#fff" }}>
         <Swiper
           slidesPerView={matches ? 3 : 1}
-          spaceBetween={matches ? 10 : 20}
-          pagination={{
-            clickable: true,
-          }}
+          spaceBetween={matches ? 24 : 20}
+          pagination={{ clickable: true }}
           modules={[Pagination, Autoplay]}
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-          }}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
           className="mySwiper"
           style={{ color: "#000" }}
         >
           {reviesData &&
-            reviesData?.map((item, index) => {
-              return (
-                <SwiperSlide
-                  key={index}
-                  style={{
-                    background: "none",
-                    maxWidth: matches ? "100%" : "100%",
+            reviesData?.map((item, index) => (
+              <SwiperSlide key={index} style={{ background: "none" }}>
+                <Box
+                  sx={{
+                    mb: 6,
+                    mx: { xs: 2, md: 0 },
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: "16px",
+                    boxShadow: "0px 4px 20px rgba(0,0,0,0.08)",
+                    width: "100%",
+                    maxWidth: "352px",
+                    minHeight: "376px",
+                    display: "flex",
+                    flexDirection: "column",
+                    p: 3,
+                    boxSizing: "border-box",
                   }}
                 >
                   <Box
                     sx={{
-                      mb: 6,
-                      mx: { xs: 2, md: 0 },
-                      backgroundColor: "#FBFBFB",
-                      borderRadius: "30px",
-                      boxShadow:
-                        "0px 10px 15px -3px #0000001A, 0px 4px 6px 0px #0000000D",
-                      width: "100%",
-                      height: "329px",
                       display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
                       alignItems: "center",
+                      gap: "12px",
+                      mb: 2,
                     }}
                   >
-                    <Box sx={{ width: "81px", height: "54px" }}>
-                      <img src={comma} alt="" srcSet="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                    </Box>
-                    <Typography
-                      sx={{
-                        color: "#4B5563",
-                        p: 1,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 4,
-
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        lineHeight: "1.7",
-                        maxHeight: "6em", // 4 lines * 1.5 line-height
-                      }}
-                    >
-                      {item?.Review}
-                    </Typography>
-                    <Box sx={{ pt: 1 }}>
-
-                      <BasicRating ratings={item?.rating} />
-                    </Box>
                     <Box
                       sx={{
-                        height: "1px",
-                        background: "#E5E7EB",
-                        width: "80%",
-                        mx: "auto",
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        p: 5,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "0px 10px",
+                        width: "72px",
+                        height: "72px",
+                        flexShrink: 0,
                       }}
                     >
-                      <Box sx={{ width: "50px", height: "50px" }}>
-                        <img
-                          src={`${item?.Profile_Image}`}
-                          alt=""
-                          srcSet=""
-                          style={{
-                            height: "100%",
-                            width: "100%",
-                            objectFit: "cover",
-                            borderRadius: "50%",
-                          }}
-                        />
-                      </Box>
-                      <Box>
-                        <Typography sx={{ color: "#9CA3AF" }}>
-                          {item?.Name}
-                        </Typography>
-                        <Typography sx={{ color: "#D2D5DA", fontSize: { xs: "12px", md: "14px" } }}>
-                          {item?.Job}
-                        </Typography>
-                      </Box>
+                      <img
+                        src={`${item?.Profile_Image}`}
+                        alt={item?.Name}
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                          objectFit: "cover",
+                          borderRadius: "50%",
+                        }}
+                      />
+                    </Box>
+                    <Box>
+                      <Typography
+                        sx={{
+                          color: "#111827",
+                          fontWeight: 700,
+                          fontSize: "16px",
+                          fontFamily: "Inter",
+                          lineHeight: "1.4",
+                        }}
+                      >
+                        {item?.Name}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: "#6B7280",
+                          fontSize: "13px",
+                          fontFamily: "Inter",
+                        }}
+                      >
+                        {item?.Job}
+                      </Typography>
                     </Box>
                   </Box>
-                </SwiperSlide>
-              );
-            })}
+                  <Box sx={{ mb: 2 }}>
+                    <BasicRating ratings={item?.rating} />
+                  </Box>
+                  <Typography
+                    sx={{
+                      color: "#4B5563",
+                      fontSize: "14px",
+                      fontFamily: "Inter",
+                      lineHeight: "1.7",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 6,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {item?.Review}
+                  </Typography>
+                </Box>
+              </SwiperSlide>
+            ))}
         </Swiper>
       </Box>
     </Container>
