@@ -36,7 +36,7 @@ const Categories = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ zIndex: 1, pt: 10, position: "relative", px: { xs: 0, sm: 0, md: 0 }, overflow: "hidden" }}>
+    <Container maxWidth="xl" sx={{ zIndex: 1, pt: 10, position: "relative" }}>
       <Typography
         sx={{
           color: "#4B5563",
@@ -68,7 +68,12 @@ const Categories = () => {
         perfect adventure.
       </Typography>
 
-      <Box sx={{ position: "relative" }}>
+      <Box sx={{
+        position: "relative",
+        width: "100vw",
+        left: "50%",
+        transform: "translateX(-50%)",
+      }}>
         <Swiper
           effect="coverflow"
           grabCursor={true}
