@@ -1,7 +1,3 @@
-import AcUnitIcon from "@mui/icons-material/AcUnit";
-import GroupsIcon from "@mui/icons-material/Groups";
-import TerrainIcon from "@mui/icons-material/Terrain";
-import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
 import { Box, Button, Container, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -35,52 +31,54 @@ const Categories = () => {
     navigate(clink, { state: { item: cInfo } });
   };
 
+  const slides = categoriData.length > 0 && categoriData.length < 4
+    ? [...categoriData, ...categoriData].slice(0, 4)
+    : categoriData;
+
   return (
     <Box sx={{ zIndex: 1, pt: 10, position: "relative" }}>
-      <Container maxWidth="xl">
-      <Typography
-        sx={{
-          color: "#4B5563",
-          textAlign: "center",
-          fontFamily: "Playfair",
-          fontSize: { xs: "22px", sm: "28px", md: "28px", lg: "48px" },
-          fontWeight: "bold",
-          lineHeight: "140%",
-          mt: { xs: 2, md: 0 },
-        }}
-      >
-        Choose Your Adventure
-      </Typography>
-      <Typography
-        sx={{
-          maxWidth: "700px",
-          margin: "0 auto",
-          color: "#4B5563",
-          textAlign: "center",
-          fontFamily: "Inter",
-          fontSize: { xs: "16px", lg: "20px" },
-          fontWeight: "400",
-          lineHeight: "140%",
-          mb: { xs: 2, md: 5 },
-          mt: { xs: 2, md: 1 },
-        }}
-      >
-        From serene mountain treks to adrenaline-pumping expeditions, find your
-        perfect adventure.
-      </Typography>
 
-      <Box sx={{
-        position: "relative",
-        width: "100vw",
-        left: "50%",
-        transform: "translateX(-50%)",
-      }}>
+      <Container maxWidth="xl">
+        <Typography
+          sx={{
+            color: "#4B5563",
+            textAlign: "center",
+            fontFamily: "Playfair",
+            fontSize: { xs: "22px", sm: "28px", md: "28px", lg: "48px" },
+            fontWeight: "bold",
+            lineHeight: "140%",
+            mt: { xs: 2, md: 0 },
+          }}
+        >
+          Choose Your Adventure
+        </Typography>
+        <Typography
+          sx={{
+            maxWidth: "700px",
+            margin: "0 auto",
+            color: "#4B5563",
+            textAlign: "center",
+            fontFamily: "Inter",
+            fontSize: { xs: "16px", lg: "20px" },
+            fontWeight: "400",
+            lineHeight: "140%",
+            mb: { xs: 2, md: 5 },
+            mt: { xs: 2, md: 1 },
+          }}
+        >
+          From serene mountain treks to adrenaline-pumping expeditions, find your
+          perfect adventure.
+        </Typography>
+      </Container>
+
+      <Box sx={{ width: "100%", overflow: "hidden", py: 2 }}>
         <Swiper
           effect="coverflow"
           grabCursor={true}
           centeredSlides={true}
           slidesPerView="auto"
           loop={true}
+          loopedSlides={4}
           autoplay={{
             delay: 3500,
             disableOnInteraction: false,
@@ -97,7 +95,7 @@ const Categories = () => {
           modules={[EffectCoverflow, Autoplay, Pagination]}
           className="categories-swiper"
         >
-          {categoriData?.map((item, index) => (
+          {slides?.map((item, index) => (
             <SwiperSlide key={index}>
               <Box
                 onClick={() =>
@@ -114,7 +112,7 @@ const Categories = () => {
                 }}
               >
                 <img
-                  src={`${item?.Banner_Image}`}
+                  src={item?.Banner_Image}
                   alt={item?.Category}
                   style={{
                     width: "100%",
@@ -194,21 +192,23 @@ const Categories = () => {
       </Box>
 
       <Container maxWidth="xl">
-        <Box sx={{ textAlign: "center", mt: 4 }}>
+        <Box sx={{ textAlign: "center", mt: 2, mb: 4 }}>
           <Button
-          variant="simplebtn"
-          sx={{
-            backgroundColor: "#FF6B35",
-            color: "#fff",
-            px: 4,
-            py: 1.5,
-            "&:hover": { backgroundColor: "#E55A2B" },
-          }}
-        >
-          View All
-        </Button>
-      </Box>
-    </Container>
+            variant="simplebtn"
+            sx={{
+              backgroundColor: "#FF6B35",
+              color: "#fff",
+              px: 4,
+              py: 1.5,
+              "&:hover": { backgroundColor: "#E55A2B" },
+            }}
+          >
+            View All
+          </Button>
+        </Box>
+      </Container>
+
+    </Box>
   );
 };
 
