@@ -135,7 +135,22 @@ const Categories = () => {
           {categoriData?.map((item, index) => {
             const tripCount = getTripCount(item?.Category);
             return (
-              <SwiperSlide key={index} style={{ borderRadius: "20px" }}>
+              <SwiperSlide
+                key={index}
+                style={{
+                  borderRadius: "16px",
+                  boxShadow: "0px 8px 28px rgba(0,0,0,0.18)",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow = "0px 16px 40px rgba(0,0,0,0.26)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0px 8px 28px rgba(0,0,0,0.18)";
+                }}
+              >
                 <Box
                   onClick={() =>
                     CategoriesDetail(
@@ -147,14 +162,9 @@ const Categories = () => {
                     width: "100%",
                     height: "384px",
                     borderRadius: "16px",
-
                     position: "relative",
                     cursor: "pointer",
                     overflow: "hidden",
-                    "&:hover": {
-                      transform: "scale(1.02)",
-                      transition: "transform 0.3s ease",
-                    },
                   }}
                 >
                   {/* Background Image */}
