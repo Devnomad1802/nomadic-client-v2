@@ -36,7 +36,8 @@ const Categories = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ zIndex: 1, pt: 10, position: "relative" }}>
+    <Box sx={{ zIndex: 1, pt: 10, position: "relative" }}>
+      <Container maxWidth="xl">
       <Typography
         sx={{
           color: "#4B5563",
@@ -192,8 +193,9 @@ const Categories = () => {
         </Swiper>
       </Box>
 
-      <Box sx={{ textAlign: "center", mt: 4 }}>
-        <Button
+      <Container maxWidth="xl">
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <Button
           variant="simplebtn"
           sx={{
             backgroundColor: "#FF6B35",
