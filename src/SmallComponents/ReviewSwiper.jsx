@@ -11,48 +11,47 @@ const ReviewSwiper = ({ reviesData }) => {
   const matches = useMediaQuery("(min-width:900px)");
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 5, sm: 8, md: 8 } }}>
-      <Box sx={{ color: "#fff" }}>
+      <Box>
         <Swiper
           slidesPerView={matches ? 3 : 1}
-          spaceBetween={matches ? 24 : 20}
+          spaceBetween={16}
           pagination={{ clickable: true }}
           modules={[Pagination, Autoplay]}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           className="mySwiper"
-          style={{ color: "#000" }}
+          style={{ color: "#000", paddingBottom: "40px" }}
         >
           {reviesData &&
             reviesData?.map((item, index) => (
-              <SwiperSlide key={index} style={{ background: "none" }}>
+              <SwiperSlide key={index} style={{ background: "none", height: "auto" }}>
                 <Box
                   sx={{
-                    mb: 6,
-                    mx: { xs: 2, md: 0 },
                     backgroundColor: "#FFFFFF",
                     borderRadius: "16px",
-                    boxShadow: "0px 4px 20px rgba(0,0,0,0.08)",
+                    boxShadow: "0px 4px 16px rgba(0,0,0,0.08)",
                     width: "100%",
-                    maxWidth: "352px",
-                    minHeight: "376px",
                     display: "flex",
                     flexDirection: "column",
-                    p: 3,
+                    p: "24px",
                     boxSizing: "border-box",
+                    mb: "8px",
                   }}
                 >
                   <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "12px",
-                      mb: 2,
+                      gap: "14px",
+                      mb: "14px",
                     }}
                   >
                     <Box
                       sx={{
-                        width: "72px",
-                        height: "72px",
+                        width: "56px",
+                        height: "56px",
                         flexShrink: 0,
+                        borderRadius: "50%",
+                        overflow: "hidden",
                       }}
                     >
                       <img
@@ -62,7 +61,6 @@ const ReviewSwiper = ({ reviesData }) => {
                           height: "100%",
                           width: "100%",
                           objectFit: "cover",
-                          borderRadius: "50%",
                         }}
                       />
                     </Box>
@@ -71,9 +69,10 @@ const ReviewSwiper = ({ reviesData }) => {
                         sx={{
                           color: "#111827",
                           fontWeight: 700,
-                          fontSize: "16px",
+                          fontSize: "15px",
                           fontFamily: "Inter",
-                          lineHeight: "1.4",
+                          lineHeight: "1.3",
+                          mb: "2px",
                         }}
                       >
                         {item?.Name}
@@ -83,13 +82,14 @@ const ReviewSwiper = ({ reviesData }) => {
                           color: "#6B7280",
                           fontSize: "13px",
                           fontFamily: "Inter",
+                          lineHeight: "1.4",
                         }}
                       >
                         {item?.Job}
                       </Typography>
                     </Box>
                   </Box>
-                  <Box sx={{ mb: 2 }}>
+                  <Box sx={{ mb: "12px" }}>
                     <BasicRating ratings={item?.rating} />
                   </Box>
                   <Typography
@@ -98,11 +98,7 @@ const ReviewSwiper = ({ reviesData }) => {
                       fontSize: "14px",
                       fontFamily: "Inter",
                       lineHeight: "1.7",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 6,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      textAlign: "left",
                     }}
                   >
                     {item?.Review}
