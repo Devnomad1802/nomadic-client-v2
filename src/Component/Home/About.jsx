@@ -15,6 +15,7 @@ const About = ({ aboutSection }) => {
       sx={{
         position: "relative",
         py: { xs: 6, md: 10 },
+        mt: { xs: 4, md: 8 },
         width: "100%",
         backgroundImage: `url(${aboutSection})`,
         backgroundPosition: { xs: "center", md: "left" },
