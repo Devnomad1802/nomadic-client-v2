@@ -42,6 +42,7 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
       <FirstSection homebg={homebg} toggle={toggle} homeVideo={homeVideo} />
       <ReviewsBanner />
       <UpcomingTrip />
+      <Categories />
       <Hidden mdDownDown>
         <Typography
           sx={{
@@ -83,7 +84,6 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
       </Hidden>
 
     
-      <Categories />
       <About aboutSection={aboutSection} />
       <Reviews />
       {/* <Hidden smDown>
