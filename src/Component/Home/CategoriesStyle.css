@@ -1,1 +1,60 @@
-404: Not Found
+.categories-swiper {
+  padding: 40px 20px 60px !important;
+  overflow: visible !important;
+}
+
+.categories-swiper .swiper-slide {
+  width: 320px !important;
+  height: 420px !important;
+  border-radius: 20px;
+  transition: all 0.5s ease !important;
+  filter: brightness(0.65) blur(1px);
+}
+
+.categories-swiper .swiper-slide-active {
+  filter: brightness(1) blur(0px) !important;
+  z-index: 2 !important;
+}
+
+.categories-swiper .swiper-slide-prev,
+.categories-swiper .swiper-slide-next {
+  filter: brightness(0.75) blur(0.5px) !important;
+}
+
+.categories-swiper .swiper-button-next,
+.categories-swiper .swiper-button-prev {
+  display: none !important;
+}
+
+.categories-swiper .swiper-pagination {
+  bottom: 12px !important;
+}
+
+.categories-swiper .swiper-pagination-bullet {
+  background: #CD482A;
+  opacity: 0.4;
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s ease;
+}
+
+.categories-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.categories-swiper .swiper-slide:not(.swiper-slide-active):hover {
+  filter: brightness(0.88) blur(0px) !important;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .categories-swiper {
+    padding: 20px 10px 50px !important;
+  }
+  .categories-swiper .swiper-slide {
+    width: 280px !important;
+    height: 360px !important;
+  }
+}

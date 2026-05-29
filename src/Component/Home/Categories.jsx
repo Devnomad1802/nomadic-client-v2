@@ -125,66 +125,84 @@ const Categories = () => {
                     left: 0,
                     right: 0,
                     height: "55%",
-                    background: "linear-gradient(transparent, rgb
+                    background: "linear-gradient(transparent, rgba(0,0,0,0.85))",
+                    borderRadius: "0 0 20px 20px",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "16px",
+                    right: "0px",
+                    backgroundColor: "#fff",
+                    borderRadius: "8px 0 0 8px",
+                    padding: "8px 12px",
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                    zIndex: 2,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "11px", color: "#4B5563", fontWeight: 500, lineHeight: 1 }}>
+                    Starting from:
+                  </Typography>
+                  <Typography sx={{ fontSize: "15px", color: "#CD482A", fontWeight: 700, lineHeight: 1.2, mt: 0.5 }}>
+                    ₹{parseInt(item?.Starting_From || 0).toLocaleString()}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: "24px",
+                    left: "20px",
+                    zIndex: 2,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontSize: "22px",
+                      fontWeight: 700,
+                      fontFamily: "Inter",
+                      textShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                      lineHeight: 1.2,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {item?.Category}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "rgba(255,255,255,0.85)",
+                      fontSize: "13px",
+                      fontFamily: "Inter",
+                      mt: "4px",
+                    }}
+                  >
+                    {getTripCount(item?.Category)} trips available
+                  </Typography>
+                </Box>
+              </Box>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </Box>
 
-cat > src/Component/Home/CategoriesStyle.css << 'EOF'
-.categories-swiper {
-  padding: 40px 20px 60px !important;
-  overflow: visible !important;
-}
+      <Box sx={{ textAlign: "center", mt: 4 }}>
+        <Button
+          variant="simplebtn"
+          sx={{
+            backgroundColor: "#FF6B35",
+            color: "#fff",
+            px: 4,
+            py: 1.5,
+            "&:hover": { backgroundColor: "#E55A2B" },
+          }}
+        >
+          View All
+        </Button>
+      </Box>
+    </Container>
+  );
+};
 
-.categories-swiper .swiper-slide {
-  width: 320px !important;
-  height: 420px !important;
-  border-radius: 20px;
-  transition: all 0.5s ease !important;
-  filter: brightness(0.65) blur(1px);
-}
-
-.categories-swiper .swiper-slide-active {
-  filter: brightness(1) blur(0px) !important;
-  z-index: 2 !important;
-}
-
-.categories-swiper .swiper-slide-prev,
-.categories-swiper .swiper-slide-next {
-  filter: brightness(0.75) blur(0.5px) !important;
-}
-
-.categories-swiper .swiper-button-next,
-.categories-swiper .swiper-button-prev {
-  display: none !important;
-}
-
-.categories-swiper .swiper-pagination {
-  bottom: 12px !important;
-}
-
-.categories-swiper .swiper-pagination-bullet {
-  background: #CD482A;
-  opacity: 0.4;
-  width: 8px;
-  height: 8px;
-  transition: all 0.3s ease;
-}
-
-.categories-swiper .swiper-pagination-bullet-active {
-  opacity: 1;
-  width: 24px;
-  border-radius: 4px;
-}
-
-.categories-swiper .swiper-slide:not(.swiper-slide-active):hover {
-  filter: brightness(0.88) blur(0px) !important;
-  cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .categories-swiper {
-    padding: 20px 10px 50px !important;
-  }
-  .categories-swiper .swiper-slide {
-    width: 280px !important;
-    height: 360px !important;
-  }
-}
+export default Categories;
