@@ -31,8 +31,8 @@ const Categories = () => {
     navigate(clink, { state: { item: cInfo } });
   };
 
-  const slides = categoriData.length > 0 && categoriData.length < 4
-    ? [...categoriData, ...categoriData].slice(0, 4)
+  const slides = categoriData.length > 0 && categoriData.length < 5
+    ? [...categoriData, ...categoriData, ...categoriData].slice(0, Math.max(5, categoriData.length))
     : categoriData;
 
   return (
@@ -78,9 +78,8 @@ const Categories = () => {
           centeredSlides={true}
           slidesPerView="auto"
           loop={true}
-          loopedSlides={4}
           autoplay={{
-            delay: 3500,
+            delay: 2000,
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
