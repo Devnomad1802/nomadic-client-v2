@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
-import { Navigation } from "swiper/modules";
+import { Navigation, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import "./CategoriesStyle.css";
@@ -105,13 +105,14 @@ const Categories = () => {
 
       <Box sx={{ position: "relative" }}>
         <Swiper loop={true}
+          autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           navigation={{
             nextEl: ".categories-swiper-button-next",
             prevEl: ".categories-swiper-button-prev",
           }}
-          modules={[Navigation]}
+          modules={[Navigation, Autoplay]}
           spaceBetween={16}
-          slidesPerView={4}
+          slidesPerView={3}
           breakpoints={{
             320: {
               slidesPerView: 1,
@@ -122,11 +123,11 @@ const Categories = () => {
               spaceBetween: 14,
             },
             1024: {
-              slidesPerView: 4,
+              slidesPerView: 3,
               spaceBetween: 16,
             },
             1280: {
-              slidesPerView: 4.5,
+              slidesPerView: 3,
               spaceBetween: 16,
             },
           }}
