@@ -104,7 +104,7 @@ const Categories = () => {
       </Typography>
 
       <Box sx={{ position: "relative" }}>
-        <Swiper
+        <Swiper loop={true}
           navigation={{
             nextEl: ".categories-swiper-button-next",
             prevEl: ".categories-swiper-button-prev",
