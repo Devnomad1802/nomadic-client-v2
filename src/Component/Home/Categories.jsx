@@ -108,7 +108,9 @@ const Categories = () => {
                   position: "relative",
                   cursor: "pointer",
                   overflow: "hidden",
-                  boxShadow: "0px 12px 40px rgba(0,0,0,0.30)", transition: "transform 0.3s ease, box-shadow 0.3s ease", "&:hover": { transform: "translateY(-8px)", boxShadow: "0px 20px 50px rgba(0,0,0,0.45)" },
+                  boxShadow: "0px 12px 40px rgba(0,0,0,0.30)",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": { transform: "translateY(-8px)", boxShadow: "0px 20px 50px rgba(0,0,0,0.45)" },
                 }}
               >
                 <img
