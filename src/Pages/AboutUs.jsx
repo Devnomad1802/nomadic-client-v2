@@ -258,10 +258,6 @@ const AboutUs = ({ aboutbg }) => {
               width: "100%",
               maxWidth: "100%",
               minHeight: { xs: "600px", md: "600px" },
-              backgroundImage: `url(${aboutbg1})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
               display: "flex",
               alignItems: "center",
               py: { xs: 6, md: 10 },
@@ -281,6 +277,7 @@ const AboutUs = ({ aboutbg }) => {
               },
             }}
           >
+            <img src={aboutbg1} alt="" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, borderRadius: "inherit" }} />
             <Container
               maxWidth="xl"
               sx={{
@@ -534,11 +531,6 @@ const AboutUs = ({ aboutbg }) => {
               position: "relative",
               width: "100%",
               minHeight: { xs: "500px", sm: "600px", md: "600px" },
-              backgroundImage: `url(${aboutbg2})`,
-              backgroundColor: "#1a1a2e",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
               display: "flex",
               alignItems: "center",
               py: { xs: 6, md: 10 },
@@ -558,6 +550,7 @@ const AboutUs = ({ aboutbg }) => {
               },
             }}
           >
+            <img src={aboutbg2} alt="" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0, borderRadius: "inherit" }} />
             <Container maxWidth="xl" sx={{ position: "relative", zIndex: 2, px: 0 }}>
               <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
                 {/* Left Column - Main Headline */}
