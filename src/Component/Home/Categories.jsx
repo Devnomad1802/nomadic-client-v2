@@ -1,15 +1,21 @@
 import AcUnitIcon from "@mui/icons-material/AcUnit";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import GroupsIcon from "@mui/icons-material/Groups";
 import TerrainIcon from "@mui/icons-material/Terrain";
 import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
-import { Box, Button, Container, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Typography
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "swiper/css";
-import "swiper/css/effect-coverflow";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { Autoplay, EffectCoverflow, Navigation, Pagination } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import "./CategoriesStyle.css";
@@ -20,16 +26,42 @@ const Categories = () => {
   const [categoriData, setCategoriData] = useState([]);
 
   useEffect(() => {
-    if (data?.data) setCategoriData(data.data);
+    if (data?.data) {
+      setCategoriData(data.data);
+    }
   }, [data]);
 
+  const getCategoryIcon = (categoryName) => {
+    const name = categoryName?.toLowerCase();
+    if (name?.includes("trek") || name?.includes("himalayan"))
+      return <TerrainIcon />;
+    if (name?.includes("snow") || name?.includes("winter"))
+      return <AcUnitIcon />;
+    if (name?.includes("motorcycle") || name?.includes("bike"))
+      return <TwoWheelerIcon />;
+    if (name?.includes("group") || name?.includes("adventure"))
+      return <GroupsIcon />;
+    return <GroupsIcon />; // Default icon
+  };
+
   const getTripCount = (categoryName) => {
-    const counts = { trek: 12, himalayan: 12, snow: 8, winter: 8, motorcycle: 6, bike: 6, group: 15, adventure: 15 };
+    // You can replace this with actual trip count from your data
+    const counts = {
+      trek: 12,
+      himalayan: 12,
+      snow: 8,
+      winter: 8,
+      motorcycle: 6,
+      bike: 6,
+      group: 15,
+      adventure: 15,
+    };
+
     const name = categoryName?.toLowerCase();
     for (const [key, count] of Object.entries(counts)) {
       if (name?.includes(key)) return count;
     }
-    return 10;
+    return 10; // Default count
   };
 
   const CategoriesDetail = (cInfo, clink) => {
@@ -43,7 +75,8 @@ const Categories = () => {
           color: "#4B5563",
           textAlign: "center",
           fontFamily: "Playfair",
-          fontSize: { xs: "22px", sm: "28px", md: "28px", lg: "48px" },
+          fontSize: { xs: "22px", sm: "28px", md: "28px",lg:"48px" },
+          fontStyle: "normal",
           fontWeight: "bold",
           lineHeight: "140%",
           mt: { xs: 2, md: 0 },
@@ -58,7 +91,8 @@ const Categories = () => {
           color: "#4B5563",
           textAlign: "center",
           fontFamily: "Inter",
-          fontSize: { xs: "16px", lg: "20px" },
+          fontSize: { xs: "16px",lg:"20px" },
+          fontStyle: "normal",
           fontWeight: "400",
           lineHeight: "140%",
           mb: { xs: 2, md: 5 },
@@ -71,139 +105,224 @@ const Categories = () => {
 
       <Box sx={{ position: "relative" }}>
         <Swiper
-          effect="coverflow"
-          grabCursor={true}
-          centeredSlides={true}
-          slidesPerView={3}
-          loop={true}
-          autoplay={{
-            delay: 3500,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
+          navigation={{
+            nextEl: ".categories-swiper-button-next",
+            prevEl: ".categories-swiper-button-prev",
           }}
-          coverflowEffect={{
-            rotate: 18,
-            stretch: 0,
-            depth: 120,
-            modifier: 1,
-            slideShadows: false,
+          modules={[Navigation]}
+          spaceBetween={16}
+          slidesPerView={4}
+          breakpoints={{
+            320: {
+              slidesPerView: 1,
+              spaceBetween: 12,
+            },
+            640: {
+              slidesPerView: 2,
+              spaceBetween: 14,
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 16,
+            },
+            1280: {
+              slidesPerView: 4.5,
+              spaceBetween: 16,
+            },
           }}
-          pagination={{ clickable: true }}
-          loopAdditionalSlides={3}
-          navigation={true}
-          modules={[EffectCoverflow, Autoplay, Navigation, Pagination]}
           className="categories-swiper"
         >
-          {categoriData?.map((item, index) => (
-            <SwiperSlide key={index}>
-              <Box
-                onClick={() =>
-                  CategoriesDetail(item, `/CategorieDetails/${item?.Category}`)
-                }
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: "20px",
-                  position: "relative",
-                  cursor: "pointer",
-                  overflow: "hidden",
-                  boxShadow: "0px 12px 40px rgba(0,0,0,0.30)",
-                }}
-              >
-                <img
-                  src={`${item?.Banner_Image}`}
-                  alt={item?.Category}
-                  style={{
+          {categoriData?.map((item, index) => {
+            const tripCount = getTripCount(item?.Category);
+            return (
+              <SwiperSlide key={index} style={{ borderRadius: "20px" }}>
+                <Box
+                  onClick={() =>
+                    CategoriesDetail(
+                      item,
+                      `/CategorieDetails/${item?.Category}`
+                    )
+                  }
+                  sx={{
                     width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    borderRadius: "20px",
-                    display: "block",
-                  }}
-                />
-                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: "55%",
-                    background: "linear-gradient(transparent, rgba(0,0,0,0.85))",
-                    borderRadius: "0 0 20px 20px",
-                  }}
-                />
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "16px",
-                    right: "0px",
-                    backgroundColor: "#fff",
-                    borderRadius: "8px 0 0 8px",
-                    padding: "8px 12px",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-                    zIndex: 2,
-                  }}
-                >
-                  <Typography sx={{ fontSize: "11px", color: "#4B5563", fontWeight: 500, lineHeight: 1 }}>
-                    Starting from:
-                  </Typography>
-                  <Typography sx={{ fontSize: "15px", color: "#CD482A", fontWeight: 700, lineHeight: 1.2, mt: 0.5 }}>
-                    ₹{parseInt(item?.Starting_From || 0).toLocaleString()}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: "24px",
-                    left: "20px",
-                    zIndex: 2,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#fff",
-                      fontSize: "22px",
-                      fontWeight: 700,
-                      fontFamily: "Inter",
-                      textShadow: "0 2px 8px rgba(0,0,0,0.6)",
-                      lineHeight: 1.2,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                    }}
-                  >
-                    {item?.Category}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: "rgba(255,255,255,0.85)",
-                      fontSize: "13px",
-                      fontFamily: "Inter",
-                      mt: "4px",
-                    }}
-                  >
-                    {getTripCount(item?.Category)} trips available
-                  </Typography>
-                </Box>
-              </Box>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </Box>
+                    height: "384px",
+                    borderRadius: "16px",
 
-      <Box sx={{ textAlign: "center", mt: 4 }}>
-        <Button
-          variant="simplebtn"
+                    position: "relative",
+                    cursor: "pointer",
+                    overflow: "hidden",
+                    "&:hover": {
+                      transform: "scale(1.02)",
+                      transition: "transform 0.3s ease",
+                    },
+                  }}
+                >
+                  {/* Background Image */}
+                  <img
+                    src={`${item?.Banner_Image}`}
+                    alt={item?.Category}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "16px",
+                    }}
+                  />
+
+                  {/* Gradient Overlay */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: "50%",
+                      background:
+                        "linear-gradient(transparent, rgba(0,0,0,0.8))",
+                      borderRadius: "0 0 16px 16px",
+                    }}
+                  />
+
+                  {/* Price Tag - Top Right */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "16px",
+                      right: "0px",
+                      backgroundColor: "#fff",
+                      borderRadius: "8px 0px 0px 8px",
+                      padding: "8px 12px",
+                      boxShadow: "0 2px 50px rgba(0,0,0,0.15)",
+                      zIndex: 2,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: "12px",
+                        color: "#4B5563",
+                        fontWeight: "500",
+                        lineHeight: 1,
+                      }}
+                    >
+                      Starting from:
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "16px",
+                        color: "#CD482A",
+                        fontWeight: "700",
+                        lineHeight: 1.2,
+                        mt: 0.5,
+                      }}
+                    >
+                      ₹{parseInt(item?.Starting_From || 0).toLocaleString()}
+                    </Typography>
+                  </Box>
+
+                  {/* Category Title and Subtitle - Bottom Left */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: "50px",
+                      left: "20px",
+                      zIndex: 2,
+                
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: "#fff",
+                        fontSize: "20px",
+                        fontWeight: "700",
+                        fontFamily: "Inter",
+                        textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+                        lineHeight: 1.2,
+                        mb: 0.5,
+                        textTransform:"uppercase"
+                      }}
+                    >
+                      {item?.Category}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: "#fff",
+                        fontSize: "14px",
+                        fontWeight: "400",
+                        fontFamily: "Inter",
+                        textShadow: "0 1px 2px rgba(0,0,0,0.8)",
+                        lineHeight: 1.3,
+                        opacity: 0.9,
+                      }}
+                    >
+                      {/* Adrenaline-pumping experiences */}
+                    </Typography>
+                  </Box>
+                </Box>
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
+
+        {/* Custom Navigation Arrows */}
+        <IconButton
+          className="categories-swiper-button-prev"
           sx={{
-            backgroundColor: "#FF6B35",
-            color: "#fff",
-            px: 4,
-            py: 1.5,
-            "&:hover": { backgroundColor: "#E55A2B" },
+            position: "absolute",
+            left: "-15px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 3,
+            backgroundColor: "#fff",
+            color: "#333",
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            "&:hover": {
+              backgroundColor: "#f5f5f5",
+            },
           }}
         >
-          View All
-        </Button>
+          <ArrowBackIosIcon sx={{ fontSize: "14px" }} />
+        </IconButton>
+
+        <IconButton
+          className="categories-swiper-button-next"
+          sx={{
+            position: "absolute",
+            right: "-15px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 3,
+            backgroundColor: "#fff",
+            color: "#333",
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            "&:hover": {
+              backgroundColor: "#f5f5f5",
+            },
+          }}
+        >
+          <ArrowForwardIosIcon sx={{ fontSize: "14px" }} />
+        </IconButton>
       </Box>
+
+      <Button
+        variant="simplebtn"
+        sx={{
+          mt: 5,
+          zIndex: 1,
+          backgroundColor: "#FF6B35",
+          color: "#fff",
+          "&:hover": {
+            backgroundColor: "#E55A2B",
+          },
+        }}
+      >
+        View All
+      </Button>
     </Container>
   );
 };
