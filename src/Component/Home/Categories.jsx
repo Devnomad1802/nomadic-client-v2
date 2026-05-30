@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
-import { Autoplay, EffectCoverflow, Pagination } from "swiper/modules";
+import "swiper/css/navigation";
+import { Autoplay, EffectCoverflow, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import "./CategoriesStyle.css";
@@ -88,7 +89,9 @@ const Categories = () => {
             slideShadows: false,
           }}
           pagination={{ clickable: true }}
-          modules={[EffectCoverflow, Autoplay, Pagination]}
+          loopAdditionalSlides={3}
+          navigation={true}
+          modules={[EffectCoverflow, Autoplay, Navigation, Pagination]}
           className="categories-swiper"
         >
           {categoriData?.map((item, index) => (

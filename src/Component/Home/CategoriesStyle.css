@@ -23,7 +23,19 @@
 
 .categories-swiper .swiper-button-next,
 .categories-swiper .swiper-button-prev {
-  display: none !important;
+  color: #CD482A !important;
+  background: rgba(255,255,255,0.92);
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50%;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  top: 45% !important;
+}
+
+.categories-swiper .swiper-button-next::after,
+.categories-swiper .swiper-button-prev::after {
+  font-size: 16px !important;
+  font-weight: 800;
 }
 
 .categories-swiper .swiper-pagination {
