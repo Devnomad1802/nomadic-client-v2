@@ -276,7 +276,7 @@ const AboutUs = ({ aboutbg }) => {
                 right: 0,
                 bottom: 0,
                 background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 100%)",
+                  "linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.35) 100%)",
                 zIndex: 1,
               },
             }}
@@ -535,6 +535,7 @@ const AboutUs = ({ aboutbg }) => {
               width: "100%",
               minHeight: { xs: "500px", sm: "600px", md: "600px" },
               backgroundImage: `url(${aboutbg2})`,
+              backgroundColor: "#1a1a2e",
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -552,7 +553,7 @@ const AboutUs = ({ aboutbg }) => {
                 right: 0,
                 bottom: 0,
                 background:
-                  "linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%)",
+                  "linear-gradient(135deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.3) 100%)",
                 zIndex: 1,
               },
             }}
