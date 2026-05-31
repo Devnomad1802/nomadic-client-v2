@@ -40,7 +40,7 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
   return (
     <Box>
       <FirstSection homebg={homebg} toggle={toggle} homeVideo={homeVideo} />
-      <ReviewsBanner />
+      {/* <ReviewsBanner /> */}
       <UpcomingTrip />
       <Categories />
       <Hidden mdDownDown>
