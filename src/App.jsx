@@ -9,6 +9,7 @@ import BookingOverview from "./Payment/BookingOverview";
 import Paymentfail from "./Payment/PaymentFail";
 import Paymentsuccess from "./Payment/Paymentsuccess";
 import { useGetAllBannerQuery } from "./services";
+import CompleteProfile from "./Pages/CompleteProfile";
 import GoogleAuthSuccess from "./Pages/GoogleAuthSuccess";
 import Emailvarification from "./SmallComponents/Emailvarification";
 import Loading from "./SmallComponents/Loading";
@@ -66,6 +67,7 @@ function App() {
               path="/all_Packages"
               element={<AllPackages allpkgbg={bannerData[0]?.allPakeges} />}
             />
+            <Route path="/complete-profile" element={<CompleteProfile />} />
             <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
             <Route path="/email-verification" element={<Emailvarification />} />
             <Route
