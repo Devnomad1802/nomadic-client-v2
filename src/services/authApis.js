@@ -76,6 +76,21 @@ const authApis = api.injectEndpoints({
         body: { token, password },
       }),
     }),
+
+    sendEmailOtp: builder.mutation({
+      query: ({ email }) => ({
+        url: "/auth/send-email-otp",
+        method: "POST",
+        body: { email },
+      }),
+    }),
+    verifyEmailOtp: builder.mutation({
+      query: ({ email, otp }) => ({
+        url: "/auth/verify-email-otp",
+        method: "POST",
+        body: { email, otp },
+      }),
+    }),
   }),
 });
 
@@ -90,4 +105,6 @@ export const {
   useChangePassMutation,
   useSendSmsCodeMutation,
   usePhoneLoginMutation,
+  useSendEmailOtpMutation,
+  useVerifyEmailOtpMutation,
 } = authApis;
