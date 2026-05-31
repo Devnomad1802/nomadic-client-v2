@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { useGetTeamMembersQuery } from "../services";
 import Footer from "../Component/Footer";
 import { locationiocn, about1, about2, about3, about4, about5, about6, about7, about8, travelicon, earthicon, budgtfriendlyIcon } from "../assets/LandingPage/index.js";
-const aboutbg1 = "https://nomadic-townies-assets.sgp1.digitaloceanspaces.com/about-images/aboutbg1.png";
-const aboutbg2 = "https://nomadic-townies-assets.sgp1.digitaloceanspaces.com/about-images/aboutbg2.png";
+const aboutbg1 = "https://nomadic-townies-assets.sgp1.cdn.digitaloceanspaces.com/about-images/aboutbg1.jpg";
+const aboutbg2 = "https://nomadic-townies-assets.sgp1.cdn.digitaloceanspaces.com/about-images/aboutbg2.png";
 import Marquee from "react-fast-marquee";
 import { aboutBannerbg } from "../Images";
 
