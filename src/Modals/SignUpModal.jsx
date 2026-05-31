@@ -13,7 +13,7 @@ import { useState, useCallback } from "react";
 import Loading from "../SmallComponents/Loading";
 import Toastify from "../SmallComponents/Tostify";
 import { useSendEmailOtpMutation, useVerifyEmailOtpMutation, useRegisterUserMutation } from "../services/authApis";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUserDbData } from "../slices";
 import { useNavigate } from "react-router-dom";
 import AuthCode from "react-auth-code-input";
@@ -27,12 +27,13 @@ Transition.displayName = "Transition";
 export default function SignUpModal({ opens, setOpens }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user?.userData);
   const handleClose = () => setOpens(false);
 
   const [openL, setOpenL] = useState(false);
   const [sendEmailOtp] = useSendEmailOtpMutation();
   const [verifyEmailOtp] = useVerifyEmailOtpMutation();
-  const [register] = useRegisterUserMutation();
+  
 
   const [step, setStep] = useState(1); // 1=email, 2=otp, 3=details
   const [email, setEmail] = useState("");
@@ -87,9 +88,14 @@ export default function SignUpModal({ opens, setOpens }) {
     if (!name) return showToast("Please enter your name", "error");
     try {
       setLoading(true);
-      const res = await register({ name, email, phone, password: "otp-user-" + Date.now() }).unwrap();
-      localStorage.setItem("token", res.token);
-      dispatch(setUserDbData(res.user || { name, email, phone }));
+      const token = localStorage.getItem("token");
+      const res = await fetch(baseUrl + "/auth/editUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+        body: JSON.stringify({ userId: user?._id, name, phone }),
+      });
+      const data = await res.json();
+      dispatch(setUserDbData({ ...user, name, phone }));
       showToast("Account created!", "success");
       setLoading(false);
       setTimeout(() => { setOpens(false); navigate("/"); }, 1000);
