@@ -274,7 +274,7 @@ const AboutUs = ({ aboutbg }) => {
                 right: 0,
                 bottom: 0,
                 background:
-                  "linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.35) 100%)",
+                  "linear-gradient(135deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%)",
                 zIndex: 1,
               },
             }}
@@ -311,7 +311,7 @@ const AboutUs = ({ aboutbg }) => {
                       fontSize: { xs: "14px", sm: "15px", md: "16px" },
                       fontWeight: 400,
                       lineHeight: "160%",
-                      color: "#1F2937",
+                      color: "#FFFFFF",
                       textAlign: "left",
                       mb: 2,
                     }}
@@ -325,7 +325,7 @@ const AboutUs = ({ aboutbg }) => {
                       fontSize: { xs: "14px", sm: "15px", md: "16px" },
                       fontWeight: 400,
                       lineHeight: "160%",
-                      color: "#1F2937",
+                      color: "#FFFFFF",
                       textAlign: "left",
                     }}
                   >
@@ -343,7 +343,7 @@ const AboutUs = ({ aboutbg }) => {
                       fontSize: { xs: "24px", sm: "32px", md: "40px" },
                       fontWeight: 700,
                       lineHeight: "120%",
-                      color: "#1F2937",
+                      color: "#FFFFFF",
                       mb: 3,
                       textAlign: "left",
                     }}
@@ -356,7 +356,7 @@ const AboutUs = ({ aboutbg }) => {
                       fontSize: { xs: "14px", sm: "15px", md: "16px" },
                       fontWeight: 400,
                       lineHeight: "160%",
-                      color: "#1F2937",
+                      color: "#FFFFFF",
                       textAlign: "left",
                     }}
                   >
