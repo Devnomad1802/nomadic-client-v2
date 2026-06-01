@@ -5,6 +5,7 @@ import {
   IconButton, Slide, TextField,
 } from "@mui/material";
 import { google } from "../assets/LandingPage";
+import { signUpbg } from "../Images";
 import { inputStyle } from "../Pages/ContactUs";
 import PhoneNumber from "../SmallComponents/PhoneNumber";
 import CloseIcon from "@mui/icons-material/Close";
@@ -112,7 +113,7 @@ export default function SignUpModal({ opens, setOpens }) {
   }, [activeMethod, email, phone, otpCode, verifyEmailOtp, verifySmsCode, dispatch, navigate]);
 
   const handleGoogleLogin = () => {
-    window.location.href = baseUrl.replace("/api", "") + "/api/auth/auth/google";
+    window.location.href = baseUrl.replace("/api", "") + "/api/auth/google";
   };
 
   const tabBtnSx = (active) => ({
@@ -147,20 +148,27 @@ export default function SignUpModal({ opens, setOpens }) {
 
       <Grid container sx={{ display: "flex", justifyContent: "space-between" }}>
         <Hidden mdDown>
-          <Grid item xs={12} md={5.5}>
-            <Box sx={{
-              height: "100%", minHeight: "500px", width: "100%", borderRadius: "16px",
-              overflow: "hidden",
-              background: "linear-gradient(135deg, #1F2937 0%, #374151 100%)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexDirection: "column", p: 4,
-            }}>
-              <Typography sx={{ color: "#fff", fontSize: "28px", fontWeight: 700, textAlign: "center", mb: 2 }}>
-                Join Nomadic Townies
-              </Typography>
-              <Typography sx={{ color: "rgba(255,255,255,0.85)", fontSize: "16px", textAlign: "center", lineHeight: 1.6 }}>
-                Discover handpicked trips, retreats, and adventures crafted for modern explorers.
-              </Typography>
+          <Grid item xs={12} md={5.5} sx={{ height: "auto" }}>
+            <Box sx={{ height: "500px", width: "100%", position: "relative" }}>
+              <Box sx={{
+                width: "80%", position: "absolute", left: "50%", top: "40%",
+                transform: "translate(-50%, -50%)",
+                display: "flex", justifyContent: "center",
+                flexDirection: "column", gap: "12px 0px", textAlign: "center",
+              }}>
+                <Typography sx={{ fontSize: "40px", lineHeight: 1 }}>{"“”"}</Typography>
+                <Typography sx={{ color: "#4B5563", fontSize: "15px" }}>
+                  I had a Kasol Tosh Solo with NT, everything was well arranged.
+                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "center", gap: "2px" }}>
+                  {"⭐⭐⭐⭐".split("").map((s, i) => (
+                    <span key={i} style={{ fontSize: "18px" }}>{s}</span>
+                  ))}
+                  <span style={{ fontSize: "18px", opacity: 0.3 }}>{"⭐"}</span>
+                </Box>
+                <Typography sx={{ color: "#CD482A", fontSize: "14px" }}>John Doe</Typography>
+              </Box>
+              <img src={signUpbg} alt="" style={{ height: "100%", width: "100%", objectFit: "cover" }} />
             </Box>
           </Grid>
         </Hidden>

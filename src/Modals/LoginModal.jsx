@@ -131,7 +131,7 @@ export default function LoginModal({ openL, setOpenL, setOpens }) {
   }, [phone, otpCode, verifyCode, dispatch, navigate, setOpenL]);
 
   const handleGoogleLogin = () => {
-    window.location.href = baseUrl.replace("/api", "") + "/api/auth/auth/google";
+    window.location.href = baseUrl.replace("/api", "") + "/api/auth/google";
   };
 
   return (
