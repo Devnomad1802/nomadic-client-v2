@@ -14,8 +14,6 @@ const CompleteProfile = () => {
   const user = useSelector((state) => state.global.userDbData);
 
   const [name, setName] = useState(user?.name || "");
-  const [phone, setPhone] = useState(user?.phone || "");
-  const [gender, setGender] = useState(user?.gender || "");
   const [loading, setLoading] = useState(false);
   const [alertState, setAlertState] = useState({ open: false, message: "", severity: undefined });
   const showToast = (msg, type) => setAlertState({ open: true, message: msg, severity: type });
@@ -29,11 +27,11 @@ const CompleteProfile = () => {
       const res = await fetch(baseUrl + "/auth/editUser", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-        body: JSON.stringify({ userId: user?._id, name, ...(phone?.trim()?.length > 4 ? { phone } : {}), gender }),
+        body: JSON.stringify({ userId: user?._id, name }),
       });
       const data = await res.json();
       if (data.success) {
-        dispatch(setUserDbData({ ...user, name, ...(phone?.trim()?.length > 4 ? { phone } : {}), gender }));
+        dispatch(setUserDbData({ ...user, name }));
         showToast("Profile updated!", "success");
         setTimeout(() => navigate("/"), 1000);
       } else {
@@ -44,7 +42,7 @@ const CompleteProfile = () => {
       showToast("Something went wrong", "error");
       setLoading(false);
     }
-  }, [name, phone, gender, user, dispatch, navigate]);
+  }, [name, user, dispatch, navigate]);
 
   return (
     <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f9f9f9" }}>
@@ -56,7 +54,7 @@ const CompleteProfile = () => {
             Set up your Account
           </Typography>
           <Typography sx={{ fontSize: "16px", color: "#6B7280", mb: 4 }}>
-            Just a few details to get you started
+            Just one detail to get you started
           </Typography>
           <form onSubmit={handleSubmit}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: "20px 0px" }}>
@@ -68,16 +66,6 @@ const CompleteProfile = () => {
               <Box>
                 <Typography sx={{ color: "#737373", textAlign: "left", mb: 1 }}>Email</Typography>
                 <TextField sx={inputStyle} size="small" value={user?.email || ""} disabled />
-              </Box>
-              <Box>
-                <Typography sx={{ color: "#737373", textAlign: "left", mb: 1 }}>Phone</Typography>
-                <TextField sx={inputStyle} size="small" placeholder="+91 9876543210"
-                  value={phone} onChange={(e) => setPhone(e.target.value)} />
-              </Box>
-              <Box>
-                <Typography sx={{ color: "#737373", textAlign: "left", mb: 1 }}>Gender</Typography>
-                <TextField sx={inputStyle} size="small" placeholder="Male / Female / Other"
-                  value={gender} onChange={(e) => setGender(e.target.value)} />
               </Box>
             </Box>
             <Button type="submit" variant="simplebtn" sx={{
