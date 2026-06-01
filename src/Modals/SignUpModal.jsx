@@ -12,7 +12,7 @@ import LoginModal from "./LoginModal";
 import { useState, useCallback } from "react";
 import Loading from "../SmallComponents/Loading";
 import Toastify from "../SmallComponents/Tostify";
-import { useSendEmailOtpMutation, useVerifyEmailOtpMutation, useRegisterUserMutation } from "../services/authApis";
+import { useSendEmailOtpMutation, useVerifyEmailOtpMutation } from "../services/authApis";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserDbData } from "../slices";
 import { useNavigate } from "react-router-dom";
@@ -103,7 +103,7 @@ export default function SignUpModal({ opens, setOpens }) {
       showToast(err?.data?.message || "Registration failed", "error");
       setLoading(false);
     }
-  }, [name, email, phone, register, dispatch, navigate, setOpens]);
+  }, [name, email, phone, dispatch, navigate, setOpens]);
 
   const handleGoogleLogin = () => {
     window.location.href = baseUrl.replace("/api", "") + "/api/auth/auth/google";
