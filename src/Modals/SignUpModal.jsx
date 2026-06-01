@@ -80,7 +80,7 @@ export default function SignUpModal({ opens, setOpens }) {
         const res = await sendEmailOtp({ email }).unwrap();
         showToast(res.message || "OTP sent!", "success");
       } else {
-        if (!phone) { showToast("Please enter phone number", "error"); return; }
+        if (!phone || phone.length <= 4) { showToast("Please enter a valid phone number", "error"); return; }
         const res = await phoneLogin({ phone }).unwrap();
         showToast(res?.message || "OTP sent!", "success");
       }
@@ -196,7 +196,10 @@ export default function SignUpModal({ opens, setOpens }) {
                 {activeMethod === "Mobile" ? (
                   <Box>
                     <Typography sx={{ color: "#737373", textAlign: "left", mb: 1 }}>Mobile Number</Typography>
-                    <PhoneNumber setRegisterData={setPhone} registerData={phone} />
+                    <PhoneNumber
+                      setRegisterData={(data) => setPhone(data?.phone || "")}
+                      registerData={{ phone }}
+                    />
                   </Box>
                 ) : (
                   <Box>

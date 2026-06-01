@@ -29,11 +29,11 @@ const CompleteProfile = () => {
       const res = await fetch(baseUrl + "/auth/editUser", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
-        body: JSON.stringify({ userId: user?._id, name, phone, gender }),
+        body: JSON.stringify({ userId: user?._id, name, ...(phone?.trim()?.length > 4 ? { phone } : {}), gender }),
       });
       const data = await res.json();
       if (data.success) {
-        dispatch(setUserDbData({ ...user, name, phone, gender }));
+        dispatch(setUserDbData({ ...user, name, ...(phone?.trim()?.length > 4 ? { phone } : {}), gender }));
         showToast("Profile updated!", "success");
         setTimeout(() => navigate("/"), 1000);
       } else {
