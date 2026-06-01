@@ -102,7 +102,7 @@ export default function LoginModal({ openL, setOpenL, setOpens }) {
     if (!phone) return showToast("Please enter phone number", "error");
     try {
       setLoading(true);
-      const data = await phoneLogin(phone);
+      const data = await phoneLogin({ phone });
       showToast(data?.data?.message || "OTP sent", "success");
       setOtpSent(true);
       setLoading(false);

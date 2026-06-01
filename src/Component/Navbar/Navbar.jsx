@@ -270,6 +270,7 @@ const Navbar = () => {
                   background: "#393938",
                   color: "#fff",
                   border: "1px solid #393938",
+                  whiteSpace: "nowrap",
                   "&:hover": {
                     background: "transparent",
                     border: "1px solid " + ORANGE,
@@ -277,7 +278,7 @@ const Navbar = () => {
                   },
                 }}
               >
-                Sign UP
+                Login or Sign Up
               </Button>
             )}
 
@@ -387,7 +388,7 @@ const Navbar = () => {
                 onClick={() => { setMobileOpen(false); setOpens(true); }}
                 sx={{ background: "#393938", color: "#fff" }}
               >
-                Sign UP
+                Login or Sign Up
               </Button>
             )}
           </Box>

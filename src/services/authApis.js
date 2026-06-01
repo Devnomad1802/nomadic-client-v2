@@ -43,10 +43,10 @@ const authApis = api.injectEndpoints({
       }),
     }),
     phoneLogin: builder.mutation({
-      query: (phone) => ({
+      query: ({ phone }) => ({
         url: "/auth/phone-login",
         method: "POST",
-        body: phone,
+        body: { phone },
       }),
     }),
 
