@@ -11,7 +11,7 @@ import { baseUrl } from "../utils/api";
 const CompleteProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user?.userData);
+  const user = useSelector((state) => state.global.userDbData);
 
   const [name, setName] = useState(user?.name || "");
   const [phone, setPhone] = useState(user?.phone || "");
