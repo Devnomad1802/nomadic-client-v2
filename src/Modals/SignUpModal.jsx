@@ -113,7 +113,7 @@ export default function SignUpModal({ opens, setOpens }) {
   }, [activeMethod, email, phone, otpCode, verifyEmailOtp, verifySmsCode, dispatch, navigate]);
 
   const handleGoogleLogin = () => {
-    window.location.href = baseUrl.replace("/api", "") + "/api/auth/google";
+    window.location.href = baseUrl + "/auth/auth/google";
   };
 
   const tabBtnSx = (active) => ({
