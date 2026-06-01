@@ -105,6 +105,7 @@ export const {
   useChangePassMutation,
   useSendSmsCodeMutation,
   usePhoneLoginMutation,
+  useEditUserMutation,
   useSendEmailOtpMutation,
   useVerifyEmailOtpMutation,
 } = authApis;

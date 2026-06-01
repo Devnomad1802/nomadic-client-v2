@@ -27,7 +27,7 @@ Transition.displayName = "Transition";
 export default function SignUpModal({ opens, setOpens }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user?.userData);
+  const user = useSelector((state) => state.global.userDbData);
   const handleClose = () => setOpens(false);
 
   const [openL, setOpenL] = useState(false);
