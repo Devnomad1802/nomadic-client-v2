@@ -94,7 +94,7 @@ const CompleteProfile = () => {
               {needsPhone ? (
                 <Box>
                   <Typography sx={{ color: "#737373", textAlign: "left", mb: 1 }}>Phone *</Typography>
-                  <TextField required sx={inputStyle} size="small" placeholder="+91 9876543210"
+                  <TextField required sx={inputStyle} size="small" placeholder=""
                     value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </Box>
               ) : (
