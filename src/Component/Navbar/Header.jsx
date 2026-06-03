@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Hidden from "@mui/material/Hidden";
+import Box from "@mui/material/Box"; // Hidden replaced with Box sx
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import List from "@mui/material/List";
 import Box from "@mui/material/Box";
@@ -261,7 +261,7 @@ export default function Header({ children }) {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Hidden lgUp>
+            <Box sx={{ display: { xs: "block", lg: "none" } }}>
               {["left"].map((anchor) => (
                 <React.Fragment key={anchor}>
                   <Box
@@ -308,7 +308,7 @@ export default function Header({ children }) {
                   </Paper>
                 </React.Fragment>
               ))}
-            </Hidden>
+            </Box>
           </Box>
         </Box>
       </Box>

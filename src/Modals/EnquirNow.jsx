@@ -7,7 +7,7 @@ import Modal from "@mui/material/Modal";
 import {
   Dialog,
   Grid,
-  Hidden,
+  
   IconButton,
   Slide,
   TextField,
@@ -154,7 +154,7 @@ export default function EnquirNow({ opene, setOpene, toggelModele }) {
               justifyContent: "space-between",
             }}
           >
-            <Hidden mdDown>
+            <Box sx={{ display: { xs: "none", md: "block" } }}>
               <Grid
                 item
                 xs={12}
@@ -180,7 +180,7 @@ export default function EnquirNow({ opene, setOpene, toggelModele }) {
                   </Box>
                 </Box>
               </Grid>
-            </Hidden>
+            </Box>
             <Grid
               item
               xs={12}

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, useState } from "react";
 import {
-  Box, Button, Typography, Dialog, Grid, Hidden,
+  Box, Button, Typography, Dialog, Grid,
   IconButton, Slide, TextField, Tooltip,
 } from "@mui/material";
 import { signUpbg } from "../Images";
@@ -151,7 +151,7 @@ export default function LoginModal({ openL, setOpenL, setOpens }) {
       <Toastify setAlertState={setAlertState} alertState={alertState} />
       <Box>
         <Grid container sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Hidden mdDown>
+          <Box sx={{ display: { xs: "none", md: "block" } }}>
             <Grid item xs={12} md={5.5} sx={{ height: "auto" }}>
               <Box sx={{ height: "500px", width: "100%", position: "relative" }}>
                 <Box sx={{
@@ -175,7 +175,7 @@ export default function LoginModal({ openL, setOpenL, setOpens }) {
                 <img src={signUpbg} alt="" style={{ height: "100%", width: "100%", objectFit: "cover" }} />
               </Box>
             </Grid>
-          </Hidden>
+          </Box>
           <Grid item xs={12} md={6} sx={{
             px: 2, display: "flex", flexDirection: "column", gap: "20px 0px",
           }}>

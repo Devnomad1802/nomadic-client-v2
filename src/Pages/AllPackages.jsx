@@ -1,4 +1,4 @@
-import { Box, Hidden } from "@mui/material";
+import { Box } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import ReviewsBanner from "../Component/Home/ReviewsBanner";
@@ -40,13 +40,13 @@ const AllPackages = ({ allpkgbg }) => {
       <UpcomingTrip />
       {/* <Upcimming /> */}
       <Categories />
-      <Hidden smDown>
+      <Box sx={{ display: { xs: "none", sm: "block" } }}>
         <Banner bannerObj={bannerObj} />
-      </Hidden>
+      </Box>
       <Trending />
-      <Hidden smDown>
+      <Box sx={{ display: { xs: "none", sm: "block" } }}>
         <Banner bannerObj={bannerObj2} />
-      </Hidden>
+      </Box>
       <Reviews />
       <Footer />
     </Box>

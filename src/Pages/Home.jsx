@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import FirstSection from "../Component/Home/FirstSection";
-import { Box, Hidden, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 
 import Banner from "../Component/Home/Banner";
@@ -82,18 +82,17 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
       {/* <ReviewsBanner /> */}
       <UpcomingTrip />
       <Categories />
-      <Hidden mdDownDown>
+      <Box sx={{ display: { xs: "none", md: "block" } }}>
         <Typography
           sx={{
             color: "#4B5563",
             textAlign: "center",
-            // fontFamily: "Inter",
             fontFamily: "Playfair",
-            fontSize: { xs: "22px", sm: "28px", md: "28px",lg:"48px" },
+            fontSize: { xs: "22px", sm: "28px", md: "28px", lg: "48px" },
             fontStyle: "normal",
             fontWeight: "bold",
             lineHeight: "140%",
-          mt: { xs: 2, md: 5},
+            mt: { xs: 2, md: 5 },
           }}
         >
           Handpicked Adventures
@@ -104,9 +103,8 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
             margin: "0 auto",
             color: "#4B5563",
             textAlign: "center",
-            // fontFamily: "Inter",
             fontFamily: "Inter",
-            fontSize: { xs: "16px",lg:"20px" },
+            fontSize: { xs: "16px", lg: "20px" },
             fontStyle: "normal",
             fontWeight: "400",
             lineHeight: "140%",
@@ -118,9 +116,8 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
           comfort, and unforgettable experiences that will transform your
           perspective.
         </Typography>
-
         <Banner bannerObj={bannerObj} />
-      </Hidden>
+      </Box>
 
     
       <About aboutSection={aboutSection} />
