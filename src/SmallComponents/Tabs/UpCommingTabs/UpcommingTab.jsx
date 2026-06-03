@@ -103,7 +103,6 @@ export default function UpcomingTab() {
 
   useEffect(() => {
     if (data) {
-      console.log("data", data);
       const parsedData = data.data.map((trip) => ({
         ...trip,
         selectDate: trip.selectDate ? JSON.parse(trip.selectDate) : [],

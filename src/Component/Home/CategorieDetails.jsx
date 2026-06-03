@@ -25,7 +25,6 @@ const CategorieDetails = () => {
   const { id } = useParams();
   const [GetTripsByCagtegory] = useGetTripsByCagtegoryMutation();
   const [categoryData, setCategoryData] = useState([]);
-  console.log("categorData", categoryData);
 
   const postCategory = useCallback(async () => {
     const res = await GetTripsByCagtegory({ categories: id }).unwrap();

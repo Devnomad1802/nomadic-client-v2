@@ -20,8 +20,6 @@ const BlogDetail = () => {
 
   const { isError, isFetching, isLoading, data } = useGetAllBlogsQuery();
   const [blogData, setBlogData] = useState([]);
-  console.log("blogData", blogData[0]?._id);
-  console.log("Id:", id);
 
   useEffect(() => {
     if (data) {
@@ -32,7 +30,6 @@ const BlogDetail = () => {
 
   const navigate = useNavigate();
   const item = blogData && blogData.find((item) => item._id === id);
-  console.log("item find ", item);
   if (!item) {
     return <Typography>Item not found</Typography>;
   }

@@ -24,8 +24,6 @@ const ResetPassword = () => {
   const [resetPassParam, setResetPassParam] = useSearchParams();
   const [loading, setLoading] = React.useState(false);
 
-  console.log("password", password);
-  console.log("confirmPassword", confirmPassword);
 
   const [alertState, setAlertState] = useState({
     open: false,
@@ -35,7 +33,6 @@ const ResetPassword = () => {
   // eslint-disable-next-line operator-linebreak
   const resetPassUserId =
     new URLSearchParams(resetPassParam).get("token") || false;
-  console.log("resetPassUserId", resetPassUserId);
 
   useEffect(() => {
     if (!resetPassUserId) {
@@ -76,7 +73,6 @@ const ResetPassword = () => {
           password,
         }).unwrap();
 
-        console.log("Responce rest password....", data);
         setLoading(false);
         showToast(data?.message, "success");
         resetPassParam.delete("resetToken");

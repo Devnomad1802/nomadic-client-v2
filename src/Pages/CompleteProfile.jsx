@@ -37,8 +37,6 @@ const CompleteProfile = () => {
       ...(needsEmail ? { email } : {}),
     };
 
-    console.log("[CompleteProfile] userId:", user?._id);
-    console.log("[CompleteProfile] submitting body:", body);
 
     try {
       setLoading(true);
@@ -49,7 +47,6 @@ const CompleteProfile = () => {
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      console.log("[CompleteProfile] response:", data);
 
       if (data.success) {
         dispatch(setUserDbData({

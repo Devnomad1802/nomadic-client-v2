@@ -23,7 +23,6 @@ import { hostFlag, persent } from "../../Images";
 
 const Banner = () => {
   const { data } = useGetTrendingTripsQuery();
-  console.log("data.....", data);
   const [TrendingData, setTrendingData] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const swiperRef = useRef(null);

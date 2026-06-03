@@ -38,7 +38,6 @@ const HostPage = React.lazy(() => import("./Component/Host/HostPage"));
 function App() {
   const [loading, setLoading] = useState(true);
   const { isError, isFetching, isLoading, data } = useGetAllBannerQuery();
-  console.log("data Cover Images", data);
   const [bannerData, setBannerData] = useState([]);
 
   useEffect(() => {

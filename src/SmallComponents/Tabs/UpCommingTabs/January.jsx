@@ -75,7 +75,6 @@ const January = ({ activeMonth, viewAll }) => {
   useEffect(() => {
     if (activeMonth && favoriteArray) {
       const initialFavorites = activeMonth.map((trip) => {
-        console.log("tipid ...........", trip?._id);
         return favoriteArray.includes(trip._id);
       });
       setFavorites(initialFavorites);
@@ -109,13 +108,10 @@ const January = ({ activeMonth, viewAll }) => {
           tripId: tripId,
         }).unwrap();
 
-        console.log("Bookmark update result:", res);
 
         // Refresh favorite list from server to ensure sync
         await getFavTrip();
       } catch (error) {
-        console.log("error", error);
-        console.log(error?.data?.message);
 
         // Revert optimistic update on error - restore to original state (isFavorite)
         setFavorites((prevFavorites) => {
@@ -185,9 +181,6 @@ const January = ({ activeMonth, viewAll }) => {
               >
                 {activeMonth &&
                   activeMonth.map((trip, index) => {
-                    console.log("trip.....", trip);
-                    console.log("host data.....", trip?.host);
-                    console.log("host name.....", trip?.host?.hostName);
                     const futureDates = trip?.selectDate.filter((item) => {
                       const batchDate = new Date(item?.BatchDate);
                       return batchDate > currentDate;
@@ -195,10 +188,6 @@ const January = ({ activeMonth, viewAll }) => {
 
                     const numberOfFutureDates = futureDates.length - 1;
 
-                    console.log(
-                      "Number of future batch dates:",
-                      numberOfFutureDates
-                    );
                     return (
                       <SwiperSlide key={index} style={{ position: "relative" }}>
                         <Grid
@@ -843,7 +832,6 @@ const January = ({ activeMonth, viewAll }) => {
 
                 const numberOfFutureDates = futureDates.length - 1;
 
-                console.log("Number of future batch dates:", numberOfFutureDates);
                 return (
                   <Grid
                     item

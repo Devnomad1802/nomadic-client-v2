@@ -45,7 +45,6 @@ const BookNowModal = ({ opens, setOpens, toggelModel }) => {
     }
   }
   const convertedNumberINR = convertToCurrency(numberToConvert, "inr");
-  console.log("Converted Number (INR):", convertedNumberINR);
   const array = [
     {
       icon: <FmdGoodOutlinedIcon />,

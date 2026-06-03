@@ -16,7 +16,6 @@ const TravelHistory = () => {
   const { userDbData } = useSelector((store) => store.global);
   const [getPartialTrip] = useGetPartialTripMutation();
   const [partilyArray, setPartialyArray] = useState([]);
-  console.log("partilyArray", partilyArray);
 
   const getPartialTrips = useCallback(async () => {
     try {
@@ -62,7 +61,6 @@ const TravelHistory = () => {
         setPartialyArray(updatedData);
       }
     } catch (error) {
-      console.log("error", error);
     }
   }, [getPartialTrip, userDbData]);
 
@@ -80,10 +78,8 @@ const TravelHistory = () => {
   const [order] = useOrderMutation();
   const [updateBooking] = useUpdateBookingMutation();
   const handleOrder = async (selectedValue, item) => {
-    console.log("item in traverl history", item);
     
     if (!userDbData) {
-      console.log("User not logged in");
       alert("Please login to continue with the payment");
       return;
     }
@@ -122,7 +118,6 @@ const TravelHistory = () => {
               total: selectedValue + item?.total,
             }).unwrap();
 
-            console.log("Payment successful:", message);
             navigate("/paymentsuccess", {
               state: {
                 data,
@@ -238,12 +233,10 @@ const TravelHistory = () => {
             return sum + Number(item?.TitlePrice) * Number(item.quantity); // Adding item prices
           }, 0);
 
-        console.log("itemTotal", itemTotal);
         const gstAndDiscountTotal = Number(cardData?.gstTax); // Add GST tax and discount
 
         const finalTotal =
           itemTotal + gstAndDiscountTotal - coupenDiscount - total; // Add everything together
-        console.log("finalTotal", finalTotal.toFixed(0));
         const paymentStatusLabel =
           Number(finalTotal) <= 0 ? "Completed" : "Partial";
 

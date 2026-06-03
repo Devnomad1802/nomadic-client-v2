@@ -85,7 +85,6 @@ export default function EnquirNow({ opene, setOpene, toggelModele }) {
       } catch ({ data }) {
         setLoading(false);
         showToast(data?.message, "error");
-        console.log("data from Backend", data);
       }
     },
     [

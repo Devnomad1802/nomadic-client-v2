@@ -26,7 +26,6 @@ const HostCards = ({ hostData }) => {
   });
   const hostTrips = tripsData?.data || [];
 
-  console.log("hostTrips.....", hostTrips);
 
 
   if (!hostData?._id) {

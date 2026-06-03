@@ -35,7 +35,6 @@ const Trending = () => {
   const { isError, isFetching, isLoading, data } = useGetTrendingTripsQuery();
   const [TrendingData, setTrendingData] = useState([]);
 
-  console.log("trending ", TrendingData);
   useEffect(() => {
     if (data) {
       const parsedData = data?.data?.map((trip) => {

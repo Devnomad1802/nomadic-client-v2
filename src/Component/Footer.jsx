@@ -78,7 +78,6 @@ const Footer = () => {
   const { isError, isFetching, isLoading, data } = useGetAllBannerQuery();
 
   const [bannerData, setBannerData] = useState([]);
-  console.log("bannerData", bannerData);
 
   useEffect(() => {
     if (data) {

@@ -56,12 +56,10 @@ const UpcommingDetails = () => {
       //   ...trip,
       //   ratings: JSON.parse(trip.ratings),
       // }));
-      // console.log("parsedData...", parsedData);
     }
   }, [data]);
 
   const item = tripsData && tripsData.find((item) => item._id === id);
-  console.log("item.....", item);
 
   if (!item) {
     return <Typography>Item not found</Typography>;

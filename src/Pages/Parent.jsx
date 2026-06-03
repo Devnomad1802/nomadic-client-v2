@@ -1,7 +1,6 @@
-import { Box, Hidden } from "@mui/material";
+import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "../Component/Navbar/Navbar";
-import Footer from "../Component/Footer";
 
 const Parent = () => {
   return (

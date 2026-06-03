@@ -51,9 +51,6 @@ const Paymentsuccess = () => {
   const CardData = safeParse(data?.cardData, { cardSectionData: [], cardDate: {}, gstTax: 0 });
   const PaymentDetail = safeParse(data?.paymentDetail, { title: "", location: "", price: 0 });
 
-  console.log("total ", data);
-  console.log(" cardData....", CardData);
-  console.log(" paymentDetail....", PaymentDetail);
 
   // Redirect to home if no data
   useEffect(() => {

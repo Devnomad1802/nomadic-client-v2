@@ -32,7 +32,6 @@ const Payment = () => {
   const numberOfDays = JSON.parse(paymentDetail?.numberOfDays || "[]");
   const numberOfSeats = JSON.parse(paymentDetail?.numberOfSeats || "[]");
   const discount = JSON.parse(paymentDetail?.discount || "[]");
-  console.log("disocunt", discount)
   const AddSection = useMemo(
     () => JSON.parse(paymentDetail?.addsection || "[]"),
     [paymentDetail?.addsection]

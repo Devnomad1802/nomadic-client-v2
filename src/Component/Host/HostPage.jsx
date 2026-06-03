@@ -29,7 +29,6 @@ const HostPage = () => {
 
   const [hostData, setHostData] = useState(data?.data);
 
-  console.log("hostDataTrips", hostDataTrips);
   useEffect(() => {
     if (data) {
       setHostData(data?.data);

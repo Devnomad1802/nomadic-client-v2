@@ -10,7 +10,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { gallary, t1 } from "../../../Images";
 
 const Gallary = ({ Gallary }) => {
-  console.log("Gallary", Gallary);
   const matches = useMediaQuery("(min-width:900px)");
   return (
     <Box>

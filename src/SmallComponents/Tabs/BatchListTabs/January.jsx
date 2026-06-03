@@ -18,7 +18,6 @@ const January = ({ selectDate }) => {
   return (
     <Box sx={{ p: { xs: 0, sm: 2 } }}>
       {selectDate?.map((item, index) => {
-        console.log("item.numberof days...", item.numberOfDays);
         return (
           <Box
             key={index}

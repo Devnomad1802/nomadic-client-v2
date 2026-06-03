@@ -26,7 +26,6 @@ import Footer from "../Component/Footer";
 import { useGetAllBlogsQuery } from "../services";
 
 const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
-  console.log("homeVideo in home page", homeVideo);
   const { isError, isFetching, isLoading, data } = useGetAllBlogsQuery();
 
   const [blogData, setBlogData] = useState([]);

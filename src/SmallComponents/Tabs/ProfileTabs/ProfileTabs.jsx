@@ -95,7 +95,6 @@ export default function ProfileTabs() {
 
   // Get User
   const { userDbData } = useSelector((store) => store.global);
-  console.log("userDbData", userDbData);
 
   return (
     <Box

@@ -33,10 +33,6 @@ const BookingOverview = () => {
   const { paymentDetail, selectedBatch, selections, totalAmount, coupenDiscount } =
     location.state || {};
 
-  console.log("paymentDetail", paymentDetail);
-  console.log("selectedBatch", selectedBatch);
-  console.log("selections", selections);
-  console.log("totalAmount", totalAmount);
 
   // Calculate base amount from selections (same logic as Payment.jsx)
   const calculateBaseAmount = () => {
@@ -209,7 +205,6 @@ const BookingOverview = () => {
           currency,
           receipt: reciptId,
         });
-        // console.log("responce", response);
         const order2 = await response;
 
         if (response?.status === "created") {
@@ -291,7 +286,6 @@ const BookingOverview = () => {
   };
 
   const [particalShow, setPartialShow] = useState(true);
-  console.log("particalShow", particalShow);
 
   // ----------------------- Check User Login -------------------------------
   useEffect(() => {
@@ -315,19 +309,12 @@ const BookingOverview = () => {
       // Get the current UTC date and time
       const currentUtcDate = new Date();
 
-      console.log("batchDate", batchDate);
 
       // Compare if the modified batch date is greater than the current UTC date
       if (batchDate > currentUtcDate) {
-        console.log(
-          "The modified batch date is greater than the current UTC date."
-        );
         setPartialShow(false);
       } else {
         setPartialShow(true);
-        console.log(
-          "The modified batch date is not greater than the current UTC date."
-        );
       }
     } else {
       setPartialShow(true);

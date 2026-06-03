@@ -26,7 +26,6 @@ const MyAccount = () => {
     gender: "",
   });
 
-  console.log("registerData.....", registerData);
 
   const handleChange = (e) => {
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
@@ -40,7 +39,6 @@ const MyAccount = () => {
   //     formDataToSend.append("firstName", registerData?.firstName);
 
   //     const res = await editUser(formDataToSend).unwrap();
-  //     console.log("updatee res...", res);
 
   //     dispatch(setUserDbData(res?.data));
   //     UpdateZohoContact(res?.data);
@@ -49,7 +47,6 @@ const MyAccount = () => {
 
   //     setLoading(false);
   //   } catch (error) {
-  //     console.log("Error:", error);
   //     setLoading(false);
   //   }
   // };

@@ -12,7 +12,6 @@ import tourCanada from "../../video/tourCanada.mp4";
 const FirstSection = ({ homebg, toggle, homeVideo }) => {
 
 
-  console.log("homelink", homeVideo);
   const [opene, setOpene] = useState(false);
   const toggelModele = () => {
     setOpene(!opene);

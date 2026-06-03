@@ -37,7 +37,6 @@ const AboutUs = ({ aboutbg }) => {
   const { data } = useGetTeamMembersQuery();
 
   const [aboutData, setAboutData] = useState(data?.data);
-  console.log("About page ", aboutData);
 
   useEffect(() => {
     if (data) {
@@ -746,7 +745,6 @@ export default AboutUs;
 //   const { isError, isFetching, isLoading, data } = useGetTeamMembersQuery();
 
 //   const [aboutData, setAboutData] = useState(data?.data);
-//   console.log("About page ", aboutData);
 
 //   useEffect(() => {
 //     if (data) {

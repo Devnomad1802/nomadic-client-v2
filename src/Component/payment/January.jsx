@@ -13,7 +13,6 @@ const January = ({ selectDate, setCardData, cardData }) => {
   const handleMouseLeave = () => {
     setIsHovered(false);
   };
-  console.log("selectDate", selectDate);
   return (
     <Box sx={{ p: { xs: 0, sm: 2 } }}>
       {selectDate?.map((item, index) => {
