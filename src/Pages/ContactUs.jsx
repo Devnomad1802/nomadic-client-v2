@@ -21,6 +21,7 @@ import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { useEffect } from "react";
 import Footer from "../Component/Footer";
+import { Helmet } from "react-helmet-async";
 export const inputStyle = {
   "& input::-webkit-outer-spin-button,\n input::-webkit-inner-spin-button": {
     WebkitAppearance: "none",
@@ -102,6 +103,20 @@ const ContactUs = ({ contactbg }) => {
   }, []);
   return (
     <Box>
+      <Helmet>
+        <title>Contact Nomadic Townies | Get a Custom Trip Quote</title>
+        <meta name="description" content="Contact Nomadic Townies for custom trip planning, group tour enquiries or travel support. Reach us via phone, email or the enquiry form." />
+        <link rel="canonical" href="https://nomadictownies.com/contact_us" />
+        <meta property="og:title" content="Contact Nomadic Townies | Get a Custom Trip Quote" />
+        <meta property="og:description" content="Contact Nomadic Townies for custom trip planning, group tour enquiries or travel support." />
+        <meta property="og:url" content="https://nomadictownies.com/contact_us" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "name": "Contact Nomadic Townies",
+          "url": "https://nomadictownies.com/contact_us"
+        })}</script>
+      </Helmet>
       <HeaderBanner img={contactbg} text={"Contact Us"} />
       <Container>
         <Grid

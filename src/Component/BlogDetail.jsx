@@ -13,6 +13,7 @@ import "../SmallComponents/styles.css";
 // import required modules
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Helmet } from "react-helmet-async";
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -37,6 +38,38 @@ const BlogDetail = () => {
   }
   return (
     <Box>
+      <Helmet>
+        <title>{item?.title ? `${item.title} | Nomadic Townies Blog` : "Travel Blog | Nomadic Townies"}</title>
+        <meta name="description" content={item?.description ? item.description.substring(0, 155) : "Read travel blogs and destination guides by Nomadic Townies."} />
+        <link rel="canonical" href={`https://nomadictownies.com/blogs/Details/${id}`} />
+        <meta property="og:title" content={item?.title || "Travel Blog | Nomadic Townies"} />
+        <meta property="og:description" content={item?.description ? item.description.substring(0, 155) : "Read travel blogs and destination guides by Nomadic Townies."} />
+        <meta property="og:image" content={item?.Banner_Image || "https://nomadictownies.com/nt.png"} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content={`https://nomadictownies.com/blogs/Details/${id}`} />
+        <meta property="og:type" content="article" />
+        <meta property="article:published_time" content={item?.Date} />
+        {item && <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": item.title,
+          "image": item.Banner_Image,
+          "datePublished": item.Date,
+          "dateModified": item.Date,
+          "author": {
+            "@type": "Organization",
+            "name": "Nomadic Townies"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Nomadic Townies",
+            "logo": { "@type": "ImageObject", "url": "https://nomadictownies.com/nt.png" }
+          },
+          "description": item.description ? item.description.substring(0, 155) : "",
+          "url": `https://nomadictownies.com/blogs/Details/${id}`
+        })}</script>}
+      </Helmet>
       <Container maxWidth="xl" sx={{ mt: { xs: 10, md: 0 } }}>
         <Box
           sx={{

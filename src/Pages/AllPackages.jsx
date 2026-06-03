@@ -1,4 +1,5 @@
 import { Box, Hidden } from "@mui/material";
+import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import ReviewsBanner from "../Component/Home/ReviewsBanner";
 import Banner from "../Component/Home/Banner";
@@ -27,6 +28,14 @@ const AllPackages = ({ allpkgbg }) => {
   }, []);
   return (
     <Box>
+      <Helmet>
+        <title>All Travel Packages | Group &amp; Adventure Tours in India | Nomadic Townies</title>
+        <meta name="description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more. Find your perfect trip today." />
+        <link rel="canonical" href="https://nomadictownies.com/all_Packages" />
+        <meta property="og:title" content="All Travel Packages | Nomadic Townies" />
+        <meta property="og:description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more." />
+        <meta property="og:url" content="https://nomadictownies.com/all_Packages" />
+      </Helmet>
       <AllPakgaeshome allpkgbg={allpkgbg} />
       <UpcomingTrip />
       {/* <Upcimming /> */}

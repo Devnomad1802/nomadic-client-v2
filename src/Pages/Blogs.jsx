@@ -8,6 +8,7 @@ import Footer from "../Component/Footer";
 import { useGetAllBlogsQuery } from "../services";
 import HeaderBanner from "../SmallComponents/HeaderBanner";
 import { baseImage } from "../utils";
+import { Helmet } from "react-helmet-async";
 
 const Blogs = ({ blogbg }) => {
   const { isError, isFetching, isLoading, data } = useGetAllBlogsQuery();
@@ -22,7 +23,27 @@ const Blogs = ({ blogbg }) => {
 
   return (
     <Box sx={{ py: { xs: 0, md: 0 } }}>
-      <HeaderBanner img={blogbg} text={"Bloges"} />
+      <Helmet>
+        <title>Travel Blogs &amp; Destination Guides | Nomadic Townies</title>
+        <meta name="description" content="Explore travel blogs, destination guides, trip itineraries &amp; travel tips by Nomadic Townies. Get inspired for your next adventure in India &amp; beyond." />
+        <link rel="canonical" href="https://nomadictownies.com/blogs" />
+        <meta property="og:title" content="Travel Blogs &amp; Destination Guides | Nomadic Townies" />
+        <meta property="og:description" content="Explore travel blogs, destination guides, trip itineraries &amp; travel tips by Nomadic Townies." />
+        <meta property="og:url" content="https://nomadictownies.com/blogs" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          "name": "Nomadic Townies Blog",
+          "url": "https://nomadictownies.com/blogs",
+          "description": "Travel blogs, destination guides and trip itineraries by Nomadic Townies",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Nomadic Townies",
+            "logo": { "@type": "ImageObject", "url": "https://nomadictownies.com/nt.png" }
+          }
+        })}</script>
+      </Helmet>
+      <HeaderBanner img={blogbg} text={"Blogs"} />
       <Container sx={{ pb: { xs: 3, md: 5 } }}>
         <Grid
           container

@@ -23,6 +23,7 @@ import BookNowModal from "../../../Payment/BookNowModal";
 import LoginModal from "../../../Modals/LoginModal";
 import { useGetTripsQuery } from "../../../services/TripApis";
 import { extractRating } from "../../../utils";
+import { Helmet } from "react-helmet-async";
 
 const UpcommingDetails = () => {
   const [opens, setOpens] = useState(false);
@@ -94,6 +95,40 @@ const UpcommingDetails = () => {
   ];
   return (
     <Box>
+      <Helmet>
+        <title>{item?.title ? `${item.title} | Book Now | Nomadic Townies` : "Trip Details | Nomadic Townies"}</title>
+        <meta name="description" content={item?.subTitle ? `${item.subTitle} — ${item?.nights}N/${item?.days}D trip from ${item?.pickUp}. Starting ₹${item?.price}/person. Book with Nomadic Townies.` : "Book this amazing trip with Nomadic Townies. Handcrafted adventure travel packages in India."} />
+        <link rel="canonical" href={`https://nomadictownies.com/UpCommingDetails/${id}`} />
+        <meta property="og:title" content={item?.title ? `${item.title} | Nomadic Townies` : "Trip Details | Nomadic Townies"} />
+        <meta property="og:description" content={item?.subTitle || "Book this amazing trip with Nomadic Townies."} />
+        <meta property="og:image" content={item?.bannerImage || "https://nomadictownies.com/nt.png"} />
+        <meta property="og:url" content={`https://nomadictownies.com/UpCommingDetails/${id}`} />
+        <meta property="og:type" content="product" />
+        {item && <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "TouristTrip",
+          "name": item.title,
+          "description": item.subTitle,
+          "image": item.bannerImage,
+          "touristType": "Adventure",
+          "offers": {
+            "@type": "Offer",
+            "price": item.price,
+            "priceCurrency": "INR",
+            "availability": "https://schema.org/InStock"
+          },
+          "provider": {
+            "@type": "Organization",
+            "name": "Nomadic Townies",
+            "url": "https://nomadictownies.com"
+          },
+          "itinerary": {
+            "@type": "ItemList",
+            "name": `${item.nights} Nights / ${item.days} Days`,
+            "numberOfItems": item.days
+          }
+        })}</script>}
+      </Helmet>
       <LoginModal
         openL={openL}
         setOpenL={setOpenL}

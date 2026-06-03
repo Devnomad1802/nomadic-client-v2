@@ -10,6 +10,7 @@ const aboutbg1 = "https://nomadic-townies-assets.sgp1.cdn.digitaloceanspaces.com
 const aboutbg2 = "https://nomadic-townies-assets.sgp1.cdn.digitaloceanspaces.com/about-images/aboutbg2.png";
 import Marquee from "react-fast-marquee";
 import { aboutBannerbg } from "../Images";
+import { Helmet } from "react-helmet-async";
 
 
 
@@ -46,6 +47,21 @@ const AboutUs = ({ aboutbg }) => {
   }, [data]);
   return (
     <>
+      <Helmet>
+        <title>About Us | India's Adventure Travel Community | Nomadic Townies</title>
+        <meta name="description" content="Learn about Nomadic Townies — India's adventure travel community offering purposeful journeys, budget-friendly adventures and group tours for every kind of explorer." />
+        <link rel="canonical" href="https://nomadictownies.com/about_us" />
+        <meta property="og:title" content="About Us | Nomadic Townies" />
+        <meta property="og:description" content="Learn about Nomadic Townies — India's adventure travel community offering purposeful journeys and group tours for every kind of explorer." />
+        <meta property="og:url" content="https://nomadictownies.com/about_us" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          "name": "About Nomadic Townies",
+          "url": "https://nomadictownies.com/about_us",
+          "description": "India's adventure travel community offering purposeful journeys and group tours."
+        })}</script>
+      </Helmet>
 
       <Box>
         {/* <HeaderBanner img={aboutbg} text={"About Us"} /> */}
