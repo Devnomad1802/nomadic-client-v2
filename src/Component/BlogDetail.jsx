@@ -1,4 +1,5 @@
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Breadcrumbs, Container, Grid, Link, Typography } from "@mui/material";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
 import { useEffect, useState } from "react";
@@ -67,7 +68,24 @@ const BlogDetail = () => {
           "url": `https://nomadictownies.com/blogs/Details/${id}`
         })}</script>}
       </Helmet>
-      <Container maxWidth="xl" sx={{ mt: { xs: 10, md: 0 } }}>
+      <Container maxWidth="xl" sx={{ mt: { xs: 10, md: 2 }, mb: 1 }}>
+        <Breadcrumbs
+          separator={<NavigateNextIcon fontSize="small" />}
+          aria-label="breadcrumb"
+          sx={{ mb: 2, fontSize: "14px" }}
+        >
+          <Link underline="hover" color="inherit" href="/" sx={{ cursor: "pointer" }}>
+            Home
+          </Link>
+          <Link underline="hover" color="inherit" href="/blogs" sx={{ cursor: "pointer" }}>
+            Blogs
+          </Link>
+          <Typography color="text.primary" sx={{ fontSize: "14px" }}>
+            {item?.title || "Blog"}
+          </Typography>
+        </Breadcrumbs>
+      </Container>
+      <Container maxWidth="xl" sx={{ mt: 0 }}>
         <Box
           sx={{
             width: "100%",

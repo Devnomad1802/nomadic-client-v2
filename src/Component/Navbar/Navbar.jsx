@@ -26,9 +26,10 @@ import { useGetAllBlogsQuery } from "../../services/blogApi";
 const menuItems = [
   { name: "International Trips", category: "INTERNATIONAL" },
   { name: "India Trips", category: "INDIA" },
-  { name: "Group Tours", category: "GROUP TOURS", comingSoon: true },
-  { name: "Workshops", category: "WORKSHOPS", comingSoon: true },
   { name: "Blogs", isBlog: true },
+  // Group Tours and Workshops hidden until ready to avoid dead-end nav items
+  // { name: "Group Tours", category: "GROUP TOURS", comingSoon: true },
+  // { name: "Workshops", category: "WORKSHOPS", comingSoon: true },
 ];
 
 const ORANGE = "#CD482A";
@@ -203,7 +204,7 @@ const Navbar = () => {
             }}
           >
             <Box onClick={goHome} sx={{ cursor: "pointer", mt: { xs: 0, md: 1 } }}>
-              <img width="160px" height="21px" src={logo} alt="logo" srcSet="" />
+              <img width="160px" height="21px" src={logo} alt="Nomadic Townies - Adventure Travel" />
             </Box>
 
             <Box
@@ -295,7 +296,7 @@ const Navbar = () => {
       <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
         <Box sx={{ width: 280, p: 2 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <img width="130px" src={logo} alt="logo" />
+            <img width="130px" src={logo} alt="Nomadic Townies" />
             <IconButton onClick={() => setMobileOpen(false)}>
               <CloseIcon />
             </IconButton>

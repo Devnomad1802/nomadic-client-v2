@@ -1,11 +1,14 @@
 import {
   Box,
+  Breadcrumbs,
   Button,
   Container,
   Grid,
   IconButton,
+  Link,
   Typography,
 } from "@mui/material";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -137,6 +140,23 @@ const UpcommingDetails = () => {
         setOpens={setOpens}
         toggelModel={toggelModel}
       />
+      <Container maxWidth="xl" sx={{ pt: { xs: 10, lg: 2 }, pb: 0, px: { xs: 2, md: 3 } }}>
+        <Breadcrumbs
+          separator={<NavigateNextIcon fontSize="small" />}
+          aria-label="breadcrumb"
+          sx={{ mb: 2, fontSize: "14px" }}
+        >
+          <Link underline="hover" color="inherit" href="/" sx={{ cursor: "pointer" }}>
+            Home
+          </Link>
+          <Link underline="hover" color="inherit" href="/all_Packages" sx={{ cursor: "pointer" }}>
+            Trips
+          </Link>
+          <Typography color="text.primary" sx={{ fontSize: "14px" }}>
+            {item?.title || "Trip Details"}
+          </Typography>
+        </Breadcrumbs>
+      </Container>
       <Container maxWidth="xl" sx={{ p: 0 }}>
         <Box
           sx={{
@@ -144,7 +164,7 @@ const UpcommingDetails = () => {
             height: "360px",
             borderRadius: "30px",
             mb: 5,
-            mt: { xs: 10, lg: 0 },
+            mt: { xs: 2, lg: 0 },
             position: "relative",
           }}
         >
