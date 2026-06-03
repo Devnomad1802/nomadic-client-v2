@@ -168,7 +168,7 @@ export default function SignUpModal({ opens, setOpens }) {
                 </Box>
                 <Typography sx={{ color: "#CD482A", fontSize: "14px" }}>John Doe</Typography>
               </Box>
-              <img src={signUpbg} alt="" style={{ height: "100%", width: "100%", objectFit: "cover" }} />
+              <img src={signUpbg} alt="Nomadic Townies travel experience" role="presentation" style={{ height: "100%", width: "100%", objectFit: "cover" }} />
             </Box>
           </Grid>
         </Box>

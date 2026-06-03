@@ -6,6 +6,28 @@ body {
   padding: 0px;
   box-sizing: border-box;
 }
+
+/* Mobile: remove 300ms tap delay on all interactive elements */
+a, button, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent text size inflation on mobile rotation */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Better image rendering */
+img {
+  max-width: 100%;
+  height: auto;
+}
 .cool-link::after {
   content: "";
   display: block;

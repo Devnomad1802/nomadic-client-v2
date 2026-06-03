@@ -94,8 +94,7 @@ const BlogDetail = () => {
         >
           <img
             src={`${item?.Banner_Image}`}
-            alt=""
-            srcSet=""
+            alt={item?.title ? `${item.title} - Nomadic Townies` : "Travel blog post by Nomadic Townies"}
             style={{
               width: "100%",
               height: "100%",

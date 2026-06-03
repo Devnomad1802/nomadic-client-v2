@@ -71,8 +71,8 @@ const CategorieDetails = () => {
         </IconButton>
         <img
           src={`${item?.Banner_Image}`}
-          alt=""
-          srcSet=""
+          alt={item?.name ? `${item.name} - Adventure Tours | Nomadic Townies` : "Adventure tours by Nomadic Townies"}
+          loading="lazy"
           style={{
             width: "100%",
             height: "100%",
@@ -117,8 +117,7 @@ const CategorieDetails = () => {
           >
             <img
               src={cardab}
-              alt=""
-              srcSet=""
+              alt="Trip category icon"
               style={{ width: "100%", height: "100%" }}
             />
             <Typography
