@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/((?!google27f213b3ca0c1525\\.html|robots\\.txt|sitemap\\.xml).*)", "destination": "/" }
   ]
 }
