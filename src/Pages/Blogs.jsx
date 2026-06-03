@@ -86,8 +86,8 @@ const Blogs = ({ blogbg }) => {
                   >
                     <img
                       src={`${item?.Banner_Image}`}
-                      alt=""
-                      srcSet=""
+                      alt={item?.title ? `${item.title} - Nomadic Townies Blog` : "Travel blog by Nomadic Townies"}
+                      loading="lazy"
                       style={{
                         width: "100%",
                         height: "100%",

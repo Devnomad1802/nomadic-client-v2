@@ -30,8 +30,8 @@ const HeaderBanner = ({ img, text }) => {
         </Typography>
         <img
           src={`${img}`}
-          alt=""
-          srcSet=""
+          alt={text ? `${text} - Nomadic Townies` : "Nomadic Townies travel page banner"}
+          loading="lazy"
           style={{
             width: "100%",
             height: "100%",

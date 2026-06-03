@@ -216,8 +216,7 @@ const UpcommingDetails = () => {
           </Box>
           <img
             src={`${item?.bannerImage}`}
-            alt=""
-            srcSet=""
+            alt={item?.title ? `${item.title} - ${item.location || ""} Trip | Nomadic Townies` : "Adventure trip by Nomadic Townies"}
             style={{
               width: "100%",
               height: "100%",
