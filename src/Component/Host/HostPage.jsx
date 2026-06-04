@@ -10,6 +10,7 @@ import HostTabs from "./HostTabs";
 import Reviews from "./Reviews";
 import { useParams } from "react-router-dom";
 import { useGetHostByIdQuery, useGetHostTripsQuery } from "../../services";
+import { Helmet } from "react-helmet-async";
 
 const HostPage = () => {
   const [activeTab, setActiveTab] = useState(0); // Set to 0 for "Upcoming Trips" tab
@@ -94,8 +95,34 @@ const HostPage = () => {
     }
   };
 
+  const hostName = hostData?.hostTitle || hostData?.hostName || "Travel Host";
+  const hostTagline = hostData?.tagline || "";
+  const seoTitle = `${hostName} | Expert Travel Host | Nomadic Townies`;
+  const seoDescription = hostTagline
+    ? `${hostTagline} — Book trips with ${hostName} on Nomadic Townies. Discover handcrafted adventure tours and group travel experiences.`
+    : `Book adventure trips and group tours with ${hostName} on Nomadic Townies. Trusted travel host with curated experiences across India.`;
+  const canonicalUrl = `https://nomadictownies.com/hosts/${id}`;
+  const ogImage =
+    hostData?.brandingLogo ||
+    "https://nomadic-townies-assets.sgp1.cdn.digitaloceanspaces.com/about-images/aboutbg1.jpg";
+
   return (
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <Helmet>
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
+        <meta name="twitter:image" content={ogImage} />
+      </Helmet>
+
       {/* Host Header */}
       <HostHeader hostData={hostData} />
 

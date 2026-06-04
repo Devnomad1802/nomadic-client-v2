@@ -72,7 +72,7 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
           "url": "https://nomadictownies.com",
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://nomadictownies.com/all_Packages?q={search_term_string}",
+            "target": "https://nomadictownies.com/all-packages?q={search_term_string}",
             "query-input": "required name=search_term_string"
           }
         })}</script>

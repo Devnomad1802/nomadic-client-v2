@@ -48,7 +48,7 @@ const Savedtrips = () => {
               <Grid
                 key={index}
                 component={Link}
-                to={`/UpCommingDetails/${item._id}`}
+                to={`/trips/${item.seoSlug || item._id}`}
                 item
                 xs={12}
                 md={5.7}

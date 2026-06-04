@@ -196,7 +196,7 @@ const January = ({ activeMonth, viewAll }) => {
                           sm={5.7}
                           md={3.8}
                           component={Link}
-                          to={`/UpCommingDetails/${trip._id}`}
+                          to={`/trips/${trip.seoSlug || trip._id}`}
                           sx={{
                             height: "420px",
                             minHeight: "400px",
@@ -230,6 +230,7 @@ const January = ({ activeMonth, viewAll }) => {
                             <img
                               src={`${trip?.cardImage}`}
                               alt={trip?.title}
+                              loading="lazy"
                               style={{
                                 width: "100%",
                                 height: "100%",
@@ -843,7 +844,7 @@ const January = ({ activeMonth, viewAll }) => {
                   >
                     <Box
                       component={Link}
-                      to={`/UpCommingDetails/${trip._id}`}
+                      to={`/trips/${trip.seoSlug || trip._id}`}
                       sx={{
                         height: "450px",
                         minHeight: "400px",
@@ -878,6 +879,7 @@ const January = ({ activeMonth, viewAll }) => {
                         <img
                           src={`${trip.cardImage}`}
                           alt={trip?.title}
+                          loading="lazy"
                           style={{
                             width: "100%",
                             height: "100%",

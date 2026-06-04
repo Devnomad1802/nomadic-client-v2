@@ -48,21 +48,21 @@ const UpcommingDetails = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const { id } = useParams();
+  const { slug } = useParams();
   const { data } = useGetTripsQuery();
 
   const [tripsData, setTripsData] = useState(data?.data);
   useEffect(() => {
     if (data) {
-      setTripsData(data?.data); // Assuming the structure of your data is { data: [...] }
-      // const parsedData = data.data.map((trip) => ({
-      //   ...trip,
-      //   ratings: JSON.parse(trip.ratings),
-      // }));
+      setTripsData(data?.data);
     }
   }, [data]);
 
-  const item = tripsData && tripsData.find((item) => item._id === id);
+  // Find by seoSlug first (new SEO-friendly URLs), fall back to _id (legacy links)
+  const item =
+    tripsData &&
+    (tripsData.find((t) => t.seoSlug && t.seoSlug === slug) ||
+      tripsData.find((t) => t._id === slug));
 
   if (!item) {
     return <Typography>Item not found</Typography>;
@@ -99,11 +99,11 @@ const UpcommingDetails = () => {
       <Helmet>
         <title>{item?.title ? `${item.title} | Book Now | Nomadic Townies` : "Trip Details | Nomadic Townies"}</title>
         <meta name="description" content={item?.subTitle ? `${item.subTitle} — ${item?.nights}N/${item?.days}D trip from ${item?.pickUp}. Starting ₹${item?.price}/person. Book with Nomadic Townies.` : "Book this amazing trip with Nomadic Townies. Handcrafted adventure travel packages in India."} />
-        <link rel="canonical" href={`https://nomadictownies.com/UpCommingDetails/${id}`} />
+        <link rel="canonical" href={`https://nomadictownies.com/trips/${item?.seoSlug || slug}`} />
         <meta property="og:title" content={item?.title ? `${item.title} | Nomadic Townies` : "Trip Details | Nomadic Townies"} />
         <meta property="og:description" content={item?.subTitle || "Book this amazing trip with Nomadic Townies."} />
         <meta property="og:image" content={item?.bannerImage || "https://nomadictownies.com/nt.png"} />
-        <meta property="og:url" content={`https://nomadictownies.com/UpCommingDetails/${id}`} />
+        <meta property="og:url" content={`https://nomadictownies.com/trips/${item?.seoSlug || slug}`} />
         <meta property="og:type" content="product" />
         {item && <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -149,7 +149,7 @@ const UpcommingDetails = () => {
           <Link underline="hover" color="inherit" href="/" sx={{ cursor: "pointer" }}>
             Home
           </Link>
-          <Link underline="hover" color="inherit" href="/all_Packages" sx={{ cursor: "pointer" }}>
+          <Link underline="hover" color="inherit" href="/all-packages" sx={{ cursor: "pointer" }}>
             Trips
           </Link>
           <Typography color="text.primary" sx={{ fontSize: "14px" }}>

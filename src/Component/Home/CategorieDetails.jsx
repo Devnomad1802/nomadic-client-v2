@@ -13,6 +13,7 @@ import Reviews from "./Reviews";
 import { useGetTripsByCagtegoryMutation } from "../../services/categoriesApis";
 import { baseImage } from "../../utils";
 import Footer from "../Footer";
+import { Helmet } from "react-helmet-async";
 
 const CategorieDetails = () => {
   const currentDate = new Date();
@@ -42,8 +43,39 @@ const CategorieDetails = () => {
     postCategory();
   }, [postCategory]);
 
+  const categoryName = item?.Category || id;
+  const seoTitle = item?.seoTitle
+    ? item.seoTitle
+    : categoryName
+    ? `${categoryName} Trips & Tours | Nomadic Townies`
+    : "Adventure Trips & Tours | Nomadic Townies";
+  const seoDescription = item?.metaDescription
+    ? item.metaDescription
+    : categoryName
+    ? `Explore ${categoryName} trips with Nomadic Townies. Handcrafted group tours, expert hosts, and unforgettable adventures. Book your next trip today.`
+    : "Explore adventure trips and group tours with Nomadic Townies. Handcrafted experiences for every kind of traveller.";
+  const canonicalUrl = `https://nomadictownies.com/category/${id}`;
+
   return (
     <>
+      <Helmet>
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        {item?.Banner_Image && (
+          <meta property="og:image" content={item.Banner_Image} />
+        )}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
+        {item?.Banner_Image && (
+          <meta name="twitter:image" content={item.Banner_Image} />
+        )}
+      </Helmet>
       <Container
         maxWidth="xl"
         sx={{
@@ -163,7 +195,7 @@ const CategorieDetails = () => {
                 return (
                   <Grid
                     component={Link}
-                    to={`/UpCommingDetails/${citem?._id}`}
+                    to={`/trips/${citem?.seoSlug || citem?._id}`}
                     item
                     key={index}
                     xs={12}

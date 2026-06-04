@@ -94,7 +94,7 @@ const Trending = () => {
                   <SwiperSlide key={index}>
                     <Grid
                       component={Link}
-                      to={`/UpCommingDetails/${item?._id}`}
+                      to={`/trips/${item?.seoSlug || item?._id}`}
                       item
                       xs={12}
                       sm={5.7}

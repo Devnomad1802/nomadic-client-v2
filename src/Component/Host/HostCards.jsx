@@ -289,7 +289,7 @@ const HostCards = ({ hostData }) => {
                   {/* Book Now Button */}
                   <Button
                     component={Link}
-                    to={`/UpCommingDetails/${trip._id}`}
+                    to={`/trips/${trip.seoSlug || trip._id}`}
                     variant="contained"
                     fullWidth
                     sx={{

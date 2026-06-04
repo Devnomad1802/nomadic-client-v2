@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import ForgetPassword from "./Modals/ForgetPassword";
 import ResetPassword from "./Modals/ResetPassword";
 import AllPackages from "./Pages/AllPackages";
@@ -9,6 +9,7 @@ import BookingOverview from "./Payment/BookingOverview";
 import Paymentfail from "./Payment/PaymentFail";
 import Paymentsuccess from "./Payment/Paymentsuccess";
 import { useGetAllBannerQuery } from "./services";
+import { useGetTripsQuery } from "./services/TripApis";
 import CompleteProfile from "./Pages/CompleteProfile";
 import GoogleAuthSuccess from "./Pages/GoogleAuthSuccess";
 import Emailvarification from "./SmallComponents/Emailvarification";
@@ -35,6 +36,21 @@ const UpcommingDetails = React.lazy(() =>
 const BlogDetail = React.lazy(() => import("./Component/BlogDetail"));
 const HostPage = React.lazy(() => import("./Component/Host/HostPage"));
 
+// Resolves a legacy /UpCommingDetails/:id URL to the new /trips/:slug path.
+// Looks up the trip by MongoDB _id, then redirects to its seoSlug.
+// Falls back to the ID itself if the trip has no slug yet.
+function TripIdToSlugRedirect() {
+  const { id } = useParams();
+  const { data } = useGetTripsQuery();
+  const trips = data?.data;
+
+  if (!trips) return <Loading isLoading />;
+
+  const trip = trips.find((t) => t._id === id);
+  const slug = trip?.seoSlug || id;
+  return <Navigate to={`/trips/${slug}`} replace />;
+}
+
 function App() {
   const [loading, setLoading] = useState(true);
   const { isError, isFetching, isLoading, data } = useGetAllBannerQuery();
@@ -42,9 +58,10 @@ function App() {
 
   useEffect(() => {
     if (data) {
-      setBannerData(data?.data); // Assuming the structure of your data is { data: [...] }
+      setBannerData(data?.data);
     }
   }, [data]);
+
   return (
     <>
       {" "}
@@ -62,49 +79,48 @@ function App() {
                 />
               }
             />
+
+            {/* ── SEO-friendly routes (canonical) ── */}
             <Route
-              path="/all_Packages"
+              path="/all-packages"
               element={<AllPackages allpkgbg={bannerData[0]?.allPakeges} />}
             />
-            <Route path="/complete-profile" element={<CompleteProfile />} />
-            <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
-            <Route path="/email-verification" element={<Emailvarification />} />
             <Route
-              path="/two-step-verification"
-              element={<TwoStepVerification />}
+              path="/about-us"
+              element={<AboutUs aboutbg={bannerData[0]?.aboutUs} />}
             />
-            <Route path="/two-step-code" element={<TwoStepCode />} />
+            <Route
+              path="/contact-us"
+              element={<ContactUs contactbg={bannerData[0]?.contactUS} />}
+            />
+            <Route path="/trips/:slug" element={<UpcommingDetails />} />
+            <Route path="/category/:slug" element={<CategorieDetails />} />
 
-            <Route
-              path="/CategorieDetails/:id"
-              element={<CategorieDetails />}
-            />
-            <Route
-              path="/UpCommingDetails/:id"
-              element={<UpcommingDetails />}
-            />
+            {/* ── 301-equivalent redirects for old URLs (backward compatibility) ── */}
+            <Route path="/all_Packages" element={<Navigate to="/all-packages" replace />} />
+            <Route path="/about_us" element={<Navigate to="/about-us" replace />} />
+            <Route path="/contact_us" element={<Navigate to="/contact-us" replace />} />
+            <Route path="/CategorieDetails/:id" element={<Navigate to="/category/:id" replace />} />
+            <Route path="/UpCommingDetails/:id" element={<TripIdToSlugRedirect />} />
+
             <Route path="/hosts/:id" element={<HostPage />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/complete-profile" element={<CompleteProfile />} />
+            <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
+            <Route path="/email-verification" element={<Emailvarification />} />
+            <Route path="/two-step-verification" element={<TwoStepVerification />} />
+            <Route path="/two-step-code" element={<TwoStepCode />} />
             <Route
               path="/blogs"
               element={<Blogs blogbg={bannerData[0]?.blog} />}
             />
             <Route path="blogs/Details/:id" element={<BlogDetail />} />
-            <Route
-              path="/about_us"
-              element={<AboutUs aboutbg={bannerData[0]?.aboutUs} />}
-            />
-            <Route
-              path="/contact_us"
-              element={<ContactUs contactbg={bannerData[0]?.contactUS} />}
-            />
             <Route path="/careers" element={<Careers />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-
             <Route path="/payment" element={<Payment />} />
             <Route path="/booking_overview" element={<BookingOverview />} />
             <Route path="/paymentsuccess" element={<Paymentsuccess />} />

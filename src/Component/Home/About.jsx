@@ -99,7 +99,7 @@ to make travel more meaningful, mindful, and accessible for everyone.
                   }}
                 >
                   <Button
-                    onClick={() => navigate("/about_us")}
+                    onClick={() => navigate("/about-us")}
                     sx={{
                       background: "#EC3F18",
                       mt: 5,

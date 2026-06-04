@@ -331,7 +331,7 @@ const Banner = () => {
                           >
                             <Button
                               component={Link}
-                              to={`/UpCommingDetails/${item._id}`}
+                              to={`/trips/${item.seoSlug || item._id}`}
                               sx={{
                                 backgroundColor: "#D55035",
                                 color: "#fff",
@@ -357,7 +357,7 @@ const Banner = () => {
 
                             <Button
                               component={Link}
-                              to={`/UpCommingDetails/${item._id}`}
+                              to={`/trips/${item.seoSlug || item._id}`}
                               sx={{
                                 backgroundColor: "rgba(255,255,255,0.2)",
                                 color: "#fff",

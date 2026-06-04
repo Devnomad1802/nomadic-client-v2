@@ -74,7 +74,7 @@ const Navbar = () => {
   const handleTripClick = (tripId) => {
     setActiveMenu(null);
     setMobileOpen(false);
-    navigate(`/UpCommingDetails/${tripId}`);
+    navigate(`/trips/${tripId}`);
     window.scrollTo(0, 0);
   };
 

@@ -141,7 +141,7 @@ const Categories = () => {
                   onClick={() =>
                     CategoriesDetail(
                       item,
-                      `/CategorieDetails/${item?.Category}`
+                      `/category/${item?.Category}`
                     )
                   }
                   sx={{
@@ -162,6 +162,7 @@ const Categories = () => {
                   <img
                     src={`${item?.Banner_Image}`}
                     alt={item?.Category}
+                    loading="lazy"
                     style={{
                       width: "100%",
                       height: "100%",

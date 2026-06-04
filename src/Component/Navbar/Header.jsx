@@ -20,11 +20,11 @@ const array1 = [
   },
   {
     name: "All Packages",
-    link1: "/all_Packages",
+    link1: "/all-packages",
   },
   {
     name: "About Us",
-    link1: "/about_us",
+    link1: "/about-us",
   },
 
   {
@@ -33,7 +33,7 @@ const array1 = [
   },
   {
     name: "Contact Us",
-    link1: "contact_us",
+    link1: "/contact-us",
   },
 ];
 

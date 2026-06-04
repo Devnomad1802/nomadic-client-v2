@@ -14,14 +14,14 @@ const OUTPUT_PATH = "./dist/sitemap.xml";
 
 const staticRoutes = [
   { url: "/", priority: "1.0", changefreq: "daily" },
-  { url: "/all_Packages", priority: "0.9", changefreq: "daily" },
+  { url: "/all-packages", priority: "0.9", changefreq: "daily" },
   { url: "/blogs", priority: "0.8", changefreq: "weekly" },
-  { url: "/about_us", priority: "0.6", changefreq: "monthly" },
-  { url: "/contact_us", priority: "0.6", changefreq: "monthly" },
+  { url: "/about-us", priority: "0.6", changefreq: "monthly" },
+  { url: "/contact-us", priority: "0.6", changefreq: "monthly" },
+  { url: "/careers", priority: "0.4", changefreq: "monthly" },
   { url: "/terms-and-conditions", priority: "0.3", changefreq: "yearly" },
   { url: "/cancellation-and-refund", priority: "0.3", changefreq: "yearly" },
   { url: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
-  { url: "/careers", priority: "0.4", changefreq: "monthly" },
 ];
 
 function generateSitemapXml(urls) {
@@ -49,14 +49,16 @@ async function fetchTrips() {
   try {
     const res = await fetch(`${API_URL}/api/trips`);
     const json = await res.json();
-    return (json?.data || []).map((trip) => ({
-      url: `/UpCommingDetails/${trip._id}`,
-      priority: "0.8",
-      changefreq: "weekly",
-      lastmod: new Date(trip.updatedAt || trip.createdAt || Date.now())
-        .toISOString()
-        .split("T")[0],
-    }));
+    return (json?.data || [])
+      .filter((trip) => trip.seoSlug)
+      .map((trip) => ({
+        url: `/trips/${trip.seoSlug}`,
+        priority: "0.8",
+        changefreq: "weekly",
+        lastmod: new Date(trip.updatedAt || trip.createdAt || Date.now())
+          .toISOString()
+          .split("T")[0],
+      }));
   } catch (e) {
     console.warn("Could not fetch trips for sitemap:", e.message);
     return [];
@@ -68,7 +70,7 @@ async function fetchBlogs() {
     const res = await fetch(`${API_URL}/api/blogs`);
     const json = await res.json();
     return (json?.data || []).map((blog) => ({
-      url: `/blogs/Details/${blog._id}`,
+      url: blog.seoSlug ? `/blogs/${blog.seoSlug}` : `/blogs/Details/${blog._id}`,
       priority: "0.7",
       changefreq: "monthly",
       lastmod: new Date(blog.Date || blog.createdAt || Date.now())

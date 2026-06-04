@@ -86,7 +86,7 @@ const Upcimming = () => {
                   <SwiperSlide key={index}>
                     <Grid
                       component={Link}
-                      to={`/UpCommingDetails/${id}`}
+                      to={`/trips/${id?.seoSlug || id}`}
                       item
                       xs={12}
                       sm={5.7}

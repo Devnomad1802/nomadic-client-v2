@@ -106,15 +106,15 @@ const ContactUs = ({ contactbg }) => {
       <Helmet>
         <title>Contact Nomadic Townies | Get a Custom Trip Quote</title>
         <meta name="description" content="Contact Nomadic Townies for custom trip planning, group tour enquiries or travel support. Reach us via phone, email or the enquiry form." />
-        <link rel="canonical" href="https://nomadictownies.com/contact_us" />
+        <link rel="canonical" href="https://nomadictownies.com/contact-us" />
         <meta property="og:title" content="Contact Nomadic Townies | Get a Custom Trip Quote" />
         <meta property="og:description" content="Contact Nomadic Townies for custom trip planning, group tour enquiries or travel support." />
-        <meta property="og:url" content="https://nomadictownies.com/contact_us" />
+        <meta property="og:url" content="https://nomadictownies.com/contact-us" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "ContactPage",
           "name": "Contact Nomadic Townies",
-          "url": "https://nomadictownies.com/contact_us"
+          "url": "https://nomadictownies.com/contact-us"
         })}</script>
       </Helmet>
       <HeaderBanner img={contactbg} text={"Contact Us"} />

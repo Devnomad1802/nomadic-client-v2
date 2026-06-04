@@ -31,10 +31,10 @@ const AllPackages = ({ allpkgbg }) => {
       <Helmet>
         <title>All Travel Packages | Group &amp; Adventure Tours in India | Nomadic Townies</title>
         <meta name="description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more. Find your perfect trip today." />
-        <link rel="canonical" href="https://nomadictownies.com/all_Packages" />
+        <link rel="canonical" href="https://nomadictownies.com/all-packages" />
         <meta property="og:title" content="All Travel Packages | Nomadic Townies" />
         <meta property="og:description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more." />
-        <meta property="og:url" content="https://nomadictownies.com/all_Packages" />
+        <meta property="og:url" content="https://nomadictownies.com/all-packages" />
       </Helmet>
       <AllPakgaeshome allpkgbg={allpkgbg} />
       <UpcomingTrip />

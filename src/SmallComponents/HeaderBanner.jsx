@@ -31,7 +31,7 @@ const HeaderBanner = ({ img, text }) => {
         <img
           src={`${img}`}
           alt={text ? `${text} - Nomadic Townies` : "Nomadic Townies travel page banner"}
-          loading="lazy"
+          fetchpriority="high"
           style={{
             width: "100%",
             height: "100%",
