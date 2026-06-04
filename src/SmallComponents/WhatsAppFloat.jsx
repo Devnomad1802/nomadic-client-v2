@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 
-const WHATSAPP_NUMBER = "919876543210"; // Replace with actual Nomadic Townies WhatsApp number
+const WHATSAPP_NUMBER = "918623929751";
 const DEFAULT_MESSAGE = "Hi! I'm interested in booking a trip with Nomadic Townies. Can you help me?";
 
 const WhatsAppFloat = () => {
