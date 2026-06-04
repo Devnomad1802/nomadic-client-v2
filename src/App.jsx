@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import ErrorBoundary from "./SmallComponents/ErrorBoundary";
 import ForgetPassword from "./Modals/ForgetPassword";
 import ResetPassword from "./Modals/ResetPassword";
 import AllPackages from "./Pages/AllPackages";
@@ -35,6 +36,7 @@ const UpcommingDetails = React.lazy(() =>
 );
 const BlogDetail = React.lazy(() => import("./Component/BlogDetail"));
 const HostPage = React.lazy(() => import("./Component/Host/HostPage"));
+const NotFound = React.lazy(() => import("./Pages/NotFound"));
 
 // Resolves a legacy /UpCommingDetails/:id URL to the new /trips/:slug path.
 // Looks up the trip by MongoDB _id, then redirects to its seoSlug.
@@ -63,8 +65,7 @@ function App() {
   }, [data]);
 
   return (
-    <>
-      {" "}
+    <ErrorBoundary>
       <Suspense fallback={<Loading isLoading={loading} />}>
         <Routes>
           <Route path="/" element={<Parent />}>
@@ -125,10 +126,11 @@ function App() {
             <Route path="/booking_overview" element={<BookingOverview />} />
             <Route path="/paymentsuccess" element={<Paymentsuccess />} />
             <Route path="/paymentfail" element={<Paymentfail />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </Suspense>
-    </>
+    </ErrorBoundary>
   );
 }
 

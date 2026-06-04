@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "../Component/Navbar/Navbar";
+import WhatsAppFloat from "../SmallComponents/WhatsAppFloat";
 
 const Parent = () => {
   return (
@@ -25,6 +26,8 @@ const Parent = () => {
           </Box>
         </Box>
       </Box>
+
+      <WhatsAppFloat />
     </Box>
   );
 };

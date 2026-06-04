@@ -1,4 +1,5 @@
 import { Box, Container, Typography } from "@mui/material";
+import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import Footer from "../Component/Footer";
 
@@ -9,6 +10,11 @@ const TermsAndConditions = () => {
 
     return (
         <Box>
+            <Helmet>
+                <title>Terms and Conditions | Nomadic Townies</title>
+                <meta name="description" content="Read the terms and conditions for booking adventure trips and group tours with Nomadic Townies." />
+                <link rel="canonical" href="https://nomadictownies.com/terms-and-conditions" />
+            </Helmet>
 
             <Container sx={{ py: { xs: 5, sm: 10, md: 10 }, maxWidth: "900px" }}>
                 <Typography

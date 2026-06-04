@@ -1,4 +1,5 @@
 import { Box, Container, Typography } from "@mui/material";
+import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import Footer from "../Component/Footer";
 
@@ -9,6 +10,11 @@ const PrivacyPolicy = () => {
 
     return (
         <Box>
+            <Helmet>
+                <title>Privacy Policy | Nomadic Townies</title>
+                <meta name="description" content="Learn how Nomadic Townies collects, uses, and protects your personal data when you book trips and use our services." />
+                <link rel="canonical" href="https://nomadictownies.com/privacy-policy" />
+            </Helmet>
 
             <Container sx={{ py: { xs: 5, sm: 10, md: 10 }, maxWidth: "900px" }}>
                 <Typography

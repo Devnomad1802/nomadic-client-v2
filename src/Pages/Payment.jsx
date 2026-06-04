@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -210,6 +211,10 @@ const Payment = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Book Your Trip | Nomadic Townies</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Box
           sx={{

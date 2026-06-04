@@ -1,4 +1,5 @@
 import { Box, Container, Typography } from "@mui/material";
+import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import Footer from "../Component/Footer";
 
@@ -9,6 +10,11 @@ const CancellationAndRefund = () => {
 
     return (
         <Box>
+            <Helmet>
+                <title>Cancellation &amp; Refund Policy | Nomadic Townies</title>
+                <meta name="description" content="Understand our cancellation and refund policy for adventure trips and group tours booked with Nomadic Townies." />
+                <link rel="canonical" href="https://nomadictownies.com/cancellation-and-refund" />
+            </Helmet>
 
             <Container sx={{ py: { xs: 5, sm: 10, md: 10 }, maxWidth: "900px" }}>
                 <Typography

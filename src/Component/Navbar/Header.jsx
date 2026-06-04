@@ -117,19 +117,6 @@ export default function Header({ children }) {
     };
   }, []);
 
-  const array2 = [
-    {
-      name: "Tokenomics",
-      link1: "Tokenomics",
-      offset: -100,
-    },
-
-    {
-      name: "Roadmap",
-      link1: "Roadmap",
-      offset: -50,
-    },
-  ];
   const list = (anchor) => (
     <Box
       className={clsx(classes.list, {
