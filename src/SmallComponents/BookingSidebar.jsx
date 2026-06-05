@@ -14,25 +14,36 @@ const fmt = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const fieldSx = {
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
-    fontSize: "12px",
+    fontSize: "13px",
     fontFamily: "Inter",
     background: "#fff",
+    color: "#1f2733",
     "& fieldset": { borderColor: "#e7e2dd" },
     "&:hover fieldset": { borderColor: "#d24b2a" },
     "&.Mui-focused fieldset": { borderColor: "#d24b2a", boxShadow: "0 0 0 3px rgba(210,75,42,.1)" },
   },
-  "& .MuiInputBase-input": { padding: "9px 9px 9px 0", fontSize: "12px" },
+  "& .MuiInputBase-input": {
+    padding: "10px 10px 10px 0",
+    fontSize: "13px",
+    color: "#1f2733",
+    fontFamily: "Inter",
+    "&::placeholder": { color: "#b6ada4", opacity: 1 },
+  },
 };
 
 const BookingSidebar = ({ item, onBookNow }) => {
   const [hover, setHover] = useState(false);
   const price = Number(item?.price) || 0;
   const strikePrice = Number(item?.strikePrice) || 0;
-  const hasDiscount = strikePrice > price;
+  const tripOff = Number(item?.tripOff) || 0;
+  const hasDiscount = tripOff > 0 || strikePrice > price;
+  const discountPercent = tripOff > 0 ? tripOff : (strikePrice > price ? Math.round(((strikePrice - price) / strikePrice) * 100) : 0);
 
+  // Callback form
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [addEnquire] = useEnquirMutation();
 
   const handleChange = (field) => (e) => {
@@ -53,9 +64,18 @@ const BookingSidebar = ({ item, onBookNow }) => {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+    setSubmitting(true);
     try {
-      await addEnquire({ Name: form.name, Phone: form.phone, Email: form.email, Trip: item?.title || "" }).unwrap();
-    } catch (err) { /* show success anyway */ }
+      await addEnquire({
+        Name: form.name,
+        Phone: form.phone,
+        Email: form.email,
+        Message: `Enquiry for trip: ${item?.title || "Unknown"} (${item?.days || ""}D/${item?.nights || ""}N) — ₹${item?.price || ""}`,
+      }).unwrap();
+    } catch (err) {
+      // Show success anyway — don't block user
+    }
+    setSubmitting(false);
     setSubmitted(true);
   };
 
@@ -73,14 +93,13 @@ const BookingSidebar = ({ item, onBookNow }) => {
           </Typography>
         </Box>
 
-        {/* Price body */}
         <Box sx={{ px: 1.8, pt: 1.5, pb: 1.8 }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.2 }}>
             <Typography sx={{ fontSize: "10px", color: "#8b837b", fontWeight: 600, fontFamily: "Inter" }}>Starting from</Typography>
-            {hasDiscount && (
+            {hasDiscount && discountPercent > 0 && (
               <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.3, background: "#e7f4ee", color: "#11875b", fontSize: "9px", fontWeight: 700, px: 0.8, py: 0.2, borderRadius: "999px", fontFamily: "Inter" }}>
                 <AutoAwesomeIcon sx={{ fontSize: 9 }} />
-                {Math.round(((strikePrice - price) / strikePrice) * 100)}% OFF applied
+                {discountPercent}% OFF applied
               </Box>
             )}
           </Box>
@@ -89,7 +108,7 @@ const BookingSidebar = ({ item, onBookNow }) => {
             <Typography sx={{ fontSize: { xs: "26px", md: "30px" }, fontWeight: 800, color: "#16223a", fontFamily: "Inter", letterSpacing: "-0.02em", lineHeight: 1 }}>
               {fmt(price)}
             </Typography>
-            {hasDiscount && (
+            {strikePrice > price && (
               <Typography sx={{ fontSize: "13px", fontWeight: 600, color: "#b3aba3", textDecoration: "line-through", fontFamily: "Inter" }}>
                 {fmt(strikePrice)}
               </Typography>
@@ -116,7 +135,6 @@ const BookingSidebar = ({ item, onBookNow }) => {
 
       {/* ===== CALLBACK FORM ===== */}
       <Box sx={{ background: "#fff", borderRadius: "14px", border: "1px solid #efeae5", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2), 0 1px 4px -1px rgba(31,39,51,.04)", overflow: "hidden" }}>
-        {/* Header */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, px: 2.5, py: 2, background: "linear-gradient(180deg, #fbeae3 0%, #fdf3ee 100%)", borderBottom: "1px solid #efeae5" }}>
           <Box sx={{ width: 40, height: 40, borderRadius: "11px", display: "grid", placeItems: "center", background: "#d24b2a", color: "#fff", boxShadow: "0 8px 14px -6px rgba(210,75,42,.6)", flexShrink: 0 }}>
             <PhoneOutlinedIcon sx={{ fontSize: 20 }} />
@@ -128,51 +146,57 @@ const BookingSidebar = ({ item, onBookNow }) => {
         </Box>
 
         {submitted ? (
-          <Box sx={{ px: 1.8, py: 3, textAlign: "center" }}>
-            <Box sx={{ width: 44, height: 44, borderRadius: "50%", mx: "auto", mb: 1, display: "grid", placeItems: "center", background: "#e7f4ee", color: "#11875b", boxShadow: "0 0 0 5px rgba(17,135,91,.07)" }}>
-              <CheckCircleOutlineIcon sx={{ fontSize: 22 }} />
+          <Box sx={{ px: 2.5, py: 4, textAlign: "center" }}>
+            <Box sx={{ width: 56, height: 56, borderRadius: "50%", mx: "auto", mb: 1.5, display: "grid", placeItems: "center", background: "#e7f4ee", color: "#11875b", boxShadow: "0 0 0 6px rgba(17,135,91,.07)" }}>
+              <CheckCircleOutlineIcon sx={{ fontSize: 28 }} />
             </Box>
-            <Typography sx={{ fontSize: "13px", fontWeight: 800, color: "#1f2733", fontFamily: "Inter", mb: 0.3 }}>
-              You&apos;re on the list, {form.name.split(" ")[0]}!
+            <Typography sx={{ fontSize: "16px", fontWeight: 800, color: "#1f2733", fontFamily: "Inter", mb: 0.5 }}>
+              Request Submitted!
             </Typography>
-            <Typography sx={{ fontSize: "10.5px", color: "#8b837b", fontFamily: "Inter", lineHeight: 1.5, mb: 1.5 }}>
-              A travel expert will call you on <b style={{ color: "#383838" }}>+91 {form.phone}</b> within 24 hours.
+            <Typography sx={{ fontSize: "13px", color: "#8b837b", fontFamily: "Inter", lineHeight: 1.5, mb: 0.5 }}>
+              Thanks, {form.name.split(" ")[0]}!
             </Typography>
-            <Button onClick={() => { setSubmitted(false); setForm({ name: "", phone: "", email: "" }); }} variant="outlined"
-              sx={{ fontSize: "10px", fontWeight: 700, fontFamily: "Inter", borderColor: "#e7e2dd", color: "#383838", borderRadius: "8px", textTransform: "none", px: 2, py: 0.6, "&:hover": { borderColor: "#d24b2a", color: "#d24b2a" } }}>
-              Request another callback
+            <Typography sx={{ fontSize: "12px", color: "#8b837b", fontFamily: "Inter", lineHeight: 1.5, mb: 2 }}>
+              A Nomadic Townies travel expert will reach out to you on <b style={{ color: "#383838" }}>+91 {form.phone}</b> within the next 24 hours.
+            </Typography>
+            <Button
+              onClick={() => { setSubmitted(false); setForm({ name: "", phone: "", email: "" }); }}
+              variant="outlined"
+              sx={{ fontSize: "11px", fontWeight: 700, fontFamily: "Inter", borderColor: "#e7e2dd", color: "#383838", borderRadius: "8px", textTransform: "none", px: 2, py: 0.6, "&:hover": { borderColor: "#d24b2a", color: "#d24b2a" } }}
+            >
+              Submit another request
             </Button>
           </Box>
         ) : (
-          <Box sx={{ px: 1.8, pt: 1.5, pb: 1.8 }}>
-            <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#383838", fontFamily: "Inter", mb: 0.3 }}>
+          <Box sx={{ px: 2, pt: 1.5, pb: 2 }}>
+            <Typography sx={{ fontSize: "10.5px", fontWeight: 700, color: "#383838", fontFamily: "Inter", mb: 0.4 }}>
               Full Name <span style={{ color: "#d24b2a" }}>*</span>
             </Typography>
             <TextField fullWidth size="small" placeholder="e.g. John Smith"
               value={form.name} onChange={handleChange("name")} error={!!errors.name} helperText={errors.name || ""}
-              sx={{ ...fieldSx, mb: 1 }}
-              InputProps={{ startAdornment: <PersonOutlineIcon sx={{ fontSize: 15, color: "#b6ada4", mr: 0.8 }} /> }}
+              sx={{ ...fieldSx, mb: 1.2 }}
+              InputProps={{ startAdornment: <PersonOutlineIcon sx={{ fontSize: 16, color: "#b6ada4", mr: 0.8 }} /> }}
             />
-            <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#383838", fontFamily: "Inter", mb: 0.3 }}>
+            <Typography sx={{ fontSize: "10.5px", fontWeight: 700, color: "#383838", fontFamily: "Inter", mb: 0.4 }}>
               Phone No. <span style={{ color: "#d24b2a" }}>*</span>
             </Typography>
             <TextField fullWidth size="small" placeholder="Enter your 10 digit number"
               value={form.phone} onChange={handleChange("phone")} inputMode="numeric"
               error={!!errors.phone} helperText={errors.phone || ""}
-              sx={{ ...fieldSx, mb: 1 }}
-              InputProps={{ startAdornment: <PhoneOutlinedIcon sx={{ fontSize: 15, color: "#b6ada4", mr: 0.8 }} /> }}
+              sx={{ ...fieldSx, mb: 1.2 }}
+              InputProps={{ startAdornment: <PhoneOutlinedIcon sx={{ fontSize: 16, color: "#b6ada4", mr: 0.8 }} /> }}
             />
-            <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#383838", fontFamily: "Inter", mb: 0.3 }}>
+            <Typography sx={{ fontSize: "10.5px", fontWeight: 700, color: "#383838", fontFamily: "Inter", mb: 0.4 }}>
               Email ID <span style={{ color: "#d24b2a" }}>*</span>
             </Typography>
             <TextField fullWidth size="small" placeholder="john@example.com" type="email"
               value={form.email} onChange={handleChange("email")} error={!!errors.email} helperText={errors.email || ""}
               sx={{ ...fieldSx, mb: 1.5 }}
-              InputProps={{ startAdornment: <MailOutlineIcon sx={{ fontSize: 15, color: "#b6ada4", mr: 0.8 }} /> }}
+              InputProps={{ startAdornment: <MailOutlineIcon sx={{ fontSize: 16, color: "#b6ada4", mr: 0.8 }} /> }}
             />
-            <Button onClick={handleSubmit} fullWidth
-              sx={{ background: "#383838", color: "#fff", fontFamily: "Inter", fontSize: "12px", fontWeight: 700, py: 1.2, borderRadius: "10px", textTransform: "none", boxShadow: "0 10px 16px -10px rgba(56,56,56,.6)", "&:hover": { background: "#222", transform: "translateY(-1px)" } }}>
-              Submit Request
+            <Button onClick={handleSubmit} fullWidth disabled={submitting}
+              sx={{ background: "#383838", color: "#fff", fontFamily: "Inter", fontSize: "13px", fontWeight: 700, py: 1.2, borderRadius: "10px", textTransform: "none", boxShadow: "0 10px 16px -10px rgba(56,56,56,.6)", "&:hover": { background: "#222", transform: "translateY(-1px)" }, "&:disabled": { background: "#999", color: "#fff" } }}>
+              {submitting ? "Submitting..." : "Submit Request"}
             </Button>
             <Typography sx={{ mt: 1, textAlign: "center", fontSize: "9px", color: "#8b837b", fontFamily: "Inter", lineHeight: 1.3 }}>
               By submitting, you agree to receive a call &amp; WhatsApp updates from Nomadic Townies.
