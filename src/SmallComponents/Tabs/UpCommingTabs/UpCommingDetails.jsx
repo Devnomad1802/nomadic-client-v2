@@ -26,7 +26,7 @@ import LoginModal from "../../../Modals/LoginModal";
 import { useGetTripsQuery } from "../../../services/TripApis";
 import { extractRating } from "../../../utils";
 import { Helmet } from "react-helmet-async";
-// import StickyBookingBar from "../../StickyBookingBar";
+import Footer from "../../../Component/Footer";
 
 const UpcommingDetails = () => {
   const [opens, setOpens] = useState(false);
@@ -443,7 +443,7 @@ const UpcommingDetails = () => {
       <Container>
         <DetailUpcomming tripDetail={item} />
       </Container>
-
+      <Footer />
     </Box>
   );
 };
