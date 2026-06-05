@@ -156,7 +156,7 @@ const Footer = () => {
               maxWidth: "400px",
             }}
           >
-            B Wing 2903, Nanded City Pune - 411041
+            Nanded City Pune - 411041
           </Typography>
 
           {/* Contact Row */}
