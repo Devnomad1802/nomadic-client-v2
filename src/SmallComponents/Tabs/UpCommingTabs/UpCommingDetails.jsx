@@ -27,7 +27,7 @@ import LoginModal from "../../../Modals/LoginModal";
 import { useGetTripsQuery } from "../../../services/TripApis";
 import { extractRating } from "../../../utils";
 import { Helmet } from "react-helmet-async";
-import StickyBookingBar from "../../StickyBookingBar";
+// import StickyBookingBar from "../../StickyBookingBar";
 
 const UpcommingDetails = () => {
   const [opens, setOpens] = useState(false);
@@ -449,16 +449,6 @@ const UpcommingDetails = () => {
         <DetailUpcomming tripDetail={item} />
       </Container>
 
-      {/* Mobile sticky booking bar */}
-      <StickyBookingBar
-        price={item?.price}
-        strikePrice={item?.strikePrice}
-        onBookNow={handleBookNowClick}
-        onEnquire={item?.enableEnquire ? toggelModel : null}
-      />
-
-      {/* Bottom padding to prevent content from being hidden behind sticky bar on mobile */}
-      <Box sx={{ display: { xs: "block", md: "none" }, height: "80px" }} />
     </Box>
   );
 };

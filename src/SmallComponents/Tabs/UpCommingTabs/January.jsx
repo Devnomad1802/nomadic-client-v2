@@ -266,36 +266,17 @@ const January = ({ activeMonth, viewAll, searchQuery = "" }) => {
                               }}
                             />
 
-                            {/* Urgency badge */}
+                            {/* Urgency badge — bottom-left to avoid heart icon overlap */}
                             {getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 && (
                               <Chip
                                 label={`Only ${getTotalSeats(trip)} seats left`}
                                 size="small"
                                 sx={{
                                   position: "absolute",
-                                  top: 10,
+                                  bottom: 10,
                                   left: 10,
                                   zIndex: 2,
                                   background: "#EF4444",
-                                  color: "#fff",
-                                  fontWeight: 700,
-                                  fontSize: "11px",
-                                  height: "24px",
-                                  fontFamily: "Inter",
-                                }}
-                              />
-                            )}
-                            {trip?.Trending && (
-                              <Chip
-                                label="Trending"
-                                size="small"
-                                sx={{
-                                  position: "absolute",
-                                  top: 10,
-                                  left: getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 ? "auto" : 10,
-                                  right: getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 ? 10 : "auto",
-                                  zIndex: 2,
-                                  background: "#F59E0B",
                                   color: "#fff",
                                   fontWeight: 700,
                                   fontSize: "11px",
@@ -954,35 +935,17 @@ const January = ({ activeMonth, viewAll, searchQuery = "" }) => {
                           }}
                         />
 
-                        {/* Urgency badge */}
+                        {/* Urgency badge — bottom-left to avoid heart icon overlap */}
                         {getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 && (
                           <Chip
                             label={`Only ${getTotalSeats(trip)} seats left`}
                             size="small"
                             sx={{
                               position: "absolute",
-                              top: 10,
+                              bottom: 10,
                               left: 10,
                               zIndex: 2,
                               background: "#EF4444",
-                              color: "#fff",
-                              fontWeight: 700,
-                              fontSize: "11px",
-                              height: "24px",
-                              fontFamily: "Inter",
-                            }}
-                          />
-                        )}
-                        {trip?.Trending && (
-                          <Chip
-                            label="Trending"
-                            size="small"
-                            sx={{
-                              position: "absolute",
-                              top: 10,
-                              right: 10,
-                              zIndex: 2,
-                              background: "#F59E0B",
                               color: "#fff",
                               fontWeight: 700,
                               fontSize: "11px",
