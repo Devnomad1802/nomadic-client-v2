@@ -1,12 +1,13 @@
 /* eslint-disable react/prop-types */
-import { Box, Typography } from "@mui/material";
-import { useRef, useState } from "react";
+import { Box } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
 import Overview from "./Overview";
 import Itinerary from "./Itinerary";
 import BatchListTab from "../BatchListTabs/BatchListTab";
 import InclusionExclusion from "./InclusionExclusion";
 import OtherInfo from "./OtherInfo";
 import Gallary from "./Gallary";
+import TabReview from "./TabReview";
 
 const tabs = [
   "Overview",
@@ -15,6 +16,7 @@ const tabs = [
   "Inclusions",
   "Other Info",
   "Gallery",
+  "Review",
 ];
 
 const DetailUpcomming = ({ tripDetail }) => {
@@ -26,6 +28,7 @@ const DetailUpcomming = ({ tripDetail }) => {
   const inclusionRef = useRef(null);
   const otherRef = useRef(null);
   const galleryRef = useRef(null);
+  const reviewRef = useRef(null);
 
   const refMap = {
     Overview: overviewRef,
@@ -34,12 +37,46 @@ const DetailUpcomming = ({ tripDetail }) => {
     Inclusions: inclusionRef,
     "Other Info": otherRef,
     Gallery: galleryRef,
+    Review: reviewRef,
   };
 
   const scrollTo = (tab) => {
     setActiveTab(tab);
     refMap[tab]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  // Intersection Observer — highlight tab based on which section is visible
+  useEffect(() => {
+    const refs = [
+      { name: "Overview", ref: overviewRef },
+      { name: "Itinerary", ref: itineraryRef },
+      { name: "Batch List", ref: batchRef },
+      { name: "Inclusions", ref: inclusionRef },
+      { name: "Other Info", ref: otherRef },
+      { name: "Gallery", ref: galleryRef },
+      { name: "Review", ref: reviewRef },
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the entry with the largest intersection ratio
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length > 0) {
+          const match = refs.find((r) => r.ref.current === visible[0].target);
+          if (match) setActiveTab(match.name);
+        }
+      },
+      { rootMargin: "-80px 0px -60% 0px", threshold: [0, 0.25, 0.5] }
+    );
+
+    refs.forEach(({ ref }) => {
+      if (ref.current) observer.observe(ref.current);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <Box>
@@ -121,6 +158,10 @@ const DetailUpcomming = ({ tripDetail }) => {
 
         <Box ref={galleryRef} sx={{ mb: 6 }}>
           <Gallary Gallary={tripDetail?.gallaryImages} />
+        </Box>
+
+        <Box ref={reviewRef} sx={{ mb: 6 }}>
+          <TabReview />
         </Box>
       </Box>
     </Box>

@@ -26,7 +26,7 @@ const Gallary = ({ Gallary }) => {
             mb: 3,
           }}
         >
-          Gallary
+          Gallery
         </Typography>
         <Swiper
           slidesPerView={1}
