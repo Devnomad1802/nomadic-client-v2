@@ -18,7 +18,6 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import { line } from "../../../Images";
 import EnquirNow from "../../../Modals/EnquirNow";
 import DetailUpcomming from "./DetailUpcomming";
@@ -89,10 +88,6 @@ const UpcommingDetails = () => {
     {
       icon: <FmdGoodOutlinedIcon />,
       text: item.location,
-    },
-    {
-      icon: <CalendarTodayOutlinedIcon sx={{ fontSize: "25px", p: 0.3 }} />,
-      text: "Select Batch Date",
     },
   ];
   return (
