@@ -159,15 +159,17 @@ const UpcommingDetails = () => {
               ))}
             </Box>
 
-            {/* Pickup / Drop-off */}
-            <Box sx={{ background: "#F9FAFB", border: "1px solid #F3F4F6", borderRadius: "32px", display: "inline-flex", alignItems: "center", gap: 1, py: 1, px: 2, mt: 2 }}>
-              <Typography sx={{ color: "#6B7280", fontSize: "14px" }}>Pick Up:</Typography>
-              <Typography sx={{ color: "#111827", fontSize: "14px", fontWeight: 500 }}>{item.pickUp}</Typography>
-              <Box sx={{ width: "40px", display: "flex", alignItems: "center" }}>
-                <img src={line} alt="" style={{ width: "100%" }} />
+            {/* Pickup / Drop-off — full width, centered */}
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+              <Box sx={{ background: "#F9FAFB", border: "1px solid #F3F4F6", borderRadius: "40px", display: "flex", alignItems: "center", gap: { xs: 1.5, md: 2.5 }, py: 1.5, px: { xs: 3, md: 5 }, width: { xs: "100%", sm: "auto" }, justifyContent: "center" }}>
+                <Typography sx={{ color: "#6B7280", fontSize: { xs: "14px", md: "16px" }, fontFamily: "Inter" }}>Pick Up:</Typography>
+                <Typography sx={{ color: "#111827", fontSize: { xs: "14px", md: "16px" }, fontWeight: 600, fontFamily: "Inter" }}>{item.pickUp}</Typography>
+                <Box sx={{ width: { xs: "40px", md: "60px" }, display: "flex", alignItems: "center" }}>
+                  <img src={line} alt="" style={{ width: "100%" }} />
+                </Box>
+                <Typography sx={{ color: "#6B7280", fontSize: { xs: "14px", md: "16px" }, fontFamily: "Inter" }}>Drop Off:</Typography>
+                <Typography sx={{ color: "#111827", fontSize: { xs: "14px", md: "16px" }, fontWeight: 600, fontFamily: "Inter" }}>{item.dropOff}</Typography>
               </Box>
-              <Typography sx={{ color: "#6B7280", fontSize: "14px" }}>Drop Off:</Typography>
-              <Typography sx={{ color: "#111827", fontSize: "14px", fontWeight: 500 }}>{item.dropOff}</Typography>
             </Box>
 
             {/* Booking card on mobile (shown above tabs) */}
@@ -183,7 +185,9 @@ const UpcommingDetails = () => {
 
           {/* RIGHT COLUMN — sticky booking card (desktop) */}
           <Grid item md={4.5} sx={{ display: { xs: "none", md: "block" } }}>
-            <BookingSidebar item={item} onBookNow={handleBookNowClick} />
+            <Box sx={{ position: "sticky", top: "20px" }}>
+              <BookingSidebar item={item} onBookNow={handleBookNowClick} />
+            </Box>
           </Grid>
         </Grid>
       </Container>
