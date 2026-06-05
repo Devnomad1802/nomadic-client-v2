@@ -117,13 +117,13 @@ const BookingSidebar = ({ item, onBookNow }) => {
       {/* ===== CALLBACK FORM ===== */}
       <Box sx={{ background: "#fff", borderRadius: "14px", border: "1px solid #efeae5", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2), 0 1px 4px -1px rgba(31,39,51,.04)", overflow: "hidden" }}>
         {/* Header */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, px: 1.8, py: 1.2, background: "linear-gradient(180deg, #fbeae3 0%, #fdf3ee 100%)", borderBottom: "1px solid #efeae5" }}>
-          <Box sx={{ width: 30, height: 30, borderRadius: "8px", display: "grid", placeItems: "center", background: "#d24b2a", color: "#fff", boxShadow: "0 6px 10px -4px rgba(210,75,42,.5)", flexShrink: 0 }}>
-            <PhoneOutlinedIcon sx={{ fontSize: 15 }} />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, px: 2.5, py: 2, background: "linear-gradient(180deg, #fbeae3 0%, #fdf3ee 100%)", borderBottom: "1px solid #efeae5" }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: "11px", display: "grid", placeItems: "center", background: "#d24b2a", color: "#fff", boxShadow: "0 8px 14px -6px rgba(210,75,42,.6)", flexShrink: 0 }}>
+            <PhoneOutlinedIcon sx={{ fontSize: 20 }} />
           </Box>
           <Box>
-            <Typography sx={{ fontSize: "11px", fontWeight: 600, color: "#d24b2a", fontFamily: "Inter" }}>Born to Roam?</Typography>
-            <Typography sx={{ fontSize: "13px", fontWeight: 800, color: "#1f2733", fontFamily: "Inter", letterSpacing: "-0.01em" }}>Let&apos;s Talk</Typography>
+            <Typography sx={{ fontSize: "15px", fontWeight: 700, color: "#d24b2a", fontFamily: "Inter" }}>Born to Roam?</Typography>
+            <Typography sx={{ fontSize: "18px", fontWeight: 800, color: "#1f2733", fontFamily: "Inter", letterSpacing: "-0.01em" }}>Let&apos;s Talk</Typography>
           </Box>
         </Box>
 

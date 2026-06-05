@@ -117,23 +117,14 @@ const DetailUpcomming = ({ tripDetail }) => {
               border: "2px solid #F3F4F6",
               justifyContent: "flex-start",
               alignItems: "center",
-              px: { xs: 0.5, sm: 1, md: 5 },
+              px: { xs: 0.5, sm: 1, md: 3 },
               py: { xs: 1, md: 1.5 },
-
-              zIndex: { xs: 1, lg: 1000 },
-              gap: "0px 30px",
-              width: {
-                xs: "977px",
-                sm: "990px",
-                md: "1100px",
-                lg: fixedPosition ? "1148px" : "100%",
-              },
+              zIndex: 100,
+              gap: "0px 20px",
+              width: "100%",
               boxSizing: "border-box",
-              position: {
-                xs: "relative",
-                lg: fixedPosition ? "fixed" : "absolute",
-              },
-              top: { xs: "0px", md: fixedPosition ? "0px" : "0px" },
+              position: "sticky",
+              top: 0,
             }}
           >
             {detailArray.map(({ name, refrance }, index) => {
