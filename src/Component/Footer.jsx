@@ -1,138 +1,43 @@
 import {
   Box,
   Container,
-  Grid,
+  IconButton,
   Typography,
 } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { logof } from "../Images";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import { IconButton } from "@mui/material";
 
-const quickLinks = [
-  { name: "Co-working Retreats", link: "#" },
-  { name: "Skill-Share Workshops", link: "#" },
-  { name: "Productivity Hacks", link: "#" },
-  { name: "Local Business Meets", link: "#" },
-  { name: "Freelancer Networking", link: "#" },
-  { name: "Van life Meetups", link: "#" },
-  { name: "Nomadic Mentorships", link: "#" },
-];
-
-const exploreIndia = [
-  { name: "Himalayan Tech Hubs", link: "#" },
-  { name: "Goa Coworking space", link: "#" },
-  { name: "Bangalore Startup Vibe", link: "#" },
-  { name: "Cultural Immersions", link: "#" },
-  { name: "Rural Coworking initiatives", link: "#" },
-  { name: "Rajasthan Artist Residencies", link: "#" },
-];
-
-const townieSpecial = [
-  { name: "Exclusive Discounts", link: "#" },
-  { name: "Mentorship Programs", link: "#" },
-  { name: "Local Partnerships", link: "#" },
-  { name: "Coliving Discounts", link: "#" },
-  { name: "Community Fund Access", link: "#" },
-  { name: "Resource Library Access", link: "#" },
-];
-
-const usefulLinks = [
-  { name: "Join Nomadic Townies", link: "#" },
+const footerLinks = [
+  { name: "All Packages", link: "/all-packages" },
   { name: "About Us", link: "/about-us" },
   { name: "Careers", link: "/careers" },
-  { name: "Terms and Services", link: "/terms-and-conditions" },
+  { name: "Blogs", link: "/blogs" },
+  { name: "Contact Us", link: "/contact-us" },
+  { name: "Terms & Conditions", link: "/terms-and-conditions" },
+  { name: "Cancellation & Refund", link: "/cancellation-and-refund" },
   { name: "Privacy Policy", link: "/privacy-policy" },
-  { name: "Legal Notice", link: "/cancellation-and-refund" },
-  { name: "Contact Support", link: "/contact-us" },
-  { name: "Investor Pitch Day", link: "#" },
 ];
-
-const linkStyle = {
-  color: "#D1D5DB",
-  textDecoration: "none",
-  fontSize: "14px",
-  fontFamily: "Inter",
-  lineHeight: "32px",
-  "&:hover": { color: "#fff" },
-};
-
-const headingStyle = {
-  color: "#fff",
-  fontSize: "16px",
-  fontWeight: 700,
-  fontFamily: "Inter",
-  mb: 2,
-};
 
 const Footer = () => {
   return (
     <Box sx={{ background: "#1A1A1A" }}>
-      <Container maxWidth="lg" sx={{ pt: { xs: 5, md: 8 }, pb: 3 }}>
-        {/* 4-Column Link Grid */}
-        <Grid container spacing={{ xs: 4, md: 6 }}>
-          {/* Quick Links */}
-          <Grid item xs={6} sm={3}>
-            <Typography sx={headingStyle}>Quick Links</Typography>
-            {quickLinks.map((item, i) => (
-              <Link key={i} to={item.link} style={linkStyle} onClick={() => window.scrollTo(0, 0)}>
-                <Typography sx={linkStyle}>{item.name}</Typography>
-              </Link>
-            ))}
-          </Grid>
-
-          {/* Explore India */}
-          <Grid item xs={6} sm={3}>
-            <Typography sx={headingStyle}>Explore India</Typography>
-            {exploreIndia.map((item, i) => (
-              <Link key={i} to={item.link} style={linkStyle} onClick={() => window.scrollTo(0, 0)}>
-                <Typography sx={linkStyle}>{item.name}</Typography>
-              </Link>
-            ))}
-          </Grid>
-
-          {/* Townie Special */}
-          <Grid item xs={6} sm={3}>
-            <Typography sx={headingStyle}>Townie Special</Typography>
-            {townieSpecial.map((item, i) => (
-              <Link key={i} to={item.link} style={linkStyle} onClick={() => window.scrollTo(0, 0)}>
-                <Typography sx={linkStyle}>{item.name}</Typography>
-              </Link>
-            ))}
-          </Grid>
-
-          {/* Useful Links */}
-          <Grid item xs={6} sm={3}>
-            <Typography sx={headingStyle}>Useful Links</Typography>
-            {usefulLinks.map((item, i) => (
-              <Link key={i} to={item.link} style={linkStyle} onClick={() => window.scrollTo(0, 0)}>
-                <Typography sx={linkStyle}>{item.name}</Typography>
-              </Link>
-            ))}
-          </Grid>
-        </Grid>
-
-        {/* Divider */}
-        <Box sx={{ height: "1px", background: "#333", my: { xs: 4, md: 6 } }} />
-
-        {/* Bottom Section — Logo, GST, Address, Contacts */}
+      <Container maxWidth="md" sx={{ py: { xs: 5, md: 6 } }}>
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
-            gap: 2,
-            pb: 4,
+            gap: 3,
           }}
         >
           {/* Logo */}
-          <Box sx={{ width: { xs: "200px", md: "260px" } }}>
+          <Box sx={{ width: { xs: "180px", md: "220px" } }}>
             <img
               src={logof}
               alt="Nomadic Townies"
@@ -140,28 +45,59 @@ const Footer = () => {
             />
           </Box>
 
-          {/* GST Number */}
-          <Typography
+          {/* Links — single row wrapping */}
+          <Box
             sx={{
-              color: "#9CA3AF",
-              fontSize: "14px",
-              fontFamily: "Inter",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: { xs: "8px 16px", md: "8px 28px" },
             }}
           >
-            GST No: 27BNZPM9706J1Z0
-          </Typography>
+            {footerLinks.map((item, i) => (
+              <Link
+                key={i}
+                to={item.link}
+                onClick={() => window.scrollTo(0, 0)}
+                style={{
+                  color: "#9CA3AF",
+                  textDecoration: "none",
+                  fontSize: "13px",
+                  fontFamily: "Inter",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "#fff")}
+                onMouseLeave={(e) => (e.target.style.color = "#9CA3AF")}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </Box>
 
-          {/* Address */}
-          <Typography
-            sx={{
-              color: "#D1D5DB",
-              fontSize: "14px",
-              fontFamily: "Inter",
-              maxWidth: "400px",
-            }}
-          >
-            Nanded City Pune - 411041
-          </Typography>
+          {/* Divider */}
+          <Box sx={{ height: "1px", background: "#333", width: "100%" }} />
+
+          {/* GST + Address */}
+          <Box>
+            <Typography
+              sx={{
+                color: "#6B7280",
+                fontSize: "13px",
+                fontFamily: "Inter",
+              }}
+            >
+              GST No: 27BNZPM9706J1Z0
+            </Typography>
+            <Typography
+              sx={{
+                color: "#6B7280",
+                fontSize: "13px",
+                fontFamily: "Inter",
+                mt: 0.5,
+              }}
+            >
+              Nanded City Pune - 411041
+            </Typography>
+          </Box>
 
           {/* Contact Row */}
           <Box
@@ -170,7 +106,6 @@ const Footer = () => {
               flexWrap: "wrap",
               justifyContent: "center",
               gap: { xs: 2, md: 4 },
-              mt: 1,
             }}
           >
             <Box
@@ -182,15 +117,14 @@ const Footer = () => {
                 gap: 0.5,
                 color: "#D1D5DB",
                 textDecoration: "none",
-                fontSize: "14px",
+                fontSize: "13px",
                 fontFamily: "Inter",
                 "&:hover": { color: "#fff" },
               }}
             >
-              <EmailOutlinedIcon sx={{ fontSize: 18 }} />
+              <EmailOutlinedIcon sx={{ fontSize: 16 }} />
               hello@nomadictownies.com
             </Box>
-
             <Box
               component="a"
               href="tel:+918623929751"
@@ -200,47 +134,45 @@ const Footer = () => {
                 gap: 0.5,
                 color: "#D1D5DB",
                 textDecoration: "none",
-                fontSize: "14px",
+                fontSize: "13px",
                 fontFamily: "Inter",
                 "&:hover": { color: "#fff" },
               }}
             >
-              <PhoneOutlinedIcon sx={{ fontSize: 18 }} />
+              <PhoneOutlinedIcon sx={{ fontSize: 16 }} />
               8623949801
             </Box>
-
             <Box
               component="a"
               href="https://www.nomadictownies.com"
-              target="_blank"
-              rel="noopener noreferrer"
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 0.5,
                 color: "#D1D5DB",
                 textDecoration: "none",
-                fontSize: "14px",
+                fontSize: "13px",
                 fontFamily: "Inter",
                 "&:hover": { color: "#fff" },
               }}
             >
-              <LanguageOutlinedIcon sx={{ fontSize: 18 }} />
+              <LanguageOutlinedIcon sx={{ fontSize: 16 }} />
               www.nomadictownies.com
             </Box>
           </Box>
 
-          {/* Social Media */}
-          <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+          {/* Social */}
+          <Box sx={{ display: "flex", gap: 0.5 }}>
             <IconButton
               component="a"
               href="https://www.instagram.com/nomadictownies/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
-              sx={{ color: "#D1D5DB", "&:hover": { color: "#E1306C" } }}
+              sx={{ color: "#9CA3AF", "&:hover": { color: "#E1306C" } }}
+              size="small"
             >
-              <InstagramIcon />
+              <InstagramIcon fontSize="small" />
             </IconButton>
             <IconButton
               component="a"
@@ -248,19 +180,23 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
-              sx={{ color: "#D1D5DB", "&:hover": { color: "#1877F2" } }}
+              sx={{ color: "#9CA3AF", "&:hover": { color: "#1877F2" } }}
+              size="small"
             >
-              <FacebookRoundedIcon />
-            </IconButton>
-            <IconButton
-              component="a"
-              href="#"
-              aria-label="LinkedIn"
-              sx={{ color: "#D1D5DB", "&:hover": { color: "#0A66C2" } }}
-            >
-              <LinkedInIcon />
+              <FacebookRoundedIcon fontSize="small" />
             </IconButton>
           </Box>
+
+          {/* Copyright */}
+          <Typography
+            sx={{
+              color: "#4B5563",
+              fontSize: "12px",
+              fontFamily: "Inter",
+            }}
+          >
+            &copy; {new Date().getFullYear()} Nomadic Townies. All rights reserved.
+          </Typography>
         </Box>
       </Container>
     </Box>
