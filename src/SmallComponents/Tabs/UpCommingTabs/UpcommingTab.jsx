@@ -7,6 +7,7 @@ import { styled } from "@mui/material/styles";
 import Tabs, { tabsClasses } from "@mui/material/Tabs";
 import January from "./January";
 import { Button } from "@mui/material";
+import { TripCardSkeleton } from "../../Skeletons";
 import { useGetTripsQuery } from "../../../services/TripApis";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -96,7 +97,7 @@ function a11yProps(index) {
   };
 }
 
-export default function UpcomingTab() {
+export default function UpcomingTab({ searchQuery = "" }) {
   const { isError, isFetching, isLoading, data } = useGetTripsQuery();
   const [monthTrips, setMonthTrips] = useState();
   const [viewAll, setViewAll] = useState(false);
@@ -222,7 +223,9 @@ export default function UpcomingTab() {
         }}
       >
         {isLoading ? (
-          <h1 style={{ color: "#000" }}>Loading...</h1>
+          <Box sx={{ px: { xs: 0, md: 2 }, py: 2 }}>
+            <TripCardSkeleton count={6} />
+          </Box>
         ) : (
           <>
             {monthTrips &&
@@ -239,6 +242,7 @@ export default function UpcomingTab() {
                         activeMonth={monthTrips[month]}
                         viewAll={viewAll}
                         setViewAll={setViewAll}
+                        searchQuery={searchQuery}
                       />
                     )}
                   </TabPanel>

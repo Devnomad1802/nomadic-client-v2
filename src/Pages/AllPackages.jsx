@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { Helmet } from "react-helmet-async";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReviewsBanner from "../Component/Home/ReviewsBanner";
 import Banner from "../Component/Home/Banner";
 import Categories from "../Component/Home/Categories";
@@ -23,6 +23,8 @@ const bannerObj2 = {
 };
 
 const AllPackages = ({ allpkgbg }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -36,8 +38,8 @@ const AllPackages = ({ allpkgbg }) => {
         <meta property="og:description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more." />
         <meta property="og:url" content="https://nomadictownies.com/all-packages" />
       </Helmet>
-      <AllPakgaeshome allpkgbg={allpkgbg} />
-      <UpcomingTrip />
+      <AllPakgaeshome allpkgbg={allpkgbg} onSearch={setSearchQuery} />
+      <UpcomingTrip searchQuery={searchQuery} />
       {/* <Upcimming /> */}
       <Categories />
       <Box sx={{ display: { xs: "none", sm: "block" } }}>

@@ -28,7 +28,7 @@ import "swiper/css/pagination";
 
 import "./style.css";
 
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { Keyboard, Mousewheel, Navigation } from "swiper/modules";
 import {
@@ -37,7 +37,7 @@ import {
 } from "../../../services";
 import { extractRating } from "../../../utils";
 
-const January = ({ activeMonth, viewAll }) => {
+const January = ({ activeMonth, viewAll, searchQuery = "" }) => {
   const navigate = useNavigate();
   const matches = useMediaQuery("(min-width:900px)");
   const matches2 = useMediaQuery("(min-width:1200px)");
@@ -80,6 +80,33 @@ const January = ({ activeMonth, viewAll }) => {
       setFavorites(initialFavorites);
     }
   }, [activeMonth, favoriteArray]);
+
+  // Extract total seats from numberOfSeats JSON field
+  const getTotalSeats = (trip) => {
+    try {
+      const seats = typeof trip?.numberOfSeats === "string"
+        ? JSON.parse(trip.numberOfSeats)
+        : trip?.numberOfSeats;
+      if (Array.isArray(seats) && seats.length > 0) {
+        return Number(seats[0]?.batchSeats) || 0;
+      }
+      return 0;
+    } catch { return 0; }
+  };
+
+  // Filter trips by search query (title, location, category)
+  const filteredTrips = useMemo(() => {
+    if (!activeMonth) return [];
+    if (!searchQuery || !searchQuery.trim()) return activeMonth;
+    const q = searchQuery.toLowerCase().trim();
+    return activeMonth.filter(
+      (trip) =>
+        trip?.title?.toLowerCase().includes(q) ||
+        trip?.location?.toLowerCase().includes(q) ||
+        (Array.isArray(trip?.categories) &&
+          trip.categories.some((c) => c?.toLowerCase().includes(q)))
+    );
+  }, [activeMonth, searchQuery]);
 
   const addToFavorites = async (tripId, index) => {
     if (userDbData) {
@@ -179,8 +206,8 @@ const January = ({ activeMonth, viewAll }) => {
                   justifyContent: "space-between",
                 }}
               >
-                {activeMonth &&
-                  activeMonth.map((trip, index) => {
+                {filteredTrips &&
+                  filteredTrips.map((trip, index) => {
                     const futureDates = trip?.selectDate.filter((item) => {
                       const batchDate = new Date(item?.BatchDate);
                       return batchDate > currentDate;
@@ -238,6 +265,45 @@ const January = ({ activeMonth, viewAll }) => {
                                 filter: "brightness(0.9)",
                               }}
                             />
+
+                            {/* Urgency badge */}
+                            {getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 && (
+                              <Chip
+                                label={`Only ${getTotalSeats(trip)} seats left`}
+                                size="small"
+                                sx={{
+                                  position: "absolute",
+                                  top: 10,
+                                  left: 10,
+                                  zIndex: 2,
+                                  background: "#EF4444",
+                                  color: "#fff",
+                                  fontWeight: 700,
+                                  fontSize: "11px",
+                                  height: "24px",
+                                  fontFamily: "Inter",
+                                }}
+                              />
+                            )}
+                            {trip?.Trending && (
+                              <Chip
+                                label="Trending"
+                                size="small"
+                                sx={{
+                                  position: "absolute",
+                                  top: 10,
+                                  left: getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 ? "auto" : 10,
+                                  right: getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 ? 10 : "auto",
+                                  zIndex: 2,
+                                  background: "#F59E0B",
+                                  color: "#fff",
+                                  fontWeight: 700,
+                                  fontSize: "11px",
+                                  height: "24px",
+                                  fontFamily: "Inter",
+                                }}
+                              />
+                            )}
 
                             {/* Gradient Overlay for Text Readability */}
                             <Box
@@ -824,8 +890,8 @@ const January = ({ activeMonth, viewAll }) => {
               },
             }}
           >
-            {activeMonth &&
-              activeMonth.map((trip, index) => {
+            {filteredTrips &&
+              filteredTrips.map((trip, index) => {
                 const futureDates = trip?.selectDate.filter((item) => {
                   const batchDate = new Date(item?.BatchDate);
                   return batchDate > currentDate;
@@ -887,6 +953,44 @@ const January = ({ activeMonth, viewAll }) => {
                             filter: "brightness(0.85)",
                           }}
                         />
+
+                        {/* Urgency badge */}
+                        {getTotalSeats(trip) > 0 && getTotalSeats(trip) <= 5 && (
+                          <Chip
+                            label={`Only ${getTotalSeats(trip)} seats left`}
+                            size="small"
+                            sx={{
+                              position: "absolute",
+                              top: 10,
+                              left: 10,
+                              zIndex: 2,
+                              background: "#EF4444",
+                              color: "#fff",
+                              fontWeight: 700,
+                              fontSize: "11px",
+                              height: "24px",
+                              fontFamily: "Inter",
+                            }}
+                          />
+                        )}
+                        {trip?.Trending && (
+                          <Chip
+                            label="Trending"
+                            size="small"
+                            sx={{
+                              position: "absolute",
+                              top: 10,
+                              right: 10,
+                              zIndex: 2,
+                              background: "#F59E0B",
+                              color: "#fff",
+                              fontWeight: 700,
+                              fontSize: "11px",
+                              height: "24px",
+                              fontFamily: "Inter",
+                            }}
+                          />
+                        )}
 
                         {/* Gradient Overlay for Text Readability */}
                         <Box

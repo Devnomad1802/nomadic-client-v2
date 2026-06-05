@@ -3,7 +3,7 @@ import { Box, Container, Typography } from "@mui/material";
 
 import UpcommingTab from "../../SmallComponents/Tabs/UpCommingTabs/UpcommingTab";
 
-const UpcomingTrip = () => {
+const UpcomingTrip = ({ searchQuery = "" }) => {
   return (
     <Box>
       <Container sx={{ pb: { xs: 5, md: 3 }, pt: { xs: 5, md: 7 } }}>
@@ -26,7 +26,7 @@ const UpcomingTrip = () => {
           </Typography>
         </Box>
 
-        <UpcommingTab />
+        <UpcommingTab searchQuery={searchQuery} />
       </Container>
     </Box>
   );

@@ -18,11 +18,12 @@ import "swiper/css/navigation";
 import { Navigation, Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
+import { CategoryCardSkeleton } from "../../SmallComponents/Skeletons";
 import "./CategoriesStyle.css";
 
 const Categories = () => {
   const navigate = useNavigate();
-  const { data } = useGetAllCategoriesQuery();
+  const { data, isLoading } = useGetAllCategoriesQuery();
   const [categoriData, setCategoriData] = useState([]);
 
   useEffect(() => {
@@ -103,6 +104,9 @@ const Categories = () => {
         perfect adventure.
       </Typography>
 
+      {isLoading ? (
+        <CategoryCardSkeleton count={3} />
+      ) : (
       <Box sx={{ position: "relative" }}>
         <Swiper loop={true}
           autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
@@ -310,6 +314,7 @@ const Categories = () => {
           <ArrowForwardIosIcon sx={{ fontSize: "14px" }} />
         </IconButton>
       </Box>
+      )}
 
       <Button
         variant="simplebtn"

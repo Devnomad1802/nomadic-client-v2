@@ -8,10 +8,11 @@ import EnquirNow from "../../Modals/EnquirNow";
 import { CustomField } from "../../SmallComponents/CustomInput";
 import { baseImage } from "../../utils";
 
-const AllPakgaeshome = ({ allpkgbg }) => {
+const AllPakgaeshome = ({ allpkgbg, onSearch }) => {
   const [search, SetSearch] = useState("");
   const handleChange = (e) => {
     SetSearch(e.target.value);
+    if (onSearch) onSearch(e.target.value);
   };
   return (
     <Container maxWidth="xl" sx={{ mt: { xs: 10, md: 0 } }}>

@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { logof } from "../Images";
+import TrustBadges from "../SmallComponents/TrustBadges";
 import { useGetAllBannerQuery } from "../services";
 
 const socialicon = [
@@ -101,6 +102,7 @@ const Footer = () => {
   };
   return (
     <Box sx={{}}>
+      <TrustBadges />
       <Box
         sx={{
           display: "flex",
