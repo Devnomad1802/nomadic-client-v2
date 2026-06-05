@@ -18,7 +18,6 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import { line } from "../../../Images";
 import EnquirNow from "../../../Modals/EnquirNow";
 import DetailUpcomming from "./DetailUpcomming";
@@ -89,10 +88,6 @@ const UpcommingDetails = () => {
     {
       icon: <FmdGoodOutlinedIcon />,
       text: item.location,
-    },
-    {
-      icon: <CalendarTodayOutlinedIcon sx={{ fontSize: "25px", p: 0.3 }} />,
-      text: "Select Batch Date",
     },
   ];
   return (
@@ -410,37 +405,94 @@ const UpcommingDetails = () => {
               xs={12}
               md={3.5}
               sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: { xs: "5px 0px", md: "20px 0px" },
                 mt: { xs: 5, md: 0 },
               }}
             >
-              <Typography
+              <Box
                 sx={{
-                  color: "#4B5563",
-                  fontWeight: 500,
-                  fontSize: { xs: "20px", sm: "25px", lg: "33px" },
-                  textAlign: "center",
+                  position: { xs: "relative", md: "sticky" },
+                  top: { md: "20px" },
                   display: "flex",
-                  alignItems: { xs: "start", md: "center" },
-                  justifyContent: { xs: "flex-start", md: "center" },
+                  flexDirection: "column",
+                  gap: "16px",
+                  background: "#fff",
+                  border: { md: "1px solid #F3F4F6" },
+                  borderRadius: { md: "16px" },
+                  p: { xs: 0, md: 3 },
+                  boxShadow: { md: "0 2px 12px rgba(0,0,0,0.06)" },
                 }}
               >
-                &#8377;{item?.price}
-                <span style={{ fontSize: "20px", fontWeight: 400 }}>
-                  / Person
-                </span>
-              </Typography>
-              <EnquirNow />
-              <Button
-                // onClick={() => setOpens(true)}
-                onClick={handleBookNowClick}
-                variant="simplebtn"
-                sx={{ background: "#CD482A", color: "#fff" }}
-              >
-                Book Now
-              </Button>
+                {/* Price */}
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+                  <Typography
+                    sx={{
+                      color: "#1F2937",
+                      fontWeight: 700,
+                      fontSize: { xs: "28px", md: "32px" },
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    &#8377;{item?.price}
+                  </Typography>
+                  {item?.strikePrice && Number(item.strikePrice) > Number(item.price) && (
+                    <Typography
+                      sx={{
+                        color: "#9CA3AF",
+                        fontSize: "16px",
+                        textDecoration: "line-through",
+                        fontFamily: "Inter",
+                      }}
+                    >
+                      &#8377;{item.strikePrice}
+                    </Typography>
+                  )}
+                  <Typography
+                    sx={{
+                      color: "#6B7280",
+                      fontSize: "14px",
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    / person
+                  </Typography>
+                </Box>
+
+                {/* Trip Off badge */}
+                {item?.tripOff > 0 && (
+                  <Typography
+                    sx={{
+                      color: "#059669",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    {item.tripOff}% OFF applied
+                  </Typography>
+                )}
+
+                {/* Book Now */}
+                <Button
+                  onClick={handleBookNowClick}
+                  fullWidth
+                  sx={{
+                    background: "#CD482A",
+                    color: "#fff",
+                    borderRadius: "12px",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    fontSize: "16px",
+                    fontFamily: "Inter",
+                    py: 1.5,
+                    "&:hover": { background: "#B03A1F" },
+                  }}
+                >
+                  Book Now
+                </Button>
+
+                {/* Enquire */}
+                <EnquirNow />
+              </Box>
             </Grid>
           </Grid>
         </Container>
@@ -449,6 +501,59 @@ const UpcommingDetails = () => {
         <DetailUpcomming tripDetail={item} />
       </Container>
 
+      {/* Mobile fixed Book Now bar */}
+      <Box
+        sx={{
+          display: { xs: "flex", md: "none" },
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 999,
+          background: "#fff",
+          borderTop: "1px solid #E5E7EB",
+          boxShadow: "0 -2px 12px rgba(0,0,0,0.08)",
+          px: 2,
+          py: 1.5,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
+            <Typography sx={{ fontSize: "20px", fontWeight: 700, color: "#1F2937", fontFamily: "Inter" }}>
+              &#8377;{item?.price}
+            </Typography>
+            {item?.strikePrice && Number(item.strikePrice) > Number(item.price) && (
+              <Typography sx={{ fontSize: "13px", color: "#9CA3AF", textDecoration: "line-through" }}>
+                &#8377;{item.strikePrice}
+              </Typography>
+            )}
+          </Box>
+          <Typography sx={{ fontSize: "11px", color: "#6B7280", fontFamily: "Inter" }}>
+            per person
+          </Typography>
+        </Box>
+        <Button
+          onClick={handleBookNowClick}
+          sx={{
+            background: "#CD482A",
+            color: "#fff",
+            borderRadius: "10px",
+            textTransform: "none",
+            fontWeight: 600,
+            fontSize: "15px",
+            fontFamily: "Inter",
+            px: 4,
+            py: 1.2,
+            "&:hover": { background: "#B03A1F" },
+          }}
+        >
+          Book Now
+        </Button>
+      </Box>
+      {/* Spacer for mobile fixed bar */}
+      <Box sx={{ display: { xs: "block", md: "none" }, height: "72px" }} />
     </Box>
   );
 };
