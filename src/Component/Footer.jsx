@@ -9,6 +9,10 @@ import { logof } from "../Images";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import { IconButton } from "@mui/material";
 
 const quickLinks = [
   { name: "Co-working Retreats", link: "#" },
@@ -224,6 +228,38 @@ const Footer = () => {
               <LanguageOutlinedIcon sx={{ fontSize: 18 }} />
               www.nomadictownies.com
             </Box>
+          </Box>
+
+          {/* Social Media */}
+          <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+            <IconButton
+              component="a"
+              href="https://www.instagram.com/nomadictownies/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              sx={{ color: "#D1D5DB", "&:hover": { color: "#E1306C" } }}
+            >
+              <InstagramIcon />
+            </IconButton>
+            <IconButton
+              component="a"
+              href="https://www.facebook.com/nomadictownies/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              sx={{ color: "#D1D5DB", "&:hover": { color: "#1877F2" } }}
+            >
+              <FacebookRoundedIcon />
+            </IconButton>
+            <IconButton
+              component="a"
+              href="#"
+              aria-label="LinkedIn"
+              sx={{ color: "#D1D5DB", "&:hover": { color: "#0A66C2" } }}
+            >
+              <LinkedInIcon />
+            </IconButton>
           </Box>
         </Box>
       </Container>
