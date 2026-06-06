@@ -1,12 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Box, Button, Dialog, IconButton, Slide, Typography } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import PhoneIphoneOutlinedIcon from "@mui/icons-material/PhoneIphoneOutlined";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import Loading from "../SmallComponents/Loading";
-import Toastify from "../SmallComponents/Tostify";
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   useSendEmailOtpMutation,
   useVerifyEmailOtpMutation,
@@ -17,465 +10,485 @@ import { useDispatch } from "react-redux";
 import { setUserDbData } from "../slices";
 import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../utils/api";
+import Loading from "../SmallComponents/Loading";
+import Toastify from "../SmallComponents/Tostify";
 
-const Transition = React.forwardRef((props, ref) => (
-  <Slide direction="up" ref={ref} {...props} />
-));
-Transition.displayName = "Transition";
+/* ─── brand tokens ─────────────────────────────── */
+const T = {
+  rust:     '#d24b2a',
+  rustDeep: '#b53c20',
+  charcoal: '#2c2a28',
+  ink:      '#1a1208',
+  muted:    '#7a5a48',
+  line:     'rgba(0,0,0,.12)',
+  cream:    '#fdf3ee',
+};
 
-/* ── Brand colors ── */
-const ACCENT = "#d24b2a";
-const ACCENT_DEEP = "#b53c20";
-const CHARCOAL = "#3a3632";
-
-/* ── Quotes for left panel ── */
+/* ─── travel quotes ─────────────────────────────── */
 const QUOTES = [
-  "You don’t have to be rich to travel well.",
+  "You don't have to be rich to travel well.",
   "The world is yours to explore.",
   "If not now, when?",
   "You need six months vacation twice a year.",
 ];
 
-/* ── Shared input styles ── */
-const inpSx = {
-  flex: 1,
-  border: "1.5px solid rgba(0,0,0,.12)",
-  height: "50px",
-  padding: "0 14px",
-  background: "#fff",
-  fontFamily: "Inter, sans-serif",
-  fontSize: "16px",
-  color: "#1a1208",
-  outline: "none",
-  width: "100%",
-  borderRadius: "14px",
-  transition: "border-color .15s, box-shadow .15s",
+/* ─── inline styles ─────────────────────────────── */
+const S = {
+  overlay: {
+    position: 'fixed', inset: 0, zIndex: 1300,
+    background: 'rgba(20,14,8,.45)', backdropFilter: 'blur(6px)',
+    WebkitBackdropFilter: 'blur(6px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+  },
+  modal: {
+    width: 820, maxWidth: '100%', display: 'flex',
+    overflow: 'hidden', borderRadius: 28,
+    background: 'rgba(255,255,255,.15)',
+    backdropFilter: 'blur(32px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(32px) saturate(180%)',
+    border: '1px solid rgba(255,255,255,.52)',
+    boxShadow: '0 40px 90px rgba(20,8,2,.38), 0 1px 0 rgba(255,255,255,.6) inset',
+    position: 'relative', maxHeight: '92vh',
+  },
+  closeBtn: {
+    position: 'absolute', top: 16, right: 16,
+    width: 34, height: 34, borderRadius: '50%',
+    background: 'rgba(255,255,255,.3)', border: '1px solid rgba(255,255,255,.5)',
+    display: 'grid', placeItems: 'center', cursor: 'pointer',
+    color: 'rgba(30,20,10,.8)', zIndex: 10,
+  },
+  panel: {
+    width: 340, flexShrink: 0, background: '#fff',
+    borderRight: '1px solid rgba(210,75,42,.1)',
+    display: 'flex', flexDirection: 'column', overflow: 'hidden',
+  },
+  logo: {
+    padding: '22px 24px 0',
+    fontFamily: '"Fredoka", "Plus Jakarta Sans", Inter, sans-serif',
+    fontWeight: 700, fontSize: 20,
+  },
+  quotesArea: {
+    flex: 1, display: 'flex', flexDirection: 'column',
+    alignItems: 'flex-start', justifyContent: 'center',
+    padding: '16px 28px 14px',
+  },
+  qMark: {
+    fontFamily: 'Georgia, serif', fontSize: 72, lineHeight: .78,
+    color: T.rust, opacity: .9, userSelect: 'none', marginBottom: 6,
+  },
+  qSlide: { position: 'relative', minHeight: 108, width: '100%' },
+  qText: (active) => ({
+    position: 'absolute', inset: 0,
+    fontFamily: 'Georgia, serif', fontStyle: 'italic',
+    fontSize: 20, lineHeight: 1.5, color: T.ink,
+    opacity: active ? 1 : 0,
+    transform: active ? 'translateY(0)' : 'translateY(10px)',
+    transition: 'opacity .55s, transform .55s',
+    pointerEvents: active ? 'auto' : 'none',
+    display: 'flex', alignItems: 'center', margin: 0,
+  }),
+  dots: { display: 'flex', gap: 8, marginTop: 18 },
+  dot: (active) => ({
+    height: 6, width: active ? 22 : 6, borderRadius: 3,
+    background: active ? T.rust : 'rgba(210,75,42,.22)',
+    transition: 'width .35s, background .35s',
+    cursor: 'pointer', border: 'none',
+  }),
+  subLabel: {
+    padding: '0 28px 12px', fontSize: 11, fontWeight: 700,
+    letterSpacing: '.16em', textTransform: 'uppercase',
+    color: 'rgba(80,50,30,.4)',
+  },
+  form: {
+    flex: 1, padding: '42px 42px 36px 32px',
+    display: 'flex', flexDirection: 'column', justifyContent: 'center',
+    background: '#ffffff', overflowY: 'auto',
+  },
+  h2: { fontSize: 30, fontWeight: 800, color: T.ink, letterSpacing: '-.025em', margin: '0 0 24px', fontFamily: 'Inter, sans-serif' },
+  toggle: {
+    display: 'flex', background: 'rgba(210,75,42,.1)',
+    border: '1px solid rgba(210,75,42,.12)',
+    borderRadius: 999, padding: 4, marginBottom: 22,
+  },
+  togBtn: (active) => ({
+    flex: 1, border: 'none', background: active ? 'rgba(30,20,10,.88)' : 'transparent',
+    color: active ? '#fff' : '#7a4030', cursor: 'pointer',
+    fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600,
+    padding: '10px 12px', borderRadius: 999,
+    boxShadow: active ? '0 4px 12px rgba(0,0,0,.18)' : 'none',
+    transition: 'all .2s',
+  }),
+  label: { display: 'block', fontSize: 13.5, fontWeight: 700, color: '#3a2e22', marginBottom: 7, fontFamily: 'Inter, sans-serif' },
+  phoneRow: { display: 'flex', gap: 10 },
+  ccSel: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    background: '#ffffff', border: `1.5px solid ${T.line}`,
+    borderRadius: 14, padding: '0 14px', height: 50,
+    fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600, color: T.ink,
+    cursor: 'pointer', whiteSpace: 'nowrap',
+  },
+  inp: {
+    flex: 1, border: `1.5px solid ${T.line}`, borderRadius: 14,
+    padding: '0 14px', height: 50,
+    background: '#ffffff', fontFamily: 'Inter, sans-serif', fontSize: 16, color: T.ink,
+    outline: 'none', width: '100%',
+  },
+  inpFocus: { borderColor: T.rust, boxShadow: `0 0 0 4px rgba(210,75,42,.1)` },
+  cta: {
+    width: '100%', height: 50, borderRadius: 999,
+    background: `linear-gradient(135deg, #e05a35, ${T.rustDeep})`,
+    color: '#fff', fontFamily: 'Inter, sans-serif', fontSize: 16, fontWeight: 700,
+    border: 'none', cursor: 'pointer', marginBottom: 16,
+    boxShadow: '0 12px 26px -10px rgba(210,75,42,.6)',
+  },
+  orRow: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 },
+  orHr: { flex: 1, border: 'none', borderTop: '1px solid #ede6dc' },
+  orSpan: { color: '#c0b4a8', fontSize: 13, fontWeight: 600 },
+  googleBtn: {
+    width: '100%', height: 48, background: '#ffffff',
+    border: '1.5px solid rgba(210,75,42,.15)', borderRadius: 999,
+    fontFamily: 'Inter, sans-serif', fontSize: 15, fontWeight: 600, color: T.ink,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+    cursor: 'pointer',
+  },
+  terms: { marginTop: 14, fontSize: 11.5, color: '#a09080', textAlign: 'center', lineHeight: 1.55, fontFamily: 'Inter, sans-serif' },
+  termLink: { color: T.rust, textDecoration: 'none' },
+  backBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: 5,
+    background: 'none', border: 'none', cursor: 'pointer',
+    fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600,
+    color: '#9a7060', padding: 0, marginBottom: 20,
+  },
+  otpIcon: {
+    width: 52, height: 52, borderRadius: 14,
+    background: 'rgba(210,75,42,.1)', display: 'grid',
+    placeItems: 'center', marginBottom: 14,
+  },
+  otpBoxRow: { display: 'flex', gap: 9, marginBottom: 20 },
+  otpBox: (filled) => ({
+    width: 48, height: 56, textAlign: 'center',
+    fontFamily: 'Inter, sans-serif', fontSize: 24, fontWeight: 700, color: T.ink,
+    border: `2px solid ${filled ? 'rgba(210,75,42,.4)' : T.line}`,
+    borderRadius: 14, background: '#ffffff', outline: 'none',
+    caretColor: 'transparent',
+  }),
+  resendRow: { marginTop: 14, fontSize: 13, color: '#9a7060', fontFamily: 'Inter, sans-serif' },
+  resendBtn: {
+    background: 'none', border: 'none', cursor: 'pointer',
+    fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 700,
+    color: T.rust, padding: 0, textDecoration: 'underline',
+  },
+  successWrap: {
+    flex: 1, display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    textAlign: 'center', padding: 32, background: '#ffffff',
+  },
+  successIcon: {
+    width: 68, height: 68, borderRadius: '50%',
+    background: 'rgba(31,138,91,.1)', display: 'grid',
+    placeItems: 'center', marginBottom: 16,
+  },
+  signupRow: { marginTop: 16, fontSize: 14, color: '#939393', textAlign: 'center', fontFamily: 'Inter, sans-serif' },
+  signupBtn: {
+    background: 'none', border: 'none', cursor: 'pointer',
+    fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700,
+    color: T.rust, padding: 0, marginLeft: 4,
+  },
 };
 
-/* ── OTP Boxes ── */
-function OTPBoxes({ otp, setOtp, boxRefs }) {
-  const handleInput = (idx, val) => {
-    const v = val.replace(/\D/g, "");
-    const n = [...otp];
-    n[idx] = v ? v[0] : "";
-    setOtp(n);
-    if (v && idx < 5) boxRefs.current[idx + 1]?.focus();
-  };
-  const handleKey = (idx, e) => {
-    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
-      boxRefs.current[idx - 1]?.focus();
-      const n = [...otp]; n[idx - 1] = ""; setOtp(n);
-    }
-    if (e.key === "ArrowLeft" && idx > 0) boxRefs.current[idx - 1]?.focus();
-    if (e.key === "ArrowRight" && idx < 5) boxRefs.current[idx + 1]?.focus();
-  };
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const p = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "").slice(0, 6);
-    const n = ["", "", "", "", "", ""];
-    [...p].forEach((c, i) => (n[i] = c));
-    setOtp(n);
-    boxRefs.current[Math.min(p.length, 5)]?.focus();
-  };
+/* ─── SVG icons ─── */
+function XIcon() { return <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M1 1l11 11M12 1L1 12"/></svg>; }
+function ChevLeft() { return <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4L6 9l5 5"/></svg>; }
+function ChevDown() { return <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m2 4.5 4 4 4-4"/></svg>; }
+function CheckIcon() { return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m4.5 12.5 5 5 10-10"/></svg>; }
+function GoogleLogo() { return <svg width="19" height="19" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.4l7.9 6.1C12.4 13.3 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.6c0-1.7-.2-3.3-.5-4.9H24v9.3h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9C43.8 37.9 46.5 31.7 46.5 24.6z"/><path fill="#FBBC05" d="M10.6 28.5a14.6 14.6 0 0 1 0-9.1L2.7 13.4A23.9 23.9 0 0 0 0 24c0 3.8.9 7.4 2.7 10.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.4l-7.6-5.9c-2 1.4-4.7 2.2-7.6 2.2-6.3 0-11.6-3.8-13.4-9.4l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>; }
+
+function MountainIllustration() {
   return (
-    <Box sx={{ display: "flex", gap: "9px", mb: 2.5 }}>
+    <svg viewBox="0 0 340 155" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice" style={{ display: 'block', width: '100%', height: '100%' }}>
+      <defs>
+        <linearGradient id="nt-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ffecd6"/><stop offset="100%" stopColor="#ffd6a8"/></linearGradient>
+        <linearGradient id="nt-gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="rgba(100,180,60,0)"/><stop offset="100%" stopColor="rgba(80,150,40,.45)"/></linearGradient>
+      </defs>
+      <rect width="340" height="155" fill="url(#nt-sky)"/>
+      <circle cx="270" cy="28" r="18" fill="#f5c842" opacity=".9"/>
+      <g fill="white" opacity=".75"><ellipse cx="52" cy="42" rx="24" ry="10"/><ellipse cx="36" cy="45" rx="16" ry="8"/><ellipse cx="66" cy="45" rx="17" ry="7"/></g>
+      <polygon points="0,106 40,55 80,90 120,36 165,80 205,45 248,84 288,48 340,68 340,120 0,120" fill={T.rust} opacity=".78"/>
+      <polygon points="0,130 34,108 68,128 104,98 140,122 176,106 212,128 248,106 282,130 316,110 340,122 340,144 0,144" fill={T.charcoal} opacity=".85"/>
+      <rect x="0" y="142" width="340" height="13" fill="url(#nt-gr)"/>
+      <path d="M20,155 Q75,143 140,144 Q195,140 255,134 Q295,130 325,134" stroke={T.rust} strokeWidth="1.8" fill="none" strokeDasharray="5,5" opacity=".65"/>
+      <g fill="rgba(44,42,40,.9)"><circle cx="170" cy="113" r="5"/><rect x="167" y="117" width="10" height="11" rx="2.5" fill={T.rust} opacity=".9"/><rect x="167" y="117" width="7" height="11" rx="2"/><line x1="168" y1="128" x2="164" y2="138" stroke="rgba(44,42,40,.9)" strokeWidth="2.5" strokeLinecap="round"/><line x1="172" y1="128" x2="175" y2="137" stroke="rgba(44,42,40,.9)" strokeWidth="2.5" strokeLinecap="round"/><line x1="167" y1="120" x2="160" y2="129" stroke="rgba(44,42,40,.9)" strokeWidth="2" strokeLinecap="round"/></g>
+      <g fill="rgba(30,60,20,.65)"><polygon points="10,144 18,116 26,144"/><polygon points="8,130 18,108 28,130"/><polygon points="26,144 33,120 40,144"/><polygon points="300,144 310,112 320,144"/><polygon points="298,130 310,104 322,130"/><polygon points="320,144 328,120 336,144"/></g>
+    </svg>
+  );
+}
+
+/* ─── OTP boxes ─── */
+function OTPBoxes({ otp, onChange, boxRefs }) {
+  function handleInput(idx, val) {
+    const v = val.replace(/\D/g, '');
+    const next = [...otp]; next[idx] = v ? v[0] : ''; onChange(next);
+    if (v && idx < 5) boxRefs.current[idx + 1]?.focus();
+  }
+  function handleKeyDown(idx, e) {
+    if (e.key === 'Backspace' && !otp[idx] && idx > 0) { boxRefs.current[idx - 1]?.focus(); const next = [...otp]; next[idx - 1] = ''; onChange(next); }
+    if (e.key === 'ArrowLeft' && idx > 0) boxRefs.current[idx - 1]?.focus();
+    if (e.key === 'ArrowRight' && idx < 5) boxRefs.current[idx + 1]?.focus();
+  }
+  function handlePaste(e) {
+    e.preventDefault();
+    const p = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+    const next = ['', '', '', '', '', '']; [...p].forEach((c, i) => { next[i] = c; }); onChange(next);
+    boxRefs.current[Math.min(p.length, 5)]?.focus();
+  }
+  return (
+    <div style={S.otpBoxRow}>
       {otp.map((v, i) => (
-        <input
-          key={i}
-          ref={(el) => (boxRefs.current[i] = el)}
-          maxLength={1}
-          inputMode="numeric"
-          value={v}
-          onChange={(e) => handleInput(i, e.target.value)}
-          onKeyDown={(e) => handleKey(i, e)}
+        <input key={i} ref={el => { boxRefs.current[i] = el; }} style={S.otpBox(!!v)}
+          maxLength={1} inputMode="numeric" value={v}
+          onChange={e => handleInput(i, e.target.value)}
+          onKeyDown={e => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}
-          style={{
-            width: 48, height: 56, textAlign: "center",
-            fontFamily: "Inter, sans-serif", fontSize: 24, fontWeight: 700,
-            color: "#1a1208", border: v ? `2px solid ${ACCENT}40` : "2px solid rgba(0,0,0,.12)",
-            background: "#fff", outline: "none", caretColor: "transparent",
-            borderRadius: 12, transition: "border-color .15s, box-shadow .15s, transform .1s",
-          }}
-          onFocus={(e) => { e.target.style.borderColor = ACCENT; e.target.style.boxShadow = `0 0 0 4px ${ACCENT}1A`; e.target.style.transform = "translateY(-2px)"; }}
-          onBlur={(e) => { e.target.style.borderColor = v ? `${ACCENT}40` : "rgba(0,0,0,.12)"; e.target.style.boxShadow = "none"; e.target.style.transform = "none"; }}
         />
       ))}
-    </Box>
+    </div>
   );
 }
 
-/* ── Left Panel ── */
-function LeftPanel({ qIdx }) {
-  return (
-    <Box sx={{
-      width: { md: "340px" }, flexShrink: 0, display: { xs: "none", md: "flex" },
-      flexDirection: "column", overflow: "hidden", position: "relative",
-      borderRight: "1px solid rgba(0,0,0,.07)", background: "#fff",
-    }}>
-      {/* Logo */}
-      <Box sx={{ px: 3, pt: 2.5 }}>
-        <Typography sx={{ fontWeight: 700, fontSize: "20px" }}>
-          <span style={{ color: ACCENT, fontFamily: "Inter" }}>nomadic</span>
-          <span style={{ color: CHARCOAL, fontFamily: "Inter", marginLeft: 5 }}>Townies</span>
-        </Typography>
-      </Box>
-
-      {/* Quotes */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", px: 3.5, py: 2 }}>
-        <Typography sx={{ fontFamily: "Georgia, serif", fontSize: 72, lineHeight: 0.78, color: ACCENT, opacity: 0.9, userSelect: "none", mb: 0.5 }}>
-          &ldquo;
-        </Typography>
-        <Box sx={{ position: "relative", minHeight: 108, width: "100%" }}>
-          {QUOTES.map((q, i) => (
-            <Typography key={i} sx={{
-              position: "absolute", inset: 0, fontFamily: "Georgia, serif", fontStyle: "italic",
-              fontSize: 20, lineHeight: 1.5, color: "#1f1208",
-              opacity: i === qIdx ? 1 : 0, transform: i === qIdx ? "translateY(0)" : "translateY(10px)",
-              transition: "opacity .55s, transform .55s", display: "flex", alignItems: "center",
-            }}>
-              {q}
-            </Typography>
-          ))}
-        </Box>
-        <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-          {QUOTES.map((_, i) => (
-            <Box key={i} sx={{
-              height: 6, borderRadius: 3, transition: "width .35s, background .35s", cursor: "pointer",
-              width: i === qIdx ? 22 : 6, background: i === qIdx ? ACCENT : "rgba(0,0,0,.15)",
-            }} />
-          ))}
-        </Box>
-      </Box>
-
-      <Typography sx={{ px: 3.5, pb: 1.5, fontSize: 11, fontWeight: 700, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(80,50,30,.42)" }}>
-        Travel differently
-      </Typography>
-
-      {/* Mountain art placeholder — warm gradient */}
-      <Box sx={{ height: 140, flexShrink: 0, background: `linear-gradient(180deg, #fff 0%, rgba(255,220,160,.18) 40%, rgba(210,75,42,.15) 100%)` }} />
-    </Box>
-  );
-}
-
-/* ── Main Component ── */
+/* ═══════════════════════════════════════════════════
+   MAIN LOGIN MODAL — adapted props for Nomadic Townies app
+   Props: openL, setOpenL, setOpens (to switch to SignUp)
+   ═══════════════════════════════════════════════════ */
 export default function LoginModal({ openL, setOpenL, setOpens }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const handleClose = () => { setOpenL(false); resetState(); };
 
   const [sendEmailOtp] = useSendEmailOtpMutation();
   const [verifyEmailOtp] = useVerifyEmailOtpMutation();
   const [phoneLogin] = usePhoneLoginMutation();
   const [verifyCode] = useVerifySmsCodeMutation();
 
-  const [tab, setTab] = useState("phone");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [step, setStep] = useState("login"); // login | otp | success
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [loading, setLoading] = useState(false);
-  const [timer, setTimer] = useState(0);
-  const [alertState, setAlertState] = useState({ open: false, message: "", severity: undefined });
-  const boxRefs = useRef([]);
+  const [step, setStep] = useState('login');
+  const [tab, setTab] = useState('phone');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [qIdx, setQIdx] = useState(0);
+  const [timer, setTimer] = useState(300);
+  const [timerOn, setTimerOn] = useState(false);
+  const [focusedInp, setFocusedInp] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [alertState, setAlertState] = useState({ open: false, message: '', severity: undefined });
+
+  const boxRefs = useRef([]);
+  const timerRef = useRef(null);
 
   const showToast = (msg, type) => setAlertState({ open: true, message: msg, severity: type });
 
-  const resetState = () => {
-    setStep("login"); setOtp(["", "", "", "", "", ""]);
-    setEmail(""); setPhone(""); setTab("phone");
+  const handleClose = () => {
+    setOpenL(false);
+    setStep('login'); setOtp(['', '', '', '', '', '']);
+    setEmail(''); setPhone(''); setTab('phone');
   };
 
   // Quote rotation
   useEffect(() => {
-    const id = setInterval(() => setQIdx((i) => (i + 1) % QUOTES.length), 3800);
+    const id = setInterval(() => setQIdx(i => (i + 1) % QUOTES.length), 3800);
     return () => clearInterval(id);
   }, []);
 
-  // OTP timer
+  // OTP countdown
   useEffect(() => {
-    if (timer > 0) {
-      const id = setTimeout(() => setTimer((t) => t - 1), 1000);
-      return () => clearTimeout(id);
-    }
-  }, [timer]);
+    if (timerOn && timer > 0) {
+      timerRef.current = setTimeout(() => setTimer(t => t - 1), 1000);
+    } else if (timer === 0) { setTimerOn(false); }
+    return () => clearTimeout(timerRef.current);
+  }, [timer, timerOn]);
+
+  // Escape to close
+  useEffect(() => {
+    const handler = e => { if (e.key === 'Escape') handleClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const otpFull = otp.every(v => v);
+  const timerFmt = `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, '0')}`;
+  const contactDisplay = tab === 'phone'
+    ? `+91 ••••••${phone.slice(-4) || 'XXXX'}`
+    : email || 'your email';
 
   // ── Send OTP ──
-  const handleContinue = useCallback(async (e) => {
-    e?.preventDefault();
-    if (tab === "phone" && !phone) return showToast("Please enter phone number", "error");
-    if (tab === "email" && !email) return showToast("Please enter your email", "error");
+  const handleContinue = useCallback(async () => {
+    if (tab === 'phone' && !phone) return showToast('Please enter phone number', 'error');
+    if (tab === 'email' && !email) return showToast('Please enter your email', 'error');
     try {
       setLoading(true);
-      if (tab === "email") {
+      if (tab === 'email') {
         const res = await sendEmailOtp({ email }).unwrap();
-        showToast(res.message, "success");
+        showToast(res.message, 'success');
       } else {
         const data = await phoneLogin({ phone });
-        showToast(data?.data?.message || "OTP sent", "success");
+        showToast(data?.data?.message || 'OTP sent', 'success');
       }
-      setStep("otp");
-      setTimer(300);
-      setOtp(["", "", "", "", "", ""]);
+      setStep('otp'); setTimer(300); setTimerOn(true);
+      setOtp(['', '', '', '', '', '']);
       setTimeout(() => boxRefs.current[0]?.focus(), 100);
     } catch (err) {
-      showToast(err?.data?.message || "Failed to send OTP", "error");
-    } finally {
-      setLoading(false);
-    }
+      showToast(err?.data?.message || 'Failed to send OTP', 'error');
+    } finally { setLoading(false); }
   }, [tab, phone, email, sendEmailOtp, phoneLogin]);
 
   // ── Verify OTP ──
-  const handleVerify = useCallback(async (e) => {
-    e?.preventDefault();
-    const code = otp.join("");
-    if (code.length < 6) return showToast("Enter 6-digit OTP", "error");
+  const handleVerify = useCallback(async () => {
+    const code = otp.join('');
+    if (code.length < 6) return showToast('Enter 6-digit OTP', 'error');
     try {
       setLoading(true);
-      if (tab === "email") {
+      if (tab === 'email') {
         const res = await verifyEmailOtp({ email, otp: code }).unwrap();
-        localStorage.setItem("token", res.token);
+        localStorage.setItem('token', res.token);
         dispatch(setUserDbData(res.user));
-        showToast("Login successful!", "success");
+        showToast('Login successful!', 'success');
         if (res.isNewUser || !res.user?.name) {
-          setOpenL(false); navigate("/complete-profile");
+          setOpenL(false); navigate('/complete-profile');
         } else {
-          setStep("success");
-          setTimeout(() => { setOpenL(false); navigate("/"); }, 2000);
+          setStep('success');
+          setTimeout(() => { setOpenL(false); navigate('/'); }, 2000);
         }
       } else {
         const response = await verifyCode({ phone, result: code });
-        localStorage.setItem("token", response?.data?.token);
+        localStorage.setItem('token', response?.data?.token);
         dispatch(setUserDbData(response?.data?.user));
-        showToast("Login successful!", "success");
-        setStep("success");
-        setTimeout(() => { setOpenL(false); navigate("/"); }, 2000);
+        showToast('Login successful!', 'success');
+        setStep('success');
+        setTimeout(() => { setOpenL(false); navigate('/'); }, 2000);
       }
     } catch (err) {
-      showToast(err?.data?.message || "Invalid OTP", "error");
-      setOtp(["", "", "", "", "", ""]);
+      showToast(err?.data?.message || 'Invalid OTP', 'error');
+      setOtp(['', '', '', '', '', '']);
       boxRefs.current[0]?.focus();
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }, [tab, otp, email, phone, verifyEmailOtp, verifyCode, dispatch, navigate, setOpenL]);
 
   const handleGoogleLogin = () => {
-    window.location.href = baseUrl + "/auth/auth/google";
+    window.location.href = baseUrl + '/auth/auth/google';
   };
 
-  const otpFull = otp.every((v) => v);
-  const maskedDisplay = tab === "phone"
-    ? `+91 ••••••${(phone || "").slice(-4) || "XXXX"}`
-    : email || "your email";
+  const handleResend = () => {
+    handleContinue();
+  };
+
+  if (!openL) return null;
 
   return (
-    <Dialog
-      open={openL} TransitionComponent={Transition} keepMounted
-      fullWidth maxWidth="md" onClose={handleClose}
-      sx={{
-        "& .MuiDialog-paper": {
-          borderRadius: { xs: "20px", md: "28px" },
-          overflow: "hidden", p: 0, m: { xs: 2, md: 4 },
-          border: "1px solid rgba(255,255,255,.52)",
-          boxShadow: "0 40px 90px rgba(30,12,4,.35), 0 1px 0 rgba(255,255,255,.6) inset",
-        },
-      }}
-    >
+    <>
       <Loading isLoading={loading} />
       <Toastify setAlertState={setAlertState} alertState={alertState} />
+      <div style={S.overlay} onClick={e => e.target === e.currentTarget && handleClose()}>
+        <div style={S.modal}>
+          <button style={S.closeBtn} onClick={handleClose} aria-label="Close"><XIcon /></button>
 
-      <Box sx={{ display: "flex", minHeight: { xs: "auto", md: "520px" } }}>
-        {/* ── Left Panel (desktop only) ── */}
-        <LeftPanel qIdx={qIdx} />
+          {/* ── LEFT PANEL (hidden on mobile via inline media query) ── */}
+          <div style={S.panel} className="login-left-panel">
+            <div style={S.logo}>
+              <span style={{ color: T.rust }}>nomadic</span>
+              <span style={{ color: T.charcoal, marginLeft: 5 }}>Townies</span>
+            </div>
+            <div style={S.quotesArea}>
+              <div style={S.qMark}>&ldquo;</div>
+              <div style={S.qSlide}>
+                {QUOTES.map((q, i) => <p key={i} style={S.qText(i === qIdx)}>{q}</p>)}
+              </div>
+              <div style={S.dots}>
+                {QUOTES.map((_, i) => <button key={i} style={S.dot(i === qIdx)} onClick={() => setQIdx(i)} aria-label={`Quote ${i + 1}`} />)}
+              </div>
+            </div>
+            <div style={S.subLabel}>Travel differently</div>
+            <div style={{ height: 155, flexShrink: 0 }}><MountainIllustration /></div>
+          </div>
 
-        {/* ── Close button ── */}
-        <IconButton onClick={handleClose} sx={{
-          position: "absolute", top: 14, right: 14, zIndex: 10,
-          width: 36, height: 36, border: "1px solid rgba(0,0,0,.1)",
-          background: "rgba(255,255,255,.8)", backdropFilter: "blur(8px)",
-          "&:hover": { background: "rgba(255,255,255,.95)" },
-        }}>
-          <CloseIcon sx={{ fontSize: 16, color: "#3a2e22" }} />
-        </IconButton>
-
-        {/* ── Right Form ── */}
-        <Box sx={{
-          flex: 1, px: { xs: 3, md: 5 }, py: { xs: 4, md: 5 },
-          display: "flex", flexDirection: "column", justifyContent: "center",
-          background: "#fff",
-        }}>
-          {/* ── SUCCESS STATE ── */}
-          {step === "success" && (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <Box sx={{ width: 68, height: 68, borderRadius: "50%", background: "rgba(31,138,91,.1)", display: "grid", placeItems: "center", mx: "auto", mb: 2 }}>
-                <CheckCircleOutlineIcon sx={{ fontSize: 32, color: "#1f8a5b" }} />
-              </Box>
-              <Typography sx={{ fontSize: 30, fontWeight: 800, color: "#1a1208", mb: 1, fontFamily: "Inter" }}>
-                You&apos;re in!
-              </Typography>
-              <Typography sx={{ fontSize: 15, color: "#7a5a48", lineHeight: 1.55, mb: 3, fontFamily: "Inter" }}>
-                Welcome to Nomadic Townies.<br />Let&apos;s find your next adventure.
-              </Typography>
-            </Box>
-          )}
-
-          {/* ── OTP STATE ── */}
-          {step === "otp" && (
-            <>
-              <Button onClick={() => setStep("login")} startIcon={<KeyboardBackspaceIcon />} sx={{
-                justifyContent: "flex-start", color: "#9a7060", fontWeight: 600, fontSize: 14,
-                textTransform: "none", px: 0, mb: 2, "&:hover": { color: ACCENT, background: "transparent" },
-              }}>
-                Back
-              </Button>
-              <Box sx={{ width: 52, height: 52, borderRadius: "14px", display: "grid", placeItems: "center", background: `${ACCENT}1A`, mb: 2 }}>
-                <PhoneIphoneOutlinedIcon sx={{ fontSize: 26, color: ACCENT }} />
-              </Box>
-              <Typography sx={{ fontSize: 28, fontWeight: 800, color: "#1a1208", mb: 0.5, fontFamily: "Inter" }}>
-                {tab === "phone" ? "Verify number" : "Verify email"}
-              </Typography>
-              <Typography sx={{ fontSize: 14, color: "#7a5a48", lineHeight: 1.55, mb: 3, fontFamily: "Inter" }}>
-                We sent a 6-digit code to <b>{maskedDisplay}</b>.
-              </Typography>
-
-              <OTPBoxes otp={otp} setOtp={setOtp} boxRefs={boxRefs} />
-
-              <Button onClick={handleVerify} fullWidth disabled={!otpFull} sx={{
-                height: 50, background: ACCENT, color: "#fff", fontFamily: "Inter", fontSize: 16, fontWeight: 700,
-                borderRadius: "999px", textTransform: "none", mb: 2,
-                boxShadow: `0 12px 26px -10px ${ACCENT}88`,
-                opacity: otpFull ? 1 : 0.45,
-                "&:hover": { background: ACCENT_DEEP },
-                "&:disabled": { background: ACCENT, color: "#fff", opacity: 0.45 },
-              }}>
-                Verify &amp; Login
-              </Button>
-
-              <Box sx={{ fontSize: 13, color: "#9a7060", fontFamily: "Inter" }}>
-                {timer > 0 ? (
-                  <span>Resend in <b>{Math.floor(timer / 60)}:{String(timer % 60).padStart(2, "0")}</b></span>
-                ) : (
-                  <Button onClick={handleContinue} sx={{ color: ACCENT, textTransform: "none", fontWeight: 700, fontSize: 13, p: 0, textDecoration: "underline", "&:hover": { background: "transparent" } }}>
-                    Resend code
-                  </Button>
-                )}
-              </Box>
-            </>
-          )}
-
-          {/* ── LOGIN STATE ── */}
-          {step === "login" && (
-            <>
-              <Typography sx={{ fontSize: 30, fontWeight: 800, color: "#1a1208", mb: 3, fontFamily: "Inter", letterSpacing: "-0.025em" }}>
-                Login
-              </Typography>
-
-              {/* Phone / Email toggle */}
-              <Box sx={{ display: "flex", p: "4px", mb: 2.5, background: "rgba(0,0,0,.06)", borderRadius: "999px" }}>
-                {["phone", "email"].map((t) => (
-                  <Button key={t} onClick={() => setTab(t)} sx={{
-                    flex: 1, borderRadius: "999px", textTransform: "capitalize",
-                    fontFamily: "Inter", fontSize: 15, fontWeight: 600, py: 1.2,
-                    color: tab === t ? "#fff" : "#7a7060",
-                    background: tab === t ? "rgba(30,20,10,.88)" : "transparent",
-                    boxShadow: tab === t ? "0 4px 12px rgba(0,0,0,.18)" : "none",
-                    "&:hover": { background: tab === t ? "rgba(30,20,10,.88)" : "rgba(0,0,0,.04)" },
-                  }}>
-                    {t}
-                  </Button>
-                ))}
-              </Box>
-
-              <form onSubmit={handleContinue}>
-                {tab === "phone" ? (
-                  <Box sx={{ mb: 2 }}>
-                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#3a2e22", mb: 1, fontFamily: "Inter" }}>Phone</Typography>
-                    <Box sx={{ display: "flex", gap: "10px" }}>
-                      <Box sx={{
-                        display: "flex", alignItems: "center", gap: 0.5,
-                        background: "#fff", border: "1.5px solid rgba(0,0,0,.12)",
-                        height: 50, px: 1.5, borderRadius: "14px", fontFamily: "Inter",
-                        fontSize: 15, fontWeight: 600, color: "#1a1208", whiteSpace: "nowrap",
-                      }}>
-                        +91 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m2 4.5 4 4 4-4" /></svg>
-                      </Box>
-                      <input
-                        type="tel" inputMode="numeric" value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        style={inpSx}
-                        onFocus={(e) => { e.target.style.borderColor = ACCENT; e.target.style.boxShadow = `0 0 0 4px ${ACCENT}1A`; }}
-                        onBlur={(e) => { e.target.style.borderColor = "rgba(0,0,0,.12)"; e.target.style.boxShadow = "none"; }}
-                      />
-                    </Box>
-                  </Box>
-                ) : (
-                  <Box sx={{ mb: 2 }}>
-                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: "#3a2e22", mb: 1, fontFamily: "Inter" }}>Email</Typography>
-                    <input
-                      type="email" value={email} placeholder="you@email.com"
-                      onChange={(e) => setEmail(e.target.value)}
-                      style={inpSx}
-                      onFocus={(e) => { e.target.style.borderColor = ACCENT; e.target.style.boxShadow = `0 0 0 4px ${ACCENT}1A`; }}
-                      onBlur={(e) => { e.target.style.borderColor = "rgba(0,0,0,.12)"; e.target.style.boxShadow = "none"; }}
-                    />
-                  </Box>
-                )}
-
-                <Button type="submit" fullWidth sx={{
-                  height: 50, background: ACCENT, color: "#fff", fontFamily: "Inter", fontSize: 16, fontWeight: 700,
-                  borderRadius: "999px", textTransform: "none", mb: 2,
-                  boxShadow: `0 12px 26px -10px ${ACCENT}88`,
-                  "&:hover": { background: ACCENT_DEEP, transform: "translateY(-1px)" },
-                }}>
-                  Continue
-                </Button>
-              </form>
-
-              {/* OR divider */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
-                <Box sx={{ flex: 1, height: "1px", background: "#ede6dc" }} />
-                <Typography sx={{ color: "#c0b4a8", fontSize: 13, fontWeight: 600, fontFamily: "Inter" }}>Or</Typography>
-                <Box sx={{ flex: 1, height: "1px", background: "#ede6dc" }} />
-              </Box>
-
-              {/* Google */}
-              <Button onClick={handleGoogleLogin} fullWidth sx={{
-                height: 48, background: "#fff", border: "1.5px solid rgba(0,0,0,.1)",
-                borderRadius: "999px", fontFamily: "Inter", fontSize: 15, fontWeight: 600,
-                color: "#1a1208", textTransform: "none", display: "flex", gap: 1,
-                "&:hover": { background: "#fafafa" },
-              }}>
-                <svg width="19" height="19" viewBox="0 0 48 48">
-                  <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.4l7.9 6.1C12.4 13.3 17.7 9.5 24 9.5z" />
-                  <path fill="#4285F4" d="M46.5 24.6c0-1.7-.2-3.3-.5-4.9H24v9.3h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9C43.8 37.9 46.5 31.7 46.5 24.6z" />
-                  <path fill="#FBBC05" d="M10.6 28.5a14.6 14.6 0 0 1 0-9.1L2.7 13.4A23.9 23.9 0 0 0 0 24c0 3.8.9 7.4 2.7 10.6l7.9-6.1z" />
-                  <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.4l-7.6-5.9c-2 1.4-4.7 2.2-7.6 2.2-6.3 0-11.6-3.8-13.4-9.4l-7.9 6.1C6.6 42.6 14.6 48 24 48z" />
-                </svg>
-                Continue with Google
-              </Button>
-
-              {/* Terms + Sign up link */}
-              <Typography sx={{ mt: 2, fontSize: 11.5, color: "#a09080", textAlign: "center", lineHeight: 1.55, fontFamily: "Inter" }}>
-                By continuing you agree to our{" "}
-                <a href="/terms-and-conditions" style={{ color: ACCENT, textDecoration: "none" }}>Terms</a> and{" "}
-                <a href="/privacy-policy" style={{ color: ACCENT, textDecoration: "none" }}>Privacy Policy</a>.
-              </Typography>
-
-              {setOpens && (
-                <Typography sx={{ mt: 2, fontSize: 14, color: "#939393", textAlign: "center", fontFamily: "Inter" }}>
-                  Don&apos;t have an account?
-                  <Button onClick={() => { setOpens(true); setOpenL(false); }} sx={{
-                    color: ACCENT, textTransform: "none", fontWeight: 700, fontSize: 14, ml: 0.5,
-                  }}>
-                    Create One
-                  </Button>
-                </Typography>
+          {/* ── RIGHT: LOGIN ── */}
+          {step === 'login' && (
+            <div style={S.form}>
+              <h2 style={S.h2}>Login</h2>
+              <div style={S.toggle}>
+                <button style={S.togBtn(tab === 'phone')} onClick={() => setTab('phone')}>Phone</button>
+                <button style={S.togBtn(tab === 'email')} onClick={() => setTab('email')}>Email</button>
+              </div>
+              {tab === 'phone' && (
+                <div style={{ marginBottom: 18 }}>
+                  <label style={S.label}>Phone</label>
+                  <div style={S.phoneRow}>
+                    <div style={S.ccSel}>+91 <ChevDown /></div>
+                    <input style={{ ...S.inp, ...(focusedInp === 'phone' ? S.inpFocus : {}) }}
+                      type="tel" inputMode="numeric" value={phone}
+                      onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      onFocus={() => setFocusedInp('phone')} onBlur={() => setFocusedInp(null)} />
+                  </div>
+                </div>
               )}
-            </>
+              {tab === 'email' && (
+                <div style={{ marginBottom: 18 }}>
+                  <label style={S.label}>Email</label>
+                  <input style={{ ...S.inp, ...(focusedInp === 'email' ? S.inpFocus : {}) }}
+                    type="email" value={email} placeholder="you@email.com"
+                    onChange={e => setEmail(e.target.value)}
+                    onFocus={() => setFocusedInp('email')} onBlur={() => setFocusedInp(null)} />
+                </div>
+              )}
+              <button style={S.cta} onClick={handleContinue}>Continue</button>
+              <div style={S.orRow}><hr style={S.orHr} /><span style={S.orSpan}>Or</span><hr style={S.orHr} /></div>
+              <button style={S.googleBtn} onClick={handleGoogleLogin}><GoogleLogo /> Continue with Google</button>
+              <p style={S.terms}>By continuing you agree to our <a href="/terms-and-conditions" style={S.termLink}>Terms</a> and <a href="/privacy-policy" style={S.termLink}>Privacy Policy</a>.</p>
+              {setOpens && (
+                <div style={S.signupRow}>
+                  Don&apos;t have an account?
+                  <button style={S.signupBtn} onClick={() => { setOpens(true); setOpenL(false); }}>Create One</button>
+                </div>
+              )}
+            </div>
           )}
-        </Box>
-      </Box>
-    </Dialog>
+
+          {/* ── RIGHT: OTP ── */}
+          {step === 'otp' && (
+            <div style={S.form}>
+              <button style={S.backBtn} onClick={() => setStep('login')}><ChevLeft /> Back</button>
+              <div style={S.otpIcon}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={T.rust} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="3" /><path d="M9 18h6" /></svg>
+              </div>
+              <h2 style={S.h2}>{tab === 'phone' ? 'Verify number' : 'Verify email'}</h2>
+              <p style={{ fontSize: 14, color: T.muted, lineHeight: 1.55, margin: '6px 0 22px', fontFamily: 'Inter, sans-serif' }}>
+                We sent a 6-digit code to <b>{contactDisplay}</b>.
+              </p>
+              <OTPBoxes otp={otp} onChange={setOtp} boxRefs={boxRefs} />
+              <button style={{ ...S.cta, opacity: otpFull ? 1 : 0.45, pointerEvents: otpFull ? 'auto' : 'none' }} onClick={handleVerify}>
+                Verify &amp; Login
+              </button>
+              <div style={S.resendRow}>
+                {timerOn
+                  ? <span>Resend code in <b>{timerFmt}</b></span>
+                  : <button style={S.resendBtn} onClick={handleResend}>Resend code</button>}
+              </div>
+            </div>
+          )}
+
+          {/* ── RIGHT: SUCCESS ── */}
+          {step === 'success' && (
+            <div style={S.successWrap}>
+              <div style={S.successIcon}><CheckIcon /></div>
+              <h2 style={{ ...S.h2, margin: '0 0 10px' }}>You&apos;re in!</h2>
+              <p style={{ fontSize: 15, color: T.muted, lineHeight: 1.55, marginBottom: 24, fontFamily: 'Inter, sans-serif' }}>
+                Welcome to Nomadic Townies.<br />Let&apos;s find your next adventure.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Hide left panel on mobile */}
+      <style>{`.login-left-panel { display: flex; } @media (max-width: 768px) { .login-left-panel { display: none !important; } }`}</style>
+    </>
   );
 }
