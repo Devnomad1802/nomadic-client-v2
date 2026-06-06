@@ -28,7 +28,7 @@ const QUOTES = [
 
 const S = {
   overlay: { position: "fixed", inset: 0, zIndex: 1300, background: "rgba(20,14,8,.45)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 },
-  modal: { width: 820, maxWidth: "100%", display: "flex", overflow: "hidden", borderRadius: 28, background: "rgba(255,255,255,.15)", backdropFilter: "blur(32px) saturate(180%)", WebkitBackdropFilter: "blur(32px) saturate(180%)", border: "1px solid rgba(255,255,255,.52)", boxShadow: "0 40px 90px rgba(20,8,2,.38), 0 1px 0 rgba(255,255,255,.6) inset", position: "relative", maxHeight: "92vh" },
+  modal: { width: 820, maxWidth: "100%", display: "flex", overflow: "hidden", borderRadius: 28, background: "#FFFFFF", backdropFilter: "blur(32px) saturate(180%)", WebkitBackdropFilter: "blur(32px) saturate(180%)", border: "1px solid rgba(255,255,255,.52)", boxShadow: "0 40px 90px rgba(20,8,2,.38), 0 1px 0 rgba(255,255,255,.6) inset", position: "relative", maxHeight: "92vh" },
   closeBtn: { position: "absolute", top: 16, right: 16, width: 34, height: 34, borderRadius: "50%", background: "rgba(255,255,255,.3)", border: "1px solid rgba(255,255,255,.5)", display: "grid", placeItems: "center", cursor: "pointer", color: "rgba(30,20,10,.8)", zIndex: 10 },
   panel: { width: 340, flexShrink: 0, background: "#fff", borderRight: "1px solid rgba(210,75,42,.1)", display: "flex", flexDirection: "column", overflow: "hidden" },
   logo: { padding: "22px 24px 0", fontFamily: '"Fredoka", Inter, sans-serif', fontWeight: 700, fontSize: 20 },
@@ -41,7 +41,7 @@ const S = {
   subLabel: { padding: "0 28px 12px", fontSize: 11, fontWeight: 700, letterSpacing: ".16em", textTransform: "uppercase", color: "rgba(80,50,30,.4)" },
   form: { flex: 1, padding: "42px 42px 36px 32px", display: "flex", flexDirection: "column", justifyContent: "center", background: "#fff", overflowY: "auto" },
   h2: { fontSize: 30, fontWeight: 800, color: T.ink, letterSpacing: "-.025em", margin: "0 0 24px", fontFamily: "Inter, sans-serif" },
-  toggle: { display: "flex", background: "rgba(210,75,42,.1)", border: "1px solid rgba(210,75,42,.12)", borderRadius: 999, padding: 4, marginBottom: 22 },
+  toggle: { display: "flex", background: "#F0F0F0", border: "1px solid #F0F0F0", borderRadius: 999, padding: 4, marginBottom: 22 },
   togBtn: (a) => ({ flex: 1, border: "none", background: a ? "rgba(30,20,10,.88)" : "transparent", color: a ? "#fff" : "#7a4030", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, fontWeight: 600, padding: "10px 12px", borderRadius: 999, boxShadow: a ? "0 4px 12px rgba(0,0,0,.18)" : "none", transition: "all .2s" }),
   label: { display: "block", fontSize: 13.5, fontWeight: 700, color: "#3a2e22", marginBottom: 7, fontFamily: "Inter, sans-serif" },
   phoneRow: { display: "flex", gap: 10 },

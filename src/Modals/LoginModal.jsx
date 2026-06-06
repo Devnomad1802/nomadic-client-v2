@@ -43,7 +43,7 @@ const S = {
   modal: {
     width: 820, maxWidth: '100%', display: 'flex',
     overflow: 'hidden', borderRadius: 28,
-    background: 'rgba(255,255,255,.15)',
+    background: '#FFFFFF',
     backdropFilter: 'blur(32px) saturate(180%)',
     WebkitBackdropFilter: 'blur(32px) saturate(180%)',
     border: '1px solid rgba(255,255,255,.52)',
@@ -106,8 +106,8 @@ const S = {
   },
   h2: { fontSize: 30, fontWeight: 800, color: T.ink, letterSpacing: '-.025em', margin: '0 0 24px', fontFamily: 'Inter, sans-serif' },
   toggle: {
-    display: 'flex', background: 'rgba(210,75,42,.1)',
-    border: '1px solid rgba(210,75,42,.12)',
+    display: 'flex', background: '#F0F0F0',
+    border: '1px solid #F0F0F0',
     borderRadius: 999, padding: 4, marginBottom: 22,
   },
   togBtn: (active) => ({
