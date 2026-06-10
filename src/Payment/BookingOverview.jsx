@@ -213,11 +213,11 @@ const BookingOverview = () => {
 
         // Construct options for Razorpay
         const options = {
-          key: "rzp_test_Slffqw3YxojtUf", // Add your Razorpay key here
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_live_T02OlpHKpW0nC9",
           amount: Math.round(selectedValue * 100),
           currency,
           name: "Nomadic Townies",
-          description: "Test Transaction",
+          description: "Trip Booking Payment",
           image: "https://i.ibb.co/5Y3m33n/test.png",
           order_id: order2.id,
           handler: async function (response) {
