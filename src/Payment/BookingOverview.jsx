@@ -213,7 +213,8 @@ const BookingOverview = () => {
 
         // Construct options for Razorpay
         const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_live_T02OlpHKpW0nC9",
+          // Test by default; set VITE_RAZORPAY_KEY_ID=rzp_live_... in Vercel to go live
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Slffqw3YxojtUf",
           amount: Math.round(selectedValue * 100),
           currency,
           name: "Nomadic Townies",
