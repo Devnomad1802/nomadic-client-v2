@@ -203,11 +203,21 @@ const Payment = () => {
   const handleCouponApply = () => applyCoupon(couponCode);
 
   const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", {
+    if (!date) return "";
+    const d = date instanceof Date ? date : new Date(date);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
   };
+
+  // Resolve the selected batch by its id (batchData is filtered, so a
+  // positional lookup batchData[selectedBatch] can return undefined).
+  const selectedBatchObj =
+    selectedBatch !== null
+      ? batchData.find((b) => b.id === selectedBatch)
+      : null;
 
   return (
     <>
@@ -789,10 +799,8 @@ const Payment = () => {
                   </Typography>
                 </Box>
                 <Typography sx={{ color: "#444", fontSize: "14px", fontWeight: "500" }}>
-                  {selectedBatch !== null
-                    ? `${formatDate(
-                      batchData[selectedBatch]?.startDate
-                    )} - ${formatDate(batchData[selectedBatch]?.endDate)}`
+                  {selectedBatchObj
+                    ? `${formatDate(selectedBatchObj.startDate)} - ${formatDate(selectedBatchObj.endDate)}`
                     : "Not selected"}
                 </Typography>
               </Box>
@@ -955,7 +963,7 @@ const Payment = () => {
                 navigate("/booking_overview", {
                   state: {
                     paymentDetail,
-                    selectedBatch: batchData[selectedBatch],
+                    selectedBatch: selectedBatchObj,
                     selections,
                     totalAmount: finalAmount,
                     coupenDiscount,
