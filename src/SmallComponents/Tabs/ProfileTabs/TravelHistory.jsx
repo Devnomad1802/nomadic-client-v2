@@ -99,11 +99,11 @@ const TravelHistory = () => {
 
         // Construct options for Razorpay
         const options = {
-        key: "rzp_test_Slffqw3YxojtUf", // Add your Razorpay key here
-        amount: Math.round(selectedValue * 100),
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+          amount: Math.round(selectedValue * 100),
           currency,
           name: "Nomadic Townies",
-          description: "Test Transaction",
+          description: "Trip Booking Payment",
           image: "https://i.ibb.co/5Y3m33n/test.png",
           order_id: order2.id,
           handler: async function (response) {
