@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Container, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,8 +16,13 @@ const FirstSection = ({ homebg, toggle, homeVideo }) => {
 
   const navigate = useNavigate();
   const [opene, setOpene] = useState(false);
+  const [heroSearch, setHeroSearch] = useState("");
   const toggelModele = () => {
     setOpene(!opene);
+  };
+  const goSearch = () => {
+    const q = heroSearch.trim();
+    navigate(q ? `/all-packages?q=${encodeURIComponent(q)}` : "/all-packages");
   };
 
   return (
@@ -121,6 +127,42 @@ const FirstSection = ({ homebg, toggle, homeVideo }) => {
                     A curated marketplace for transformative travel experiences — community trips, wellness &amp; yoga retreats, backpacking adventures, cultural immersions, workshops and festivals, hosted by passionate communities worldwide.
                   </Typography>
 
+                  <TextField
+                    value={heroSearch}
+                    onChange={(e) => setHeroSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") goSearch();
+                    }}
+                    placeholder="Search experiences, destinations, retreats…"
+                    sx={{
+                      width: { xs: "100%", sm: "440px" },
+                      maxWidth: "90vw",
+                      backgroundColor: "#fff",
+                      borderRadius: "999px",
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "999px",
+                        paddingRight: "6px",
+                      },
+                      "& fieldset": { border: "none" },
+                    }}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={goSearch}
+                            aria-label="search experiences"
+                            sx={{
+                              backgroundColor: "#EC3F18",
+                              color: "#fff",
+                              "&:hover": { backgroundColor: "#393938" },
+                            }}
+                          >
+                            <SearchIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
                   <Box
                     sx={{
                       display: "flex",

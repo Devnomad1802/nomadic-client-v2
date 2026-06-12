@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ReviewsBanner from "../Component/Home/ReviewsBanner";
 import Banner from "../Component/Home/Banner";
 import Categories from "../Component/Home/Categories";
@@ -23,11 +24,18 @@ const bannerObj2 = {
 };
 
 const AllPackages = ({ allpkgbg }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Keep search in sync if the user arrives with a ?q= query (e.g. from the homepage hero)
+  useEffect(() => {
+    setSearchQuery(initialQuery);
+  }, [initialQuery]);
   return (
     <Box>
       <Helmet>
@@ -38,7 +46,7 @@ const AllPackages = ({ allpkgbg }) => {
         <meta property="og:description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more." />
         <meta property="og:url" content="https://nomadictownies.com/all-packages" />
       </Helmet>
-      <AllPakgaeshome allpkgbg={allpkgbg} onSearch={setSearchQuery} />
+      <AllPakgaeshome allpkgbg={allpkgbg} onSearch={setSearchQuery} initialSearch={initialQuery} />
       <UpcomingTrip searchQuery={searchQuery} />
       {/* <Upcimming /> */}
       <Categories />

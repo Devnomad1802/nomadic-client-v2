@@ -8,8 +8,8 @@ import EnquirNow from "../../Modals/EnquirNow";
 import { CustomField } from "../../SmallComponents/CustomInput";
 import { baseImage } from "../../utils";
 
-const AllPakgaeshome = ({ allpkgbg, onSearch }) => {
-  const [search, SetSearch] = useState("");
+const AllPakgaeshome = ({ allpkgbg, onSearch, initialSearch = "" }) => {
+  const [search, SetSearch] = useState(initialSearch);
   const handleChange = (e) => {
     SetSearch(e.target.value);
     if (onSearch) onSearch(e.target.value);
