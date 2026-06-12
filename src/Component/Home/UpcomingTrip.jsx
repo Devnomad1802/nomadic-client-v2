@@ -22,7 +22,7 @@ const UpcomingTrip = ({ searchQuery = "" }) => {
               mt: { xs: 2, md: 0 },
             }}
           >
-            Upcoming Trips
+            Featured Experiences
           </Typography>
         </Box>
 

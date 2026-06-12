@@ -83,7 +83,7 @@ const Categories = () => {
           mt: { xs: 2, md: 0 },
         }}
       >
-        Choose Your Adventure
+        Explore by Experience
       </Typography>
       <Typography
         sx={{
@@ -100,8 +100,9 @@ const Categories = () => {
           mt: { xs: 2, md: 1 },
         }}
       >
-        From serene mountain treks to adrenaline-pumping expeditions, find your
-        perfect adventure.
+        Community trips, wellness &amp; yoga retreats, cultural immersions,
+        creative workshops, festivals and more — each one curated and
+        independently hosted.
       </Typography>
 
       {isLoading ? (

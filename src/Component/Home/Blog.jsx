@@ -62,7 +62,7 @@ const Blog = () => {
                 mt: { xs: 2, md: 0 },
               }}
             >
-              Travel Stories And Insights
+              Stories from the Community
             </Typography>
             <Typography
               sx={{

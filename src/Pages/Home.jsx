@@ -7,6 +7,8 @@ import HowItWorks from "../Component/Home/HowItWorks";
 import Categories from "../Component/Home/Categories";
 import About from "../Component/Home/About";
 import Reviews from "../Component/Home/Reviews";
+import TrustStrip from "../Component/Home/TrustStrip";
+import ForHosts from "../Component/Home/ForHosts";
 import Blog from "../Component/Home/Blog";
 import UpcomingTrip from "../Component/Home/UpcomingTrip";
 import { useEffect, useState } from "react";
@@ -71,12 +73,9 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
       <UpcomingTrip />
       <Categories />
       <About aboutSection={aboutSection} />
+      <TrustStrip />
       <Reviews />
-      {/* <Hidden smDown>
-        <Box sx={{ pt: 10 }}>
-          <Banner bannerObj={bannerObj2} />
-        </Box>
-      </Hidden> */}
+      <ForHosts />
       <Blog />
       <Footer />
     </Box>
