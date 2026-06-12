@@ -40,11 +40,11 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
   return (
     <Box>
       <Helmet>
-        <title>Adventure Trips &amp; Group Tours in India | Nomadic Townies</title>
-        <meta name="description" content="Nomadic Townies offers handcrafted adventure trips, group tours &amp; travel packages across India &amp; the world. Join 5000+ happy travelers. Book now!" />
+        <title>Curated Travel Experiences &amp; Community Trips | Nomadic Townies</title>
+        <meta name="description" content="Nomadic Townies is a curated marketplace for transformative travel experiences — community trips, wellness retreats, cultural immersions &amp; workshops hosted by passionate communities. Join 5000+ travelers." />
         <link rel="canonical" href="https://nomadictownies.com/" />
-        <meta property="og:title" content="Adventure Trips &amp; Group Tours in India | Nomadic Townies" />
-        <meta property="og:description" content="Nomadic Townies offers handcrafted adventure trips, group tours &amp; travel packages across India &amp; the world. Join 5000+ happy travelers. Book now!" />
+        <meta property="og:title" content="Curated Travel Experiences &amp; Community Trips | Nomadic Townies" />
+        <meta property="og:description" content="A curated marketplace for transformative travel experiences hosted by passionate communities across India and the world. Discover experiences that matter." />
         <meta property="og:url" content="https://nomadictownies.com/" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify({

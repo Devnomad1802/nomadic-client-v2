@@ -2,6 +2,7 @@
 import { Box, Button, Container, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Autoplay, Pagination } from "swiper/modules";
@@ -12,6 +13,7 @@ import tourCanada from "../../video/tourCanada.mp4";
 const FirstSection = ({ homebg, toggle, homeVideo }) => {
 
 
+  const navigate = useNavigate();
   const [opene, setOpene] = useState(false);
   const toggelModele = () => {
     setOpene(!opene);
@@ -113,32 +115,60 @@ const FirstSection = ({ homebg, toggle, homeVideo }) => {
                       fontSize: { xs: "33px", sm: "40px", md: "48px" },
                     }}
                   >
-                    The way to experience the world.{" "}
+                    Discover Experiences That Matter{" "}
                   </Typography>
                   <Typography sx={{ textAlign: "center", opacity: 0.9, fontSize: { xs: "16px", sm: "18px", md: "20px" } }}>
-                    Discover breathtaking destinations, create unforgettable memories, and embark on adventures that will transform your perspective.
+                    A curated marketplace for transformative travel experiences — community trips, wellness &amp; yoga retreats, backpacking adventures, cultural immersions, workshops and festivals, hosted by passionate communities worldwide.
                   </Typography>
 
-                  <Button
-                    variant="simplebtn"
-                    onClick={() => {
-                      setOpene(true);
-                    }}
+                  <Box
                     sx={{
-                      textTransform: "capitalize",
-                      fontSize: "14px",
-                      backgroundColor: "#EC3F18",
-                      color: "#fff",
-                      alignItems: "left",
-                      width: "300px",
-                      "&:hover": {
-                        border: "1.5px solid #fff",
-                        background: "#393938",
-                      },
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      gap: "12px",
+                      width: { xs: "100%", sm: "auto" },
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    Enquire Now
-                  </Button>
+                    <Button
+                      variant="simplebtn"
+                      onClick={() => navigate("/all-packages")}
+                      sx={{
+                        textTransform: "capitalize",
+                        fontSize: "14px",
+                        backgroundColor: "#EC3F18",
+                        color: "#fff",
+                        width: { xs: "100%", sm: "220px" },
+                        maxWidth: "320px",
+                        "&:hover": {
+                          border: "1.5px solid #fff",
+                          background: "#393938",
+                        },
+                      }}
+                    >
+                      Explore Experiences
+                    </Button>
+                    <Button
+                      variant="simplebtn"
+                      onClick={() => setOpene(true)}
+                      sx={{
+                        textTransform: "capitalize",
+                        fontSize: "14px",
+                        backgroundColor: "transparent",
+                        color: "#fff",
+                        border: "1.5px solid #fff",
+                        width: { xs: "100%", sm: "220px" },
+                        maxWidth: "320px",
+                        "&:hover": {
+                          background: "rgba(255,255,255,0.12)",
+                          border: "1.5px solid #fff",
+                        },
+                      }}
+                    >
+                      Enquire Now
+                    </Button>
+                  </Box>
                 </Box>
               </Container>
             </motion.div>
