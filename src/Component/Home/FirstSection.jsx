@@ -66,7 +66,8 @@ const FirstSection = ({ homebg, toggle, homeVideo }) => {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              background:
+                "linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0.1) 100%)",
               zIndex: 1,
             }}
           />
@@ -299,6 +300,8 @@ const FirstSection = ({ homebg, toggle, homeVideo }) => {
                       left: 0,
                       right: 0,
                       bottom: 0,
+                      background:
+                        "linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0.05) 100%)",
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "flex-end",
