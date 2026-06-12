@@ -18,7 +18,13 @@ const GoogleAuthSuccess = () => {
         const user = JSON.parse(decodeURIComponent(userStr));
         localStorage.setItem("token", token);
         dispatch(setUserDbData(user));
-        setTimeout(() => navigate("/"), 1500);
+        // Google provides name + email but no phone — send first-time
+        // users to complete their profile if anything is missing.
+        const profileIncomplete = !user?.name || !user?.phone || !user?.email;
+        setTimeout(
+          () => navigate(profileIncomplete ? "/complete-profile" : "/"),
+          1500
+        );
       } catch (err) {
         console.error("Google auth error:", err);
         navigate("/");

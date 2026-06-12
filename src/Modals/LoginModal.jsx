@@ -346,24 +346,31 @@ export default function LoginModal({ openL, setOpenL, setOpens }) {
     if (code.length < 6) return showToast('Enter 6-digit OTP', 'error');
     try {
       setLoading(true);
-      if (tab === 'email') {
-        const res = await verifyEmailOtp({ email, otp: code }).unwrap();
-        localStorage.setItem('token', res.token);
-        dispatch(setUserDbData(res.user));
-        showToast('Login successful!', 'success');
-        if (res.isNewUser || !res.user?.name) {
+      // Redirect to complete-profile whenever the profile is incomplete
+      // (new user, or missing name / phone / email).
+      const finishAuth = (isNewUser, user) => {
+        const profileIncomplete =
+          isNewUser || !user?.name || !user?.phone || !user?.email;
+        if (profileIncomplete) {
           setOpenL(false); navigate('/complete-profile');
         } else {
           setStep('success');
           setTimeout(() => { setOpenL(false); navigate('/'); }, 2000);
         }
+      };
+
+      if (tab === 'email') {
+        const res = await verifyEmailOtp({ email, otp: code }).unwrap();
+        localStorage.setItem('token', res.token);
+        dispatch(setUserDbData(res.user));
+        showToast('Login successful!', 'success');
+        finishAuth(res.isNewUser, res.user);
       } else {
         const response = await verifyCode({ phone, result: code });
         localStorage.setItem('token', response?.data?.token);
         dispatch(setUserDbData(response?.data?.user));
         showToast('Login successful!', 'success');
-        setStep('success');
-        setTimeout(() => { setOpenL(false); navigate('/'); }, 2000);
+        finishAuth(response?.data?.isNewUser, response?.data?.user);
       }
     } catch (err) {
       showToast(err?.data?.message || 'Invalid OTP', 'error');

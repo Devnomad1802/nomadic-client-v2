@@ -161,7 +161,7 @@ const TravelHistory = () => {
           textAlign: "left",
         }}
       >
-        Travel History
+        My Trips
       </Typography>
 
       {partilyArray.slice().map((item, index) => {
@@ -239,7 +239,7 @@ const TravelHistory = () => {
         const finalTotal =
           itemTotal + gstAndDiscountTotal - coupenDiscount - total; // Add everything together
         const paymentStatusLabel =
-          Number(finalTotal) <= 0 ? "Completed" : "Partial";
+          Number(finalTotal) <= 0 ? "Booked" : "Partial Booked";
 
         const array = [
           { value: total, title: "Amount Paid", color: "#4B5563" },

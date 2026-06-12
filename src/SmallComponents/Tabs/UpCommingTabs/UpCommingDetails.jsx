@@ -129,7 +129,9 @@ const UpcommingDetails = () => {
       {/* ========= TWO-COLUMN LAYOUT ========= */}
       {/* Left: trip info + tabs  |  Right: sticky booking card */}
       <Container maxWidth="xl">
-        <Grid container spacing={4} sx={{ alignItems: "flex-start" }}>
+        {/* alignItems:stretch (default) lets the right column match the tall
+            left column's height, giving the sticky booking card room to travel */}
+        <Grid container spacing={4}>
 
           {/* LEFT COLUMN */}
           <Grid item xs={12} md={7.5}>

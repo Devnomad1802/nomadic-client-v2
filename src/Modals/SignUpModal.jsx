@@ -168,7 +168,11 @@ export default function SignUpModal({ opens, setOpens }) {
   const handleAfterAuth = (token, user, isNewUser) => {
     localStorage.setItem("token", token);
     dispatch(setUserDbData(user));
-    if (isNewUser || !user?.name) {
+    // Redirect to complete-profile whenever the profile is incomplete:
+    // new users, missing name, missing phone, or missing email.
+    const profileIncomplete =
+      isNewUser || !user?.name || !user?.phone || !user?.email;
+    if (profileIncomplete) {
       setOpens(false); navigate("/complete-profile");
     } else {
       setStep("success");

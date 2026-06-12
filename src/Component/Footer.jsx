@@ -85,16 +85,6 @@ const Footer = () => {
                 fontFamily: "Inter",
               }}
             >
-              GST No: 27BNZPM9706J1Z0
-            </Typography>
-            <Typography
-              sx={{
-                color: "#6B7280",
-                fontSize: "13px",
-                fontFamily: "Inter",
-                mt: 0.5,
-              }}
-            >
               Nanded City Pune - 411041
             </Typography>
           </Box>
@@ -140,7 +130,7 @@ const Footer = () => {
               }}
             >
               <PhoneOutlinedIcon sx={{ fontSize: 16 }} />
-              8623949801
+              8623929751
             </Box>
             <Box
               component="a"

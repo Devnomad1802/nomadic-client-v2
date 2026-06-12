@@ -185,7 +185,7 @@ export default function ProfileTabs() {
                 alignItems: "start",
                 justifyContent: "flex-start",
               }}
-              label="Travel History"
+              label="My Trips"
               {...a11yProps(2)}
             />
             <AntTab
@@ -256,7 +256,7 @@ export default function ProfileTabs() {
                   alignItems: "start",
                   justifyContent: "flex-start",
                 }}
-                label="Travel History"
+                label="My Trips"
                 {...a11yProps(1)}
               />
               <AntTab
