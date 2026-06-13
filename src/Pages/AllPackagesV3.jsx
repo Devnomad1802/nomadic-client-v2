@@ -266,24 +266,32 @@ const AllPackagesV3 = ({ allpkgbg }) => {
               <div className="section-label"><span className="section-label-bar" />Browse by type</div>
               <h2 className="section-h">Choose Your Adventure</h2>
             </div>
-            <div className="ap-cat-grid">
-              {(Array.isArray(catRes?.data) ? catRes.data.slice(0, 6) : []).map((c, i) => (
-                <div key={c?._id || i} className="ap-cat-card" role="button" tabIndex={0} onClick={() => navigate(`/category/${c?.Category}`, { state: { item: c } })}>
-                  {c?.Banner_Image ? <img src={c.Banner_Image} alt={c?.Category} loading="lazy" /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(160deg,#1a3a2a,#2d6b4a)" }} />}
-                  <div className="ap-cat-overlay" />
-                  {c?.Starting_From ? (
-                    <div className="ap-cat-from">
-                      <div className="ap-cat-from-label">Starting from</div>
-                      <div className="ap-cat-from-val">₹{parseInt(c.Starting_From || 0).toLocaleString("en-IN")}</div>
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={16}
+              loop={(catRes?.data?.length || 0) > 3}
+              autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+              breakpoints={{ 0: { slidesPerView: 1.1 }, 600: { slidesPerView: 1.8 }, 900: { slidesPerView: 2.4 }, 1200: { slidesPerView: 3 } }}
+            >
+              {(Array.isArray(catRes?.data) ? catRes.data : []).map((c, i) => (
+                <SwiperSlide key={c?._id || i} style={{ height: "auto" }}>
+                  <div className="ap-cat-card" role="button" tabIndex={0} onClick={() => navigate(`/category/${c?.Category}`, { state: { item: c } })}>
+                    {c?.Banner_Image ? <img src={c.Banner_Image} alt={c?.Category} loading="lazy" /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(160deg,#1a3a2a,#2d6b4a)" }} />}
+                    <div className="ap-cat-overlay" />
+                    {c?.Starting_From ? (
+                      <div className="ap-cat-from">
+                        <div className="ap-cat-from-label">Starting from</div>
+                        <div className="ap-cat-from-val">₹{parseInt(c.Starting_From || 0).toLocaleString("en-IN")}</div>
+                      </div>
+                    ) : null}
+                    <div className="ap-cat-body">
+                      <div className="ap-cat-name">{c?.Category}</div>
+                      <div className="ap-cat-explore">Explore →</div>
                     </div>
-                  ) : null}
-                  <div className="ap-cat-body">
-                    <div className="ap-cat-name">{c?.Category}</div>
-                    <div className="ap-cat-explore">Explore →</div>
                   </div>
-                </div>
+                </SwiperSlide>
               ))}
-            </div>
+            </Swiper>
           </div>
         </section>
       )}

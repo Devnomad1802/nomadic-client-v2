@@ -31,7 +31,7 @@
 .apv3 .ap-stat-div{width:1px;height:36px;background:var(--line)}
 
 /* sticky filter bar */
-.apv3 .ap-filter{position:sticky;top:70px;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 0}
+.apv3 .ap-filter{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 0}
 .apv3 .ap-filter-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .apv3 .chip-sep{width:1px;height:24px;background:var(--line);align-self:center}
 .apv3 .ap-sort{padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:13px;font-weight:600;color:var(--text);background:#fff;cursor:pointer;outline:none}
