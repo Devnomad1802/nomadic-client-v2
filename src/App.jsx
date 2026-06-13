@@ -18,7 +18,7 @@ import Loading from "./SmallComponents/Loading";
 import TwoStepCode from "./SmallComponents/TwoSteoCode";
 import { TwoStepVerification } from "./SmallComponents/TwoStepVerification";
 
-const Home = React.lazy(() => import("./Pages/Home"));
+const Home = React.lazy(() => import("./Pages/HomeV3"));
 const Blogs = React.lazy(() => import("./Pages/Blogs"));
 const AboutUs = React.lazy(() => import("./Pages/AboutUs"));
 const ContactUs = React.lazy(() => import("./Pages/ContactUs"));
