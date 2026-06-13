@@ -15,18 +15,22 @@ const inCategory = (t, cat) =>
   Array.isArray(t?.categories) &&
   t.categories.some((c) => (c || "").toLowerCase() === cat.toLowerCase());
 
-const nextBatchDate = (trip) => {
+const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+const upcomingBatchDates = (trip) => {
   let batches = [];
   try {
     batches = trip?.selectDate ? (typeof trip.selectDate === "string" ? JSON.parse(trip.selectDate) : trip.selectDate) : [];
   } catch { batches = []; }
   const now = new Date(); now.setHours(0, 0, 0, 0);
-  const upcoming = (Array.isArray(batches) ? batches : [])
+  return (Array.isArray(batches) ? batches : [])
     .map((b) => b?.BatchDate && new Date(b.BatchDate))
     .filter((d) => d && !isNaN(d) && d >= now)
     .sort((a, b) => a - b);
-  return upcoming[0] || null;
 };
+
+const nextBatchDate = (trip) => upcomingBatchDates(trip)[0] || null;
+const tripMonths = (trip) => [...new Set(upcomingBatchDates(trip).map((d) => SHORT_MONTHS[d.getMonth()]))];
 
 const fmtDate = (d) => d ? d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : null;
 const initial = (name) => (name ? name.trim()[0]?.toUpperCase() : "N");
@@ -36,6 +40,7 @@ const TripsV3 = () => {
   const { data, isLoading } = useGetTripsQuery();
   const { data: catData } = useGetAllCategoriesQuery();
   const [filter, setFilter] = useState("All");
+  const [month, setMonth] = useState("All");
 
   const filters = useMemo(() => {
     const names = Array.isArray(catData?.data)
@@ -44,17 +49,33 @@ const TripsV3 = () => {
     return ["All", ...names];
   }, [catData]);
 
-  const trips = useMemo(() => {
+  // all upcoming trips (with a future batch), soonest first
+  const upcomingAll = useMemo(() => {
     const all = Array.isArray(data?.data) ? data.data : [];
-    // only trips with an upcoming batch, sorted by soonest
-    const upcoming = all
+    return all
       .map((t) => ({ t, next: nextBatchDate(t) }))
       .filter((x) => x.next)
       .sort((a, b) => a.next - b.next)
       .map((x) => x.t);
-    const list = filter === "All" ? upcoming : upcoming.filter((t) => inCategory(t, filter));
+  }, [data]);
+
+  // month chips derived from real batch dates, in chronological order
+  const months = useMemo(() => {
+    const seen = [];
+    upcomingAll.forEach((t) =>
+      upcomingBatchDates(t).forEach((d) => {
+        const m = SHORT_MONTHS[d.getMonth()];
+        if (!seen.includes(m)) seen.push(m);
+      })
+    );
+    return ["All", ...seen];
+  }, [upcomingAll]);
+
+  const trips = useMemo(() => {
+    let list = filter === "All" ? upcomingAll : upcomingAll.filter((t) => inCategory(t, filter));
+    if (month !== "All") list = list.filter((t) => tripMonths(t).includes(month));
     return list.slice(0, 8);
-  }, [data, filter]);
+  }, [upcomingAll, filter, month]);
 
   return (
     <section className="section" id="upcoming">
@@ -70,10 +91,19 @@ const TripsV3 = () => {
           </Link>
         </div>
 
-        <div className="chips-row">
-          {filters.map((f) => (
-            <button key={f} className={`chip${filter === f ? " on" : ""}`} onClick={() => setFilter(f)}>{f}</button>
-          ))}
+        <div className="filters-row">
+          <div className="chips-row">
+            {filters.map((f) => (
+              <button key={f} className={`chip${filter === f ? " on" : ""}`} onClick={() => setFilter(f)}>{f}</button>
+            ))}
+          </div>
+          {months.length > 1 && (
+            <div className="chips-row chips-right">
+              {months.map((m) => (
+                <button key={m} className={`chip${month === m ? " on" : ""}`} onClick={() => setMonth(m)}>{m}</button>
+              ))}
+            </div>
+          )}
         </div>
 
         {isLoading ? (

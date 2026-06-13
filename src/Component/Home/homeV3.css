@@ -105,6 +105,9 @@
 .ntv3 .btn-ghost:hover{border-color:var(--text-dark);color:var(--text-dark)}
 
 /* filter chips */
+.ntv3 .filters-row{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;margin-bottom:24px}
+.ntv3 .filters-row .chips-row{margin-bottom:0;flex:1 1 auto;min-width:0}
+.ntv3 .chips-right{flex:0 0 auto;justify-content:flex-end}
 .ntv3 .chips-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:24px;scrollbar-width:none}
 .ntv3 .chips-row::-webkit-scrollbar{display:none}
 .ntv3 .chip{font-weight:600;font-size:13px;padding:8px 18px;border-radius:999px;background:#fff;color:var(--text);border:1.5px solid var(--line);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:var(--inter)}
