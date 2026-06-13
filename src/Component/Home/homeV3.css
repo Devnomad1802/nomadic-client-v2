@@ -145,6 +145,19 @@
 .ntv3 .tc-price em{font-size:11px;color:var(--text-light);font-style:normal;margin-left:3px}
 .ntv3 .btn-sm{font-size:13px;padding:8px 18px;height:38px}
 
+/* blog cards */
+.ntv3 .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ntv3 .blog-card{background:#fff;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh);border:1px solid var(--line-soft);transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;text-decoration:none}
+.ntv3 .blog-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md)}
+.ntv3 .blog-img{aspect-ratio:16/9;overflow:hidden;background:var(--bg-soft)}
+.ntv3 .blog-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block}
+.ntv3 .blog-card:hover .blog-img img{transform:scale(1.04)}
+.ntv3 .blog-body{padding:18px 18px 20px;flex:1;display:flex;flex-direction:column;gap:8px;text-align:left}
+.ntv3 .blog-cat{font-size:11.5px;font-weight:700;color:var(--orange);letter-spacing:.08em;text-transform:uppercase}
+.ntv3 .blog-title{font-family:var(--playfair);font-size:17px;font-weight:700;line-height:1.3;color:var(--text-dark);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ntv3 .blog-meta{font-size:12px;color:var(--text-light);margin-top:auto;padding-top:10px;border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:8px}
+.ntv3 .blog-readmore{font-size:11.5px;color:var(--orange);font-weight:600}
+
 /* testimonials */
 .ntv3 .testi-section{padding-top:clamp(40px,5vw,60px);padding-bottom:clamp(40px,5vw,60px)}
 .ntv3 .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -178,6 +191,7 @@
   .ntv3 .why-grid{grid-template-columns:repeat(3,1fr)}
   .ntv3 .cats-grid{grid-template-columns:repeat(2,1fr)}
   .ntv3 .testi-grid{grid-template-columns:repeat(2,1fr)}
+  .ntv3 .blog-grid{grid-template-columns:repeat(2,1fr)}
   .ntv3 .host-grid{grid-template-columns:1fr}
   .ntv3 .host-perks{display:none}
   .ntv3 .trust-divider{display:none}
@@ -187,6 +201,7 @@
   .ntv3 .why-grid{grid-template-columns:1fr}
   .ntv3 .cats-grid{grid-template-columns:1fr 1fr}
   .ntv3 .testi-grid{grid-template-columns:1fr}
+  .ntv3 .blog-grid{grid-template-columns:1fr}
   .ntv3 .about-grid{grid-template-columns:1fr;gap:32px}
   .ntv3 .section{padding:52px 0}
   .ntv3 .hero-trust-div{display:none}

@@ -20,7 +20,7 @@ import "swiper/css/effect-fade";
 import TripsV3 from "../Component/Home/TripsV3";
 import CategoriesV3 from "../Component/Home/CategoriesV3";
 import ReviewsV3 from "../Component/Home/ReviewsV3";
-import Blog from "../Component/Home/Blog";
+import BlogV3 from "../Component/Home/BlogV3";
 import Footer from "../Component/Footer";
 import EnquirNow from "../Modals/EnquirNow";
 import compass from "../assets/compass.png";
@@ -226,8 +226,8 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
       {/* ── REVIEWS (live, design testimonials) — lighter pink, per HTML ── */}
       <ReviewsV3 />
 
-      {/* ── BLOG (live) ── */}
-      <Blog />
+      {/* ── BLOG (live, design cards) ── */}
+      <BlogV3 />
 
       {/* ── HOST BAND ── */}
       <section className="host-band">
