@@ -13,8 +13,8 @@ import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-import UpcomingTrip from "../Component/Home/UpcomingTrip";
-import Categories from "../Component/Home/Categories";
+import TripsV3 from "../Component/Home/TripsV3";
+import CategoriesV3 from "../Component/Home/CategoriesV3";
 import Reviews from "../Component/Home/Reviews";
 import Blog from "../Component/Home/Blog";
 import Footer from "../Component/Footer";
@@ -147,11 +147,11 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         </div>
       </div>
 
-      {/* ── UPCOMING TRIPS (live) ── */}
-      <UpcomingTrip />
+      {/* ── UPCOMING TRIPS (live, design cards) ── */}
+      <TripsV3 />
 
-      {/* ── CATEGORIES (live) ── */}
-      <Categories />
+      {/* ── CATEGORIES (live, design cards) ── */}
+      <CategoriesV3 />
 
       {/* ── WHY NOMADIC TOWNIES ── */}
       <section className="section" style={{ background: "#fff" }}>
