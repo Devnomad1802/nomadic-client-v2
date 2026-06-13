@@ -126,7 +126,6 @@ const TripsV3 = () => {
           <div className="trips-grid">
             {trips.map((trip) => {
               const date = fmtDate(nextBatchDate(trip));
-              const tags = parseCats(trip.categories).slice(0, 2);
               const verified = Boolean(trip?.host);
               return (
                 <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
@@ -138,9 +137,6 @@ const TripsV3 = () => {
                       <FavoriteIcon sx={{ fontSize: 14 }} />
                     </button>
                     {trip.tripOff ? <span className="tc-off">{trip.tripOff}% OFF</span> : null}
-                    {tags.length > 0 && (
-                      <div className="tc-tags">{tags.map((t, i) => <span className="tc-tag" key={i}>{t}</span>)}</div>
-                    )}
                   </div>
                   <div className="tc-body">
                     <div className="tc-host">

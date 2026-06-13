@@ -13,9 +13,13 @@ import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-fade";
 import TripsV3 from "../Component/Home/TripsV3";
 import CategoriesV3 from "../Component/Home/CategoriesV3";
-import Reviews from "../Component/Home/Reviews";
+import ReviewsV3 from "../Component/Home/ReviewsV3";
 import Blog from "../Component/Home/Blog";
 import Footer from "../Component/Footer";
 import EnquirNow from "../Modals/EnquirNow";
@@ -76,6 +80,21 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
       <section className="hero">
         {toggle && homeVideo ? (
           <video className="hero-media" src={homeVideo} autoPlay muted loop playsInline />
+        ) : Array.isArray(homebg) && homebg.length > 0 ? (
+          <Swiper
+            className="hero-media"
+            modules={[Autoplay, EffectFade]}
+            effect="fade"
+            loop={homebg.length > 1}
+            allowTouchMove={false}
+            autoplay={{ delay: 4500, disableOnInteraction: false }}
+          >
+            {homebg.map((img, i) => (
+              <SwiperSlide key={i}>
+                <img src={img} alt={`Nomadic Townies experiences ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         ) : heroImg ? (
           <img className="hero-media" src={heroImg} alt="Nomadic Townies experiences" />
         ) : (
@@ -209,8 +228,8 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         </div>
       </section>
 
-      {/* ── REVIEWS (live) ── */}
-      <Reviews />
+      {/* ── REVIEWS (live, design testimonials) ── */}
+      <ReviewsV3 />
 
       {/* ── BLOG (live) ── */}
       <Blog />
