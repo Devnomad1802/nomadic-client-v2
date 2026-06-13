@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import ErrorBoundary from "./SmallComponents/ErrorBoundary";
 import ForgetPassword from "./Modals/ForgetPassword";
 import ResetPassword from "./Modals/ResetPassword";
-import AllPackages from "./Pages/AllPackages";
+import AllPackages from "./Pages/AllPackagesV3";
 import Parent from "./Pages/Parent";
 import Payment from "./Pages/Payment";
 import BookingOverview from "./Payment/BookingOverview";
