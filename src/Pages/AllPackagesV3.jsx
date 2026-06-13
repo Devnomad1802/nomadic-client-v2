@@ -258,31 +258,69 @@ const AllPackagesV3 = ({ allpkgbg }) => {
         </div>
       </section>
 
+      {/* choose your adventure (live categories) */}
+      {catNames.length > 0 && (
+        <section className="section" style={{ background: "var(--bg-soft)" }}>
+          <div className="wrap">
+            <div style={{ marginBottom: 28 }}>
+              <div className="section-label"><span className="section-label-bar" />Browse by type</div>
+              <h2 className="section-h">Choose Your Adventure</h2>
+            </div>
+            <div className="ap-cat-grid">
+              {(Array.isArray(catRes?.data) ? catRes.data.slice(0, 6) : []).map((c, i) => (
+                <div key={c?._id || i} className="ap-cat-card" role="button" tabIndex={0} onClick={() => navigate(`/category/${c?.Category}`, { state: { item: c } })}>
+                  {c?.Banner_Image ? <img src={c.Banner_Image} alt={c?.Category} loading="lazy" /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(160deg,#1a3a2a,#2d6b4a)" }} />}
+                  <div className="ap-cat-overlay" />
+                  {c?.Starting_From ? (
+                    <div className="ap-cat-from">
+                      <div className="ap-cat-from-label">Starting from</div>
+                      <div className="ap-cat-from-val">₹{parseInt(c.Starting_From || 0).toLocaleString("en-IN")}</div>
+                    </div>
+                  ) : null}
+                  <div className="ap-cat-body">
+                    <div className="ap-cat-name">{c?.Category}</div>
+                    <div className="ap-cat-explore">Explore →</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* trending */}
       {trending.length > 0 && (
-        <section className="section" style={{ background: "var(--bg-soft)", paddingTop: 0 }}>
+        <section className="section">
           <div className="wrap">
-            <div style={{ marginBottom: 24, paddingTop: "clamp(40px,5vw,64px)" }}>
-              <div className="section-label"><span className="section-label-bar" />Most loved</div>
+            <div style={{ marginBottom: 24 }}>
+              <div className="section-label"><span className="section-label-bar" />Most popular right now</div>
               <h2 className="section-h">Trending Trips</h2>
+              <p className="section-sub">Experiences filling up fast — don&apos;t miss your spot.</p>
             </div>
             <div className="trend-scroll">
-              {trending.map((item, i) => (
-                <Link key={item?._id || i} to={`/trips/${item?.seoSlug || item?._id}`} className="trend-card">
-                  <div className="trend-img">
-                    {item?.cardImage ? <img src={item.cardImage} alt={item?.title} loading="lazy" /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#1a2c5c,#2d4b9f)" }} />}
-                    <div className="trend-rating"><StarIcon sx={{ fontSize: 12, color: "#f5a623" }} />{avgRating(item).toFixed(1)}</div>
-                    {item?.price ? <div className="trend-price-tag"><span>₹{Number(item.price).toLocaleString("en-IN")}</span></div> : null}
-                  </div>
-                  <div className="trend-body">
-                    <h3 className="trend-title">{item?.title}</h3>
-                    <div className="trend-meta">
-                      {item?.location && <span className="trend-meta-item"><PlaceOutlinedIcon sx={{ fontSize: 13 }} />{item.location}</span>}
-                      {(item?.nights || item?.days) && <span className="trend-meta-item"><AccessTimeIcon sx={{ fontSize: 13 }} />{item.nights}N / {item.days}D</span>}
+              {trending.map((item, i) => {
+                const td = fmtD(nextDate(item));
+                return (
+                  <div key={item?._id || i} className="trend-card">
+                    <div className="trend-img">
+                      {item?.cardImage ? <img src={item.cardImage} alt={item?.title} loading="lazy" /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#1a2c5c,#2d4b9f)" }} />}
+                      <div className="trend-rating"><StarIcon sx={{ fontSize: 12, color: "#f5a623" }} />{avgRating(item).toFixed(1)}</div>
+                      {item?.price ? <div className="trend-price-tag"><span>₹{Number(item.price).toLocaleString("en-IN")} / person</span></div> : null}
+                    </div>
+                    <div className="trend-body">
+                      <h3 className="trend-title">{item?.title}</h3>
+                      <div className="trend-meta">
+                        {item?.location && <span className="trend-meta-item"><PlaceOutlinedIcon sx={{ fontSize: 13 }} />{item.location}</span>}
+                        {td && <span className="trend-meta-item"><CalendarTodayIcon sx={{ fontSize: 12 }} />{td}</span>}
+                        {(item?.nights || item?.days) && <span className="trend-meta-item"><AccessTimeIcon sx={{ fontSize: 13 }} />{item.days}D/{item.nights}N</span>}
+                      </div>
+                      <div className="trend-foot">
+                        <Link to={`/trips/${item?.seoSlug || item?._id}`} className="btn btn-orange btn-sm">Book Now</Link>
+                      </div>
                     </div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
