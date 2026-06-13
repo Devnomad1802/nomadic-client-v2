@@ -13,7 +13,7 @@
   --line-soft:#F3F4F6;
   --bg-soft:#F9FAFB;
   --green:#16A34A;
-  --playfair:"Playfair Display",Georgia,serif;
+  --playfair:"Playfair",Georgia,serif;
   --inter:"Inter",system-ui,sans-serif;
   --pad:clamp(16px,4vw,60px);
   --r-lg:20px;

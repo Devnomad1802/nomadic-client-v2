@@ -104,7 +104,6 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         <div className="hero-overlay" />
         <div className="hero-content">
           <div className="wrap">
-            <div className="hero-badge"><span />Curated marketplace for transformative travel</div>
             <h1 className="hero-h1">The way to <em>experience</em><br />the world.</h1>
             <p className="hero-sub">
               Discover breathtaking destinations, community trips, wellness retreats and cultural

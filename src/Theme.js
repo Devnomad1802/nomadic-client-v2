@@ -94,7 +94,7 @@ let theme1 = createTheme({
           style: {
             border: "2px solid #2CBCA5",
             padding: "8px 35px",
-            fontFamily: "Poppins",
+            fontFamily: "Inter, sans-serif",
             fontStyle: "normal",
             fontWeight: "600",
             fontSize: "16px",
@@ -113,7 +113,7 @@ let theme1 = createTheme({
           style: {
             border: "2px solid #2CBCA5",
             padding: "2px 35px",
-            fontFamily: "Poppins",
+            fontFamily: "Inter, sans-serif",
             fontStyle: "normal",
             fontWeight: "600",
             fontSize: "12px",
