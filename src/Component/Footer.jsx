@@ -85,7 +85,7 @@ const Footer = () => {
                 fontFamily: "Inter",
               }}
             >
-              Nanded City Pune - 411041
+              Nanded City - 411041
             </Typography>
           </Box>
 

@@ -47,7 +47,7 @@ const heroTrust = [
 const whyCards = [
   { icon: <LayersOutlinedIcon />, title: "Curated, not collected", text: "Every experience is reviewed and approved by our team. We vet hosts, check quality, and only list what we'd join ourselves." },
   { icon: <GroupsOutlinedIcon />, title: "Community-first, always", text: "These aren't tours with strangers. They're experiences designed around connection — with your host, fellow travellers, and the place itself." },
-  { icon: <BoltOutlinedIcon />, title: "Transformative, not transactional", text: "We don't sell packages. We surface moments. The kind that change how you see the world — and yourself. Founded in Pune, 2020." },
+  { icon: <BoltOutlinedIcon />, title: "Transformative, not transactional", text: "We don't sell packages. We surface moments. The kind that change how you see the world — and yourself. Founded in 2020." },
 ];
 
 const hostPerks = [
@@ -194,8 +194,8 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         </div>
       </section>
 
-      {/* ── ABOUT + REVIEWS (one continuous warm block) ── */}
-      <div style={{ background: "var(--orange-tint)" }}>
+      {/* ── ABOUT + REVIEWS (one continuous warm block, no seam) ── */}
+      <div style={{ background: "linear-gradient(180deg,#FDEAE2 0%,#FFF4F1 55%)" }}>
       <section className="section" style={{ paddingBottom: "clamp(36px,4vw,56px)", position: "relative", overflow: "hidden" }}>
         <div className="wrap">
           <div className="about-grid" style={{ textAlign: "left" }}>
@@ -206,9 +206,9 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
                 <em style={{ fontFamily: "var(--playfair)", fontStyle: "italic", color: "var(--orange)" }}>Welcome to Nomadic Townies!</em>
               </h2>
               <p style={{ fontSize: 16, color: "var(--text)", lineHeight: 1.7, marginBottom: 16 }}>
-                Ever wondered how it all began? Let's rewind to 2020 — Pune, India. Amid dreams and
-                wanderlust, a group of passionate friends came together with one mission: to make
-                travel more meaningful, mindful, and accessible for everyone.
+                Ever wondered how it all began? Let's rewind to 2020. Amid dreams and wanderlust, a
+                group of passionate friends came together with one mission: to make travel more
+                meaningful, mindful, and accessible for everyone.
               </p>
               <p style={{ fontSize: 16, color: "var(--text)", lineHeight: 1.7, marginBottom: 28 }}>
                 We're a curated marketplace for transformative travel experiences — not a tour
@@ -221,7 +221,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
               <div className="about-circle">
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontFamily: "var(--playfair)", fontSize: 48, fontWeight: 800, color: "var(--orange)", lineHeight: 1 }}>NT</div>
-                  <div style={{ fontFamily: "var(--playfair)", fontSize: 14, color: "var(--text)", marginTop: 8, fontStyle: "italic" }}>Since 2020 · Pune</div>
+                  <div style={{ fontFamily: "var(--playfair)", fontSize: 14, color: "var(--text)", marginTop: 8, fontStyle: "italic" }}>Since 2020</div>
                 </div>
               </div>
             </div>

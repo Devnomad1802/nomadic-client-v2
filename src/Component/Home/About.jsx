@@ -77,7 +77,7 @@ const About = ({ aboutSection }) => {
                 </Typography>
                 <Typography sx={{ textAlign: { xs: "center", md: "left" }, fontSize: { xs: "16px", md: "18px" , lg:"18px"}, fontFamily: "Inter", fontWeight: 400, lineHeight: "140%" ,width:{xs:"100%", md:"80%", lg:"55%"}}}>
                 Ever wondered how it all began?
-Let’s rewind to 2020 — Pune, India. Amid dreams and wanderlust,
+Let’s rewind to 2020. Amid dreams and wanderlust,
 a group of passionate friends came together with one mission
 to make travel more meaningful, mindful, and accessible for everyone.
 

@@ -200,7 +200,7 @@ const AboutUs = ({ aboutbg }) => {
               >
                 Let&apos;s rewind to 2020
                 <br />
-                Pune, India.
+                India.
               </Typography>
 
               {/* Location Icon/Graphic */}
