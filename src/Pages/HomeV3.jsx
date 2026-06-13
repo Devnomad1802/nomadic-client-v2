@@ -194,9 +194,8 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         </div>
       </section>
 
-      {/* ── ABOUT + REVIEWS (one continuous warm block, no seam) ── */}
-      <div style={{ background: "linear-gradient(180deg,#FDEAE2 0%,#FFF4F1 55%)" }}>
-      <section className="section" style={{ paddingBottom: "clamp(36px,4vw,56px)", position: "relative", overflow: "hidden" }}>
+      {/* ── ABOUT (warm peach gradient, per HTML design) ── */}
+      <section className="section" style={{ background: "linear-gradient(135deg,#FDF0EB 0%,#FBDDD0 55%,#F5C4AE 100%)", position: "relative", overflow: "hidden" }}>
         <div className="wrap">
           <div className="about-grid" style={{ textAlign: "left" }}>
             <div>
@@ -229,9 +228,8 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         </div>
       </section>
 
-      {/* ── REVIEWS (live, design testimonials) — same warm block ── */}
-      <ReviewsV3 transparent />
-      </div>
+      {/* ── REVIEWS (live, design testimonials) — lighter pink, per HTML ── */}
+      <ReviewsV3 />
 
       {/* ── BLOG (live) ── */}
       <Blog />
