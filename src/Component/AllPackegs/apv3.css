@@ -6,8 +6,8 @@
 .apv3 .ap-bc a{color:var(--orange);font-weight:500}
 .apv3 .ap-bc .cur{color:var(--text-dark);font-weight:600}
 
-/* dark hero with search */
-.apv3 .ap-hero{position:relative;overflow:hidden;min-height:420px;background:linear-gradient(135deg,#1a1208 0%,#2c2018 50%,#1a0e06 100%);padding:clamp(40px,5vw,72px) 0 clamp(48px,5.5vw,80px)}
+/* dark hero with search — starts right under the fixed 70px navbar (no white gap) */
+.apv3 .ap-hero{position:relative;overflow:hidden;min-height:460px;background:linear-gradient(135deg,#1a1208 0%,#2c2018 50%,#1a0e06 100%);padding:clamp(100px,9vw,128px) 0 clamp(48px,5.5vw,80px)}
 .apv3 .ap-hero-bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover}
 .apv3 .ap-hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(135deg,rgba(26,18,8,.8) 0%,rgba(44,32,24,.62) 50%,rgba(26,14,6,.8) 100%)}
 .apv3 .ap-hero-h1{font-family:var(--playfair);font-size:clamp(30px,4.5vw,56px);font-weight:700;color:#fff;line-height:1.08;letter-spacing:-.02em;margin-bottom:10px}
@@ -31,7 +31,7 @@
 .apv3 .ap-stat-div{width:1px;height:36px;background:var(--line)}
 
 /* sticky filter bar */
-.apv3 .ap-filter{position:sticky;top:64px;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 0}
+.apv3 .ap-filter{position:sticky;top:70px;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 0}
 .apv3 .ap-filter-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .apv3 .chip-sep{width:1px;height:24px;background:var(--line);align-self:center}
 .apv3 .ap-sort{padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:13px;font-weight:600;color:var(--text);background:#fff;cursor:pointer;outline:none}

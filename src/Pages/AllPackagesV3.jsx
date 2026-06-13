@@ -123,13 +123,6 @@ const AllPackagesV3 = ({ allpkgbg }) => {
 
       <EnquirNow opene={opene} setOpene={setOpene} toggelModele={toggelModele} />
 
-      {/* breadcrumb */}
-      <div className="ap-breadcrumb">
-        <div className="wrap">
-          <div className="ap-bc"><Link to="/">Home</Link> › <span className="cur">All Packages</span></div>
-        </div>
-      </div>
-
       {/* hero + search */}
       <section className="ap-hero">
         {allpkgbg ? <img className="ap-hero-bg" src={allpkgbg} alt="Nomadic Townies experiences" /> : null}
