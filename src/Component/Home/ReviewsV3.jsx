@@ -16,13 +16,19 @@ const Stars = ({ rating = 5 }) => {
   );
 };
 
-const ReviewsV3 = () => {
+const ReviewsV3 = ({ transparent = false }) => {
   const { data } = useGetAllReviewsQuery();
   const reviews = (Array.isArray(data?.data) ? data.data : []).slice(0, 6);
   if (!reviews.length) return null;
 
   return (
-    <section className="section" style={{ background: "var(--orange-tint)" }}>
+    <section
+      className="section"
+      style={{
+        background: transparent ? "transparent" : "var(--orange-tint)",
+        paddingTop: transparent ? "clamp(36px,4vw,56px)" : undefined,
+      }}
+    >
       <div className="wrap">
         <div style={{ textAlign: "center", marginBottom: 44 }}>
           <div className="section-label" style={{ justifyContent: "center" }}>

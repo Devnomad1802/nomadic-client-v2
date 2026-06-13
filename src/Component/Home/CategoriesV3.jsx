@@ -37,10 +37,10 @@ const CategoriesV3 = () => {
             loop={cats.length > 4}
             autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
             breakpoints={{
-              0: { slidesPerView: 1.15 },
-              600: { slidesPerView: 2.2 },
-              900: { slidesPerView: 3 },
-              1200: { slidesPerView: 4 },
+              0: { slidesPerView: 1.1 },
+              600: { slidesPerView: 1.8 },
+              900: { slidesPerView: 2.4 },
+              1200: { slidesPerView: 3 },
             }}
             style={{ paddingBottom: 4 }}
           >

@@ -194,10 +194,11 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         </div>
       </section>
 
-      {/* ── ABOUT ── */}
-      <section className="section" style={{ background: "var(--orange-tint)", position: "relative", overflow: "hidden" }}>
+      {/* ── ABOUT + REVIEWS (one continuous warm block) ── */}
+      <div style={{ background: "var(--orange-tint)" }}>
+      <section className="section" style={{ paddingBottom: "clamp(36px,4vw,56px)", position: "relative", overflow: "hidden" }}>
         <div className="wrap">
-          <div className="about-grid">
+          <div className="about-grid" style={{ textAlign: "left" }}>
             <div>
               <div className="section-label"><span className="section-label-bar" />About Us</div>
               <h2 className="section-h" style={{ marginBottom: 16 }}>
@@ -228,8 +229,9 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
         </div>
       </section>
 
-      {/* ── REVIEWS (live, design testimonials) ── */}
-      <ReviewsV3 />
+      {/* ── REVIEWS (live, design testimonials) — same warm block ── */}
+      <ReviewsV3 transparent />
+      </div>
 
       {/* ── BLOG (live) ── */}
       <Blog />
