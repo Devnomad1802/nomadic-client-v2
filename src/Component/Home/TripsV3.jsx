@@ -8,16 +8,12 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useGetTripsQuery } from "../../services/TripApis";
+import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import { TripCardSkeleton } from "../../SmallComponents/Skeletons";
 
-const FILTERS = ["All", "India", "International", "Trending"];
-
-const isIntl = (t) =>
-  (Array.isArray(t?.categories) && t.categories.some((c) => /international/i.test(c || ""))) ||
-  /international/i.test(t?.tripType || "");
-const isTrending = (t) =>
-  t?.trending === true || t?.isTrending === true ||
-  (Array.isArray(t?.categories) && t.categories.some((c) => /trending/i.test(c || "")));
+const inCategory = (t, cat) =>
+  Array.isArray(t?.categories) &&
+  t.categories.some((c) => (c || "").toLowerCase() === cat.toLowerCase());
 
 const nextBatchDate = (trip) => {
   let batches = [];
@@ -38,7 +34,15 @@ const initial = (name) => (name ? name.trim()[0]?.toUpperCase() : "N");
 const TripsV3 = () => {
   const navigate = useNavigate();
   const { data, isLoading } = useGetTripsQuery();
+  const { data: catData } = useGetAllCategoriesQuery();
   const [filter, setFilter] = useState("All");
+
+  const filters = useMemo(() => {
+    const names = Array.isArray(catData?.data)
+      ? catData.data.map((c) => c?.Category).filter(Boolean)
+      : [];
+    return ["All", ...names];
+  }, [catData]);
 
   const trips = useMemo(() => {
     const all = Array.isArray(data?.data) ? data.data : [];
@@ -48,13 +52,7 @@ const TripsV3 = () => {
       .filter((x) => x.next)
       .sort((a, b) => a.next - b.next)
       .map((x) => x.t);
-    let list = upcoming;
-    if (filter === "India") list = upcoming.filter((t) => !isIntl(t));
-    else if (filter === "International") list = upcoming.filter((t) => isIntl(t));
-    else if (filter === "Trending") {
-      const tr = upcoming.filter(isTrending);
-      list = tr.length ? tr : upcoming;
-    }
+    const list = filter === "All" ? upcoming : upcoming.filter((t) => inCategory(t, filter));
     return list.slice(0, 8);
   }, [data, filter]);
 
@@ -73,7 +71,7 @@ const TripsV3 = () => {
         </div>
 
         <div className="chips-row">
-          {FILTERS.map((f) => (
+          {filters.map((f) => (
             <button key={f} className={`chip${filter === f ? " on" : ""}`} onClick={() => setFilter(f)}>{f}</button>
           ))}
         </div>
@@ -87,7 +85,7 @@ const TripsV3 = () => {
             {trips.map((trip) => {
               const date = fmtDate(nextBatchDate(trip));
               const tags = (Array.isArray(trip.categories) ? trip.categories : []).slice(0, 2);
-              const verified = trip?.host && trip?.host?.isVerified !== false;
+              const verified = Boolean(trip?.host);
               return (
                 <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
                   <div className="tc-img">
