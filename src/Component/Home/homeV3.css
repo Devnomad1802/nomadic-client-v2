@@ -90,6 +90,10 @@
 /* about */
 .ntv3 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
 .ntv3 .about-circle{width:280px;height:280px;border-radius:50%;background:rgba(205,72,42,.1);display:grid;place-items:center;border:2px solid rgba(205,72,42,.15)}
+.ntv3 .compass-anim{width:min(360px,80%);height:auto;filter:drop-shadow(0 18px 30px rgba(80,40,20,.28));transform-origin:center;animation:compassFloat 7s ease-in-out infinite,compassSway 9s ease-in-out infinite}
+@keyframes compassFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes compassSway{0%,100%{rotate:-7deg}50%{rotate:7deg}}
+@media(prefers-reduced-motion:reduce){.ntv3 .compass-anim{animation:none}}
 
 /* host band */
 .ntv3 .host-band{position:relative;overflow:hidden;background:var(--charcoal);padding:clamp(72px,8vw,112px) 0}

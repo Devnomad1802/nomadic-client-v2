@@ -23,6 +23,7 @@ import ReviewsV3 from "../Component/Home/ReviewsV3";
 import Blog from "../Component/Home/Blog";
 import Footer from "../Component/Footer";
 import EnquirNow from "../Modals/EnquirNow";
+import compass from "../assets/compass.png";
 
 const marqueeTags = [
   "Community Trips", "Backpacking Adventures", "Wellness Retreats", "Yoga Retreats",
@@ -217,12 +218,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
               <button className="btn btn-orange btn-md" onClick={() => navigate("/about-us")}>More About Us</button>
             </div>
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <div className="about-circle">
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontFamily: "var(--playfair)", fontSize: 48, fontWeight: 800, color: "var(--orange)", lineHeight: 1 }}>NT</div>
-                  <div style={{ fontFamily: "var(--playfair)", fontSize: 14, color: "var(--text)", marginTop: 8, fontStyle: "italic" }}>Since 2020</div>
-                </div>
-              </div>
+              <img src={compass} alt="Nomadic Townies compass" className="compass-anim" />
             </div>
           </div>
         </div>
