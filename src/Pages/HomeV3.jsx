@@ -31,17 +31,17 @@ const marqueeTags = [
 ];
 
 const trustBadges = [
-  { icon: <GroupsOutlinedIcon />, title: "5,000+", sub: "Happy Travellers" },
-  { icon: <VerifiedUserOutlinedIcon />, title: "100% Safe", sub: "Secure Payments" },
-  { icon: <EventAvailableOutlinedIcon />, title: "Free", sub: "Cancellation" },
-  { icon: <SupportAgentOutlinedIcon />, title: "24/7", sub: "Expert Support" },
+  { icon: <VerifiedUserOutlinedIcon />, title: "Verified", sub: "Local Hosts" },
+  { icon: <GroupsOutlinedIcon />, title: "Handpicked", sub: "Experiences" },
+  { icon: <EventAvailableOutlinedIcon />, title: "Secure", sub: "Payments" },
+  { icon: <SupportAgentOutlinedIcon />, title: "24/7", sub: "Traveller Support" },
 ];
 
 const heroTrust = [
-  { num: "5,000+", label: "Happy Travellers" },
-  { num: "100%", label: "Secure Payments" },
-  { num: "24/7", label: "Expert Support" },
-  { num: "4.8★", label: "Avg. Rating" },
+  { num: "Verified", label: "Local Hosts" },
+  { num: "Curated", label: "Experiences" },
+  { num: "Secure", label: "Payments" },
+  { num: "24/7", label: "Support" },
 ];
 
 const whyCards = [
@@ -52,7 +52,7 @@ const whyCards = [
 
 const hostPerks = [
   { title: "Zero listing fees", text: "Pay a commission only when you get a confirmed booking." },
-  { title: "Built-in audience", text: "5,000+ travellers actively searching — right now." },
+  { title: "Built-in audience", text: "A growing community of travellers actively looking for experiences like yours." },
   { title: "Tools that travel", text: "Bookings, payments, updates and communication — all in one place." },
 ];
 
@@ -278,7 +278,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
       <section className="cta-band">
         <div className="wrap">
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,.15)", color: "rgba(255,255,255,.9)", fontSize: 13, fontWeight: 600, padding: "7px 16px", borderRadius: 999, border: "1px solid rgba(255,255,255,.25)", marginBottom: 24 }}>
-            Join 5,000+ community travellers
+            Join our growing community of travellers
           </span>
           <h2 style={{ fontFamily: "var(--playfair)", color: "#fff", fontSize: "clamp(28px,4vw,54px)", fontWeight: 700, lineHeight: 1.08, letterSpacing: "-.02em", marginBottom: 16 }}>
             Your next experience is waiting.
