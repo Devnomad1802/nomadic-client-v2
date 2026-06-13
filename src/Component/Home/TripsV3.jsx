@@ -11,9 +11,21 @@ import { useGetTripsQuery } from "../../services/TripApis";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import { TripCardSkeleton } from "../../SmallComponents/Skeletons";
 
+const parseCats = (c) => {
+  if (Array.isArray(c)) return c.flatMap(parseCats);
+  if (typeof c === "string") {
+    const s = c.trim();
+    if (s.startsWith("[")) {
+      try { const p = JSON.parse(s); return Array.isArray(p) ? p.map((x) => `${x}`.trim()) : [s]; }
+      catch { return [s.replace(/[[\]"]/g, "").trim()]; }
+    }
+    return s ? [s] : [];
+  }
+  return [];
+};
+
 const inCategory = (t, cat) =>
-  Array.isArray(t?.categories) &&
-  t.categories.some((c) => (c || "").toLowerCase() === cat.toLowerCase());
+  parseCats(t?.categories).some((c) => (c || "").toLowerCase() === cat.toLowerCase());
 
 const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -114,7 +126,7 @@ const TripsV3 = () => {
           <div className="trips-grid">
             {trips.map((trip) => {
               const date = fmtDate(nextBatchDate(trip));
-              const tags = (Array.isArray(trip.categories) ? trip.categories : []).slice(0, 2);
+              const tags = parseCats(trip.categories).slice(0, 2);
               const verified = Boolean(trip?.host);
               return (
                 <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
