@@ -1,5 +1,4 @@
-.tdv3 /* ─────────── BRAND TOKENS (matches Theme.js + codebase) ─────────── */
-.tdv3{--orange:#CD482A;
+.tdv3{color:var(--text);font-family:var(--inter);--orange:#CD482A;
   --orange-hover:#B53D1F;
   --orange-light:#EC3F18;
   --orange-tint:#FDF3EE;
