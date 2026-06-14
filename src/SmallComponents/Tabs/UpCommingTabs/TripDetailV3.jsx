@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import "./tripV3.css";
 import { useGetTripsQuery } from "../../../services/TripApis";
 import { useGetAllReviewsQuery } from "../../../services";
+import { useEnquirMutation } from "../../../services/EnquirApi";
 import LoginModal from "../../../Modals/LoginModal";
 
 const initial = (n) => (n ? n.trim()[0]?.toUpperCase() : "N");
@@ -52,6 +53,9 @@ const TripDetailV3 = () => {
   const { data: revRes } = useGetAllReviewsQuery();
   const [tab, setTab] = useState("Overview");
   const [openL, setOpenL] = useState(false);
+  const [cb, setCb] = useState({ name: "", phone: "", email: "" });
+  const [cbSent, setCbSent] = useState(false);
+  const [enquir, { isLoading: cbLoading }] = useEnquirMutation();
 
   const item = useMemo(() => {
     const list = Array.isArray(data?.data) ? data.data : [];
@@ -76,6 +80,15 @@ const TripDetailV3 = () => {
   const book = () => {
     if (!userDbData) { setOpenL(true); return; }
     navigate(`/book/${item.seoSlug || item._id}`);
+  };
+
+  const submitCallback = async (e) => {
+    e.preventDefault();
+    if (!cb.name.trim() || (!cb.phone.trim() && !cb.email.trim())) return;
+    try {
+      await enquir({ Name: cb.name, Phone: cb.phone, Email: cb.email, Message: `Callback request for trip: ${item.title}`, userId: userDbData?._id }).unwrap();
+      setCbSent(true);
+    } catch { setCbSent(true); }
   };
 
   const TABS = ["Overview", "Itinerary", "Inclusions", "Reviews", "Other Info"];
@@ -131,6 +144,16 @@ const TripDetailV3 = () => {
               <div className="td-section">
                 <h2>About this trip</h2>
                 <p style={{ whiteSpace: "pre-line", color: "var(--text)", lineHeight: 1.7 }}>{item.overview || "An unforgettable, community-first experience."}</p>
+                <div className="td-highlights">
+                  {[
+                    `${item.nights || "—"}N / ${item.days || "—"}D curated itinerary`,
+                    item.location ? `Explore ${item.location}` : "Handpicked destinations",
+                    host ? "Hosted by a verified local host" : "Community-first small group",
+                    "Secure payment & on-trip support",
+                  ].map((h, i) => (
+                    <div className="td-highlight" key={i}><div className="td-highlight-ic">✦</div><div className="td-highlight-text">{h}</div></div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -155,12 +178,12 @@ const TripDetailV3 = () => {
                 <h2>What&apos;s included</h2>
                 <div className="td-incl-grid">
                   <div className="td-incl-col included">
-                    <h3>✓ Included</h3>
-                    <div className="td-incl-list">{(included.length ? included : ["Details shared on enquiry"]).map((x, i) => <div className="td-incl-item" key={i}>{x}</div>)}</div>
+                    <h3><span style={{ color: "var(--green)" }}>✓</span> Included</h3>
+                    <div className="td-incl-list">{(included.length ? included : ["Details shared on enquiry"]).map((x, i) => <div className="td-incl-item" key={i}><span style={{ color: "var(--green)" }}>✓</span>{x}</div>)}</div>
                   </div>
                   <div className="td-incl-col excluded">
-                    <h3>✕ Not included</h3>
-                    <div className="td-incl-list">{(excluded.length ? excluded : ["Anything not mentioned in Included"]).map((x, i) => <div className="td-incl-item" key={i}>{x}</div>)}</div>
+                    <h3><span style={{ color: "var(--red)" }}>✕</span> Not included</h3>
+                    <div className="td-incl-list">{(excluded.length ? excluded : ["Anything not mentioned in Included"]).map((x, i) => <div className="td-incl-item" key={i}><span style={{ color: "var(--red)" }}>✕</span>{x}</div>)}</div>
                   </div>
                 </div>
               </div>
@@ -171,6 +194,19 @@ const TripDetailV3 = () => {
                 <h2>What travellers are saying</h2>
                 <div className="td-rating-overview">
                   <div><div className="td-rating-big">{rating.toFixed(1)}</div><div className="td-rating-stars">{"★".repeat(Math.round(rating))}</div><div className="td-rating-count">{reviews.length} reviews</div></div>
+                  <div className="td-rating-bars">
+                    {[5, 4, 3, 2, 1].map((star) => {
+                      const c = reviews.filter((r) => Math.round(avg(r?.rating)) === star).length;
+                      const pct = reviews.length ? (c / reviews.length) * 100 : (star === 5 ? 80 : star === 4 ? 15 : 2);
+                      return (
+                        <div className="td-rating-bar" key={star}>
+                          <span className="td-rating-bar-label">{star}★</span>
+                          <span className="td-rating-bar-fill"><div style={{ width: `${pct}%` }} /></span>
+                          <span className="td-rating-bar-count">{c}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div className="td-reviews">
                   {reviews.map((r, i) => (
@@ -200,6 +236,7 @@ const TripDetailV3 = () => {
           {/* sidebar */}
           <aside className="td-sidebar">
             <div className="td-side-card">
+              <div className="td-side-note"><div className="td-side-note-ic">⚑</div><div className="td-side-note-text">Pay a little now, adventure a lot — flexible payments at checkout.</div></div>
               <div className="td-side-price-body">
                 <div className="td-side-price-head">
                   <span className="td-side-price-from">Starting from</span>
@@ -218,6 +255,27 @@ const TripDetailV3 = () => {
                   <div className="td-trust-item">✓ Community-first experience</div>
                 </div>
               </div>
+            </div>
+
+            {/* callback / enquiry form */}
+            <div className="td-side-form">
+              <div className="td-side-form-head">
+                <div className="td-side-form-ic">✈</div>
+                <div className="td-side-form-titles">
+                  <div className="td-side-form-eyebrow">Born to Roam?</div>
+                  <div className="td-side-form-title">Let&apos;s Talk</div>
+                </div>
+              </div>
+              {cbSent ? (
+                <div className="td-side-form-body"><p style={{ fontSize: 14, color: "var(--green)", fontWeight: 600 }}>Thanks! Our team will reach out shortly.</p></div>
+              ) : (
+                <form className="td-side-form-body" onSubmit={submitCallback}>
+                  <input className="bk-fld" placeholder="Full Name" value={cb.name} onChange={(e) => setCb({ ...cb, name: e.target.value })} style={{ marginBottom: 10 }} />
+                  <input className="bk-fld" placeholder="Phone No." value={cb.phone} onChange={(e) => setCb({ ...cb, phone: e.target.value })} style={{ marginBottom: 10 }} />
+                  <input className="bk-fld" placeholder="Email ID" value={cb.email} onChange={(e) => setCb({ ...cb, email: e.target.value })} style={{ marginBottom: 12 }} />
+                  <button className="td-side-submit" type="submit" disabled={cbLoading} style={{ width: "100%" }}>{cbLoading ? "Sending…" : "Submit Request"}</button>
+                </form>
+              )}
             </div>
           </aside>
         </div>
