@@ -1,397 +1,137 @@
 /* eslint-disable react/prop-types */
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import { useCallback, useState } from "react";
 import Modal from "@mui/material/Modal";
-import {
-  Dialog,
-  Grid,
-  
-  IconButton,
-  Slide,
-  TextField,
-} from "@mui/material";
-import { enquirbg, facebook, signUpbg } from "../Images";
-import BasicRating from "../SmallComponents/Rating";
-import { google } from "../assets/LandingPage";
-import { inputStyle } from "../Pages/ContactUs";
-import PhoneNumber from "../SmallComponents/PhoneNumber";
-import CloseIcon from "@mui/icons-material/Close";
-import SignUpModal from "./SignUpModal";
-import { useEnquirMutation } from "../services/EnquirApi";
-import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useEnquirMutation } from "../services/EnquirApi";
+import { logo } from "../Images";
+import "./enquiryModal.css";
 
-// eslint-disable-next-line react/prop-types
-// eslint-disable-next-line react/display-name
-const Transition = React.forwardRef((props, ref) => {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-export default function EnquirNow({ opene, setOpene, toggelModele }) {
+export default function EnquirNow({ opene, setOpene }) {
   const { userDbData } = useSelector((store) => store.global);
-  const handleClose = () => setOpene(false);
-  const navigate = useNavigate();
+  const [enquir, { isLoading }] = useEnquirMutation();
 
-  // Loading
-  const [loading, setLoading] = React.useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  // Show Toast
-  const [alertState, setAlertState] = React.useState({
-    open: false,
-    message: "",
-    severity: undefined,
-  });
-  const showToast = (msg, type) => {
-    return setAlertState({
-      open: true,
-      message: msg,
-      severity: type,
-    });
+  const onChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleClose = () => {
+    setOpene(false);
+    // reset shortly after close so the closing animation isn't janky
+    setTimeout(() => { setSuccess(false); setError(""); }, 200);
   };
 
-  const [enquireNow, setEnquireNow] = React.useState({
-    name: "",
-    phone: "",
-    email: "",
-    message: "",
-  });
-
-  const handleChange = (e) => {
-    setEnquireNow({ ...enquireNow, [e.target.name]: e.target.value });
-  };
-
-  // Enquir handler
-
-  const [enquir] = useEnquirMutation();
-  const handleEnquir = useCallback(
+  const handleSubmit = useCallback(
     async (e) => {
+      e?.preventDefault?.();
+      setError("");
+      if (!form.name.trim() || (!form.phone.trim() && !form.email.trim())) {
+        setError("Please add your name and a phone number or email.");
+        return;
+      }
       try {
-        e.preventDefault();
-        setLoading(true);
-        const data = await enquir({
-          Name: enquireNow?.name,
-          Phone: enquireNow?.phone,
-          Email: enquireNow?.email,
-          Message: enquireNow?.message,
+        await enquir({
+          Name: form.name.trim(),
+          Phone: form.phone.trim() ? `+91 ${form.phone.trim()}` : "",
+          Email: form.email.trim(),
+          Message: form.message.trim(),
           userId: userDbData?._id,
         }).unwrap();
-
-        setLoading(false);
-        handleClose();
-        showToast("Enquire Submited", "success");
-      } catch ({ data }) {
-        setLoading(false);
-        showToast(data?.message, "error");
+        setSuccess(true);
+        setForm({ name: "", email: "", phone: "", message: "" });
+      } catch (err) {
+        setError(err?.data?.message || "Something went wrong. Please try again.");
       }
     },
-    [
-      enquir,
-      enquireNow?.email,
-      enquireNow?.message,
-      enquireNow?.name,
-      enquireNow?.phone,
-      handleClose,
-      userDbData?._id,
-    ]
+    [enquir, form, userDbData?._id]
   );
 
   return (
-    <Box sx={{ position: "relative" }}>
-      <Dialog
-        open={opene}
-        TransitionComponent={Transition}
-        keepMounted
-        fullWidth
-        maxWidth="md"
-        onClose={handleClose}
-        aria-describedby="alert-dialog-slide-description"
-        sx={{
-          color: "#fff",
-          "& .MuiDialog-paper": {
-            // padding: "30px",
-            mb: "0px",
-            zIndex: 100,
-            mx: "0px",
-            width: "100%",
-            p: { xs: 2, md: 4 },
-            borderRadius: { xs: "16px 16px 0px 0px", md: "24px" },
-            border: "2px solid #FBFBFB",
-            background: "#FBFBFB",
-            overflowY: "auto",
-            height: { xs: "auto", md: "auto" }, // Set an initial height
-            position: "absolute", // Position absolutely
-            // Align to the right
-            bottom: { xs: "0%", md: "auto" }, // Align to the bottom for xs and center for md
-            left: "50%", // Align to the left
-            transform: "translateX(-50%)",
-            "&::-webkit-scrollbar": {
-              width: "3px",
-            },
-            "&::-webkit-scrollbar-track": {
-              background: "transparent",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "none",
-              borderRadius: "3px",
-              height: "40px", // Adjust the height as needed
-            },
-            "& *": {
-              scrollbarWidth: "auto",
-              scrollbarColor: "none #ffffff",
-            },
-          },
-        }}
-      >
-        <Box>
-          <Grid
-            container
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
-              <Grid
-                item
-                xs={12}
-                md={5.5}
-                sx={{
-                  // border: "2px solid red",
+    <Modal open={!!opene} onClose={handleClose} slotProps={{ backdrop: { sx: { background: "transparent" } } }}>
+      <div className="enq-root">
+        <div className="blob b1" />
+        <div className="blob b2" />
+        <div className="blob b3" />
 
-                  boxSizing: "border-box",
-                }}
-              >
-                <Box sx={{ width: "100%", position: "relative" }}>
-                  <Box sx={{ height: "490px" }}>
-                    <img
-                      src={enquirbg}
-                      alt=""
-                      srcSet=""
-                      style={{
-                        height: "100%",
-                        width: "100%",
-                        // objectFit: "100% 100%",
-                      }}
-                    />
-                  </Box>
-                </Box>
-              </Grid>
-            </Box>
-            <Grid
-              item
-              xs={12}
-              md={6}
-              sx={{
-                px: 2,
-                // border: "2px solid red",
-                display: "flex",
-                flexDirection: "column",
-                gap: "20px 0px",
-                width: "100%",
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: { xs: "20px", md: "28px" },
-                  color: "#000",
-                  textAlign: "left",
+        <div className="modal">
+          <button className="close-btn" onClick={handleClose} aria-label="Close">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M1 1l12 12M13 1L1 13" /></svg>
+          </button>
 
-                  position: "relative",
-                }}
-              >
-                <IconButton
-                  onClick={handleClose}
-                  sx={{ position: "absolute", right: "-30px", top: "-20px" }}
-                >
-                  <CloseIcon
-                    sx={{
-                      color: "#000",
-                    }}
-                  />
-                </IconButton>
-                Plan your trip
-              </Typography>
+          {/* LEFT — illustration */}
+          <div className="l-panel">
+            <div className="l-brand"><img src={logo} alt="Nomadic Townies" /></div>
+            <div className="l-illus-wrap">
+              <svg viewBox="0 0 240 200" fill="none" stroke="#CD482A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M30 150 C70 120, 90 60, 150 70" stroke="#e7bca9" strokeDasharray="5 8" />
+                <path d="M150 30 L210 55 L165 78 L158 110 L142 82 L150 30 Z" fill="#fff" />
+                <path d="M150 30 L165 78 L158 110" />
+                <path d="M150 30 L158 110" stroke="#e7bca9" />
+                <circle cx="30" cy="150" r="5" fill="#CD482A" stroke="none" />
+                <path d="M196 120 c6 -8 16 -8 18 0 c8 -3 14 6 8 12 h-34 c-6 -6 0 -15 8 -12" stroke="#e7bca9" />
+                <path d="M40 60 c5 -7 14 -7 16 0 c7 -2 12 5 7 10 h-30 c-5 -5 0 -13 7 -10" stroke="#e7bca9" />
+              </svg>
+            </div>
+            <div className="l-caption">
+              <h3>One quick <em>note</em>,<br />and we&apos;re on it.</h3>
+              <p>Share where you&apos;d like to go — our team replies within a few hours with handpicked options.</p>
+            </div>
+          </div>
 
-              <form onSubmit={handleEnquir}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "20px 0px",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      sx={{ color: "#737373", textAlign: "left", mb: 1 }}
-                    >
-                      Name
-                    </Typography>
-                    <TextField
-                      name="name"
-                      sx={inputStyle}
-                      size="small"
-                      placeholder="Jhon Smith"
-                      onChange={handleChange}
-                    />
-                  </Box>
-                  <Box>
-                    <Typography
-                      sx={{ color: "#737373", textAlign: "left", mb: 1 }}
-                    >
-                      Email
-                    </Typography>
-                    <TextField
-                      sx={inputStyle}
-                      type="email"
-                      name="email"
-                      size="small"
-                      placeholder="jhon@gmail.com"
-                      onChange={handleChange}
-                    />
-                  </Box>
-                  <Box>
-                    <Typography
-                      sx={{ color: "#737373", textAlign: "left", mb: 1 }}
-                    >
-                      Mobile
-                    </Typography>
-                    <PhoneNumber
-                      handleChange={handleChange}
-                      setRegisterData={setEnquireNow}
-                      registerData={enquireNow}
-                    />
-                  </Box>
-                  <Box>
-                    <Typography
-                      sx={{ color: "#737373", textAlign: "left", mb: 1 }}
-                    >
-                      Message
-                    </Typography>
-                    <TextField
-                      sx={inputStyle}
-                      name="message"
-                      size="small"
-                      placeholder="Enter Your Message"
-                      onChange={handleChange}
-                    />
-                  </Box>
-                </Box>
-                <Button
-                  variant="simplebtn"
-                  type="submit"
-                  sx={{
-                    width: "100%",
-                    background: "#EC3F18",
-                    color: "#fff",
-                    mt: 2,
-                  }}
-                >
-                  Submit
-                </Button>
-              </form>
-              {/* <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: { xs: "flex-start", md: "space-between" },
-                  alignItems: "center",
-                  gap: "0px 10px",
-                }}
-              >
-                <Button
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    background: "#F3F4F6",
-                    borderRadius: "16px",
-                    gap: "0px 10px",
-                    // px: { xs: 2, md: 4 },
-                    width: { xs: "90px", sm: "163px" },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: { xs: "20px", md: "30px" },
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <img
-                      src={google}
-                      alt=""
-                      srcSet=""
-                      style={{ width: "100%" }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      color: "#000",
-                      textTransform: "lowercase",
-                      fontSize: { xs: "13px", sm: "16px" },
-                    }}
-                  >
-                    Google
-                  </Typography>
-                </Button>
-                <Button
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    background: "#F3F4F6",
-                    borderRadius: "16px",
-                    gap: "0px 10px",
-                    // px: { xs: 2, md: 4 },
-                    width: { xs: "110px", sm: "163px" },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: { xs: "20px", md: "30px" },
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <img
-                      src={facebook}
-                      alt=""
-                      srcSet=""
-                      style={{ width: "100%" }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      color: "#000",
-                      textTransform: "lowercase",
-                      fontSize: { xs: "13px", sm: "16px" },
-                    }}
-                  >
-                    facebook
-                  </Typography>
-                </Button>
-              </Box> */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  gap: "0px 10px",
-                }}
-              >
-                {/* <Typography
-                  sx={{ color: "#939393", textAlign: "left", fontSize: "13px" }}
-                >
-                  Already have an account ?{" "}
-                
-                </Typography> */}
-              </Box>
-            </Grid>
-          </Grid>
-        </Box>
-      </Dialog>
-    </Box>
+          {/* RIGHT — form / success */}
+          {success ? (
+            <div className="success-panel">
+              <div className="success-icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              </div>
+              <h2>Enquiry sent.</h2>
+              <p>Thanks — your message is on its way. Expect a reply from our team within the next few hours.</p>
+              <button className="submit-btn" style={{ width: "auto", padding: "0 28px" }} onClick={handleClose}>Continue browsing</button>
+            </div>
+          ) : (
+            <form className="r-form" onSubmit={handleSubmit}>
+              <div className="r-head">
+                <div className="r-eyebrow">Plan your trip</div>
+                <h2>Send us an enquiry.</h2>
+                <p>Tell us a little about your trip. We&apos;ll handle the rest.</p>
+              </div>
+
+              <div className="field">
+                <label htmlFor="enq-name">Your name</label>
+                <input className="inp" type="text" id="enq-name" name="name" value={form.name} onChange={onChange} placeholder="Jane Doe" autoComplete="name" />
+              </div>
+
+              <div className="f-grid">
+                <div className="field">
+                  <label htmlFor="enq-email">Email</label>
+                  <input className="inp" type="email" id="enq-email" name="email" value={form.email} onChange={onChange} placeholder="you@email.com" autoComplete="email" />
+                </div>
+                <div className="field">
+                  <label htmlFor="enq-phone">Phone</label>
+                  <div className="ph-row">
+                    <span className="cc">+91</span>
+                    <input className="inp" type="tel" inputMode="numeric" id="enq-phone" name="phone" value={form.phone} onChange={onChange} placeholder="98765 43210" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="field">
+                <label htmlFor="enq-msg">What are you dreaming of?</label>
+                <textarea className="inp" id="enq-msg" name="message" value={form.message} onChange={onChange} placeholder="Spiti in July, or maybe a yoga retreat in Goa..." />
+              </div>
+
+              {error ? <p className="err-msg">{error}</p> : null}
+
+              <button className="submit-btn" type="submit" disabled={isLoading}>
+                {isLoading ? "Sending..." : "Send enquiry"}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </button>
+              <p className="fineprint">We typically reply within 4 hours.</p>
+            </form>
+          )}
+        </div>
+      </div>
+    </Modal>
   );
 }
