@@ -438,3 +438,14 @@
   .tdv3 .td-mobile-bar b{font-size:18px;color:var(--text-dark)}
   .tdv3 .td-mobile-bar span{font-size:12px;color:var(--text-light)}
 }
+
+/* booking flow form inputs (added) */
+.tdv3 .bk-fld{border:1.5px solid var(--line);border-radius:10px;padding:0 14px;height:46px;font-size:14px;font-family:var(--inter);color:var(--text-dark);outline:none;background:#fff;width:100%}
+.tdv3 textarea.bk-fld{height:auto;padding:12px 14px;line-height:1.5;resize:vertical}
+.tdv3 .bk-fld:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(205,72,42,.1)}
+.tdv3 .bk-qty-btn{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:20px;font-weight:700;color:var(--text-dark);cursor:pointer}
+.tdv3 .bk-qty-btn:hover{border-color:var(--orange);color:var(--orange)}
+.tdv3 .bk-qty-num{font-size:18px;font-weight:800;min-width:28px;text-align:center;color:var(--text-dark)}
+.tdv3 .bk-batch{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;margin-bottom:10px}
+.tdv3 .bk-batches{display:flex;flex-direction:column}
+@media(max-width:900px){.tdv3 .bk-grid{grid-template-columns:1fr!important}.tdv3 .bk-form-grid{grid-template-columns:1fr!important}}

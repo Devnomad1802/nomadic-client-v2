@@ -34,6 +34,9 @@ const CategorieDetails = React.lazy(() =>
 const UpcommingDetails = React.lazy(() =>
   import("./SmallComponents/Tabs/UpCommingTabs/TripDetailV3")
 );
+const BookingFlow = React.lazy(() =>
+  import("./SmallComponents/Tabs/UpCommingTabs/BookingFlowV3")
+);
 const BlogDetail = React.lazy(() => import("./Component/BlogDetail"));
 const HostPage = React.lazy(() => import("./Component/Host/HostPageV3"));
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
@@ -95,6 +98,7 @@ function App() {
               element={<ContactUs contactbg={bannerData[0]?.contactUS} />}
             />
             <Route path="/trips/:slug" element={<UpcommingDetails />} />
+            <Route path="/book/:slug" element={<BookingFlow />} />
             <Route path="/category/:slug" element={<CategorieDetails />} />
 
             {/* ── 301-equivalent redirects for old URLs (backward compatibility) ── */}

@@ -75,7 +75,7 @@ const TripDetailV3 = () => {
 
   const book = () => {
     if (!userDbData) { setOpenL(true); return; }
-    navigate("/payment", { state: { paymentDetail: item } });
+    navigate(`/book/${item.seoSlug || item._id}`);
   };
 
   const TABS = ["Overview", "Itinerary", "Inclusions", "Reviews", "Other Info"];
