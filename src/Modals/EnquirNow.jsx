@@ -59,14 +59,49 @@ export default function EnquirNow({ opene, setOpene }) {
           <div className="l-panel">
             <div className="l-brand"><img src={logo} alt="Nomadic Townies" /></div>
             <div className="l-illus-wrap">
-              <svg viewBox="0 0 240 200" fill="none" stroke="#CD482A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M30 150 C70 120, 90 60, 150 70" stroke="#e7bca9" strokeDasharray="5 8" />
-                <path d="M150 30 L210 55 L165 78 L158 110 L142 82 L150 30 Z" fill="#fff" />
-                <path d="M150 30 L165 78 L158 110" />
-                <path d="M150 30 L158 110" stroke="#e7bca9" />
-                <circle cx="30" cy="150" r="5" fill="#CD482A" stroke="none" />
-                <path d="M196 120 c6 -8 16 -8 18 0 c8 -3 14 6 8 12 h-34 c-6 -6 0 -15 8 -12" stroke="#e7bca9" />
-                <path d="M40 60 c5 -7 14 -7 16 0 c7 -2 12 5 7 10 h-30 c-5 -5 0 -13 7 -10" stroke="#e7bca9" />
+              <svg width="280" height="220" viewBox="0 0 280 220" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="enqPathGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#CD482A" stopOpacity=".2" />
+                    <stop offset="50%" stopColor="#CD482A" stopOpacity=".8" />
+                    <stop offset="100%" stopColor="#CD482A" />
+                  </linearGradient>
+                </defs>
+                <line x1="20" y1="180" x2="260" y2="180" stroke="#e8dfd2" strokeWidth="1" strokeDasharray="2 4" />
+                <path d="M40 180 L75 145 L110 175 L150 130 L195 168 L235 140 L260 180" stroke="#d4c4b0" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+                <g stroke="#cdbfa8" strokeWidth="1.2" strokeLinecap="round" fill="none">
+                  <path d="M30 55 Q35 48 44 50 Q48 42 56 46 Q62 42 65 50" />
+                  <path d="M210 38 Q215 30 224 32 Q228 24 236 28 Q242 24 245 32" />
+                  <path d="M195 95 Q199 90 206 91 Q210 86 215 90" />
+                </g>
+                <circle cx="225" cy="62" r="14" stroke="#e9c9a5" strokeWidth="1.2" fill="#fff8ed" />
+                <path d="M75 130 Q120 60 175 110 Q210 140 215 165" stroke="url(#enqPathGrad)" strokeWidth="1.6" strokeDasharray="3 4" strokeLinecap="round" fill="none" />
+                <g transform="translate(60,116) rotate(-22)">
+                  <path d="M0 0 L42 8 L0 16 L12 8 Z" fill="#fff" stroke="#1a1208" strokeWidth="1.6" strokeLinejoin="round" />
+                  <path d="M0 0 L12 8 L0 16" stroke="#1a1208" strokeWidth="1.2" fill="none" />
+                  <path d="M12 8 L42 8" stroke="#1a1208" strokeWidth="1" opacity=".35" />
+                </g>
+                <g stroke="#CD482A" strokeWidth="1.4" strokeLinecap="round" opacity=".7">
+                  <line x1="42" y1="120" x2="32" y2="118" />
+                  <line x1="46" y1="128" x2="36" y2="128" />
+                  <line x1="50" y1="136" x2="40" y2="138" />
+                </g>
+                <g transform="translate(215,165)">
+                  <circle r="14" stroke="#CD482A" strokeWidth="1" opacity=".25" />
+                  <circle r="9" stroke="#CD482A" strokeWidth="1" opacity=".4" />
+                  <path d="M0 -10 C5 -10 8 -6 8 -2 C8 4 0 12 0 12 C0 12 -8 4 -8 -2 C-8 -6 -5 -10 0 -10 Z" fill="#CD482A" stroke="#1a1208" strokeWidth="1.4" strokeLinejoin="round" />
+                  <circle r="2.5" fill="#fff" cy="-3" />
+                </g>
+                <g fill="#CD482A" opacity=".5">
+                  <circle cx="100" cy="35" r="1.2" />
+                  <circle cx="165" cy="22" r="1" />
+                  <circle cx="145" cy="50" r="1.4" />
+                </g>
+                <g transform="translate(20,156)" stroke="#1a1208" strokeWidth="1.4" strokeLinejoin="round" fill="#fff">
+                  <rect width="32" height="20" rx="1.5" />
+                  <path d="M0 0 L16 12 L32 0" fill="none" />
+                  <rect x="24" y="3" width="5" height="5" fill="#CD482A" stroke="none" />
+                </g>
               </svg>
             </div>
             <div className="l-caption">
