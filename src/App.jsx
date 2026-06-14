@@ -32,7 +32,7 @@ const CategorieDetails = React.lazy(() =>
   import("./Component/Home/CategorieDetails")
 );
 const UpcommingDetails = React.lazy(() =>
-  import("./SmallComponents/Tabs/UpCommingTabs/UpCommingDetails")
+  import("./SmallComponents/Tabs/UpCommingTabs/TripDetailV3")
 );
 const BlogDetail = React.lazy(() => import("./Component/BlogDetail"));
 const HostPage = React.lazy(() => import("./Component/Host/HostPageV3"));
