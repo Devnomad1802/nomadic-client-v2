@@ -35,7 +35,7 @@ const UpcommingDetails = React.lazy(() =>
   import("./SmallComponents/Tabs/UpCommingTabs/UpCommingDetails")
 );
 const BlogDetail = React.lazy(() => import("./Component/BlogDetail"));
-const HostPage = React.lazy(() => import("./Component/Host/HostPage"));
+const HostPage = React.lazy(() => import("./Component/Host/HostPageV3"));
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
 
 // Resolves a legacy /UpCommingDetails/:id URL to the new /trips/:slug path.
