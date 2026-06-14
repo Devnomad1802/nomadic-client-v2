@@ -50,10 +50,6 @@ export default function EnquirNow({ opene, setOpene }) {
   return (
     <Modal open={!!opene} onClose={handleClose} slotProps={{ backdrop: { sx: { background: "transparent" } } }}>
       <div className="enq-root">
-        <div className="blob b1" />
-        <div className="blob b2" />
-        <div className="blob b3" />
-
         <div className="modal">
           <button className="close-btn" onClick={handleClose} aria-label="Close">
             <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M1 1l12 12M13 1L1 13" /></svg>

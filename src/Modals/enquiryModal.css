@@ -4,20 +4,15 @@
   display:flex;align-items:center;justify-content:center;
   padding:24px;overflow:auto;
   font-family:"Inter",system-ui,sans-serif;
-  background:linear-gradient(160deg,#ffe8c8 0%,#ffcc8a 28%,#f5a050 55%,#d24b2a 100%);
+  background:rgba(15,10,6,.55);
 }
 .enq-root *,.enq-root *::before,.enq-root *::after{box-sizing:border-box}
-.enq-root .blob{position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0}
-.enq-root .b1{width:580px;height:580px;top:-160px;left:-120px;background:rgba(245,160,80,.55)}
-.enq-root .b2{width:480px;height:480px;bottom:-100px;right:-80px;background:rgba(210,75,42,.48)}
-.enq-root .b3{width:360px;height:360px;top:40%;left:50%;transform:translate(-50%,-50%);background:rgba(255,210,120,.35)}
 
 .enq-root .modal{
   position:relative;z-index:10;width:920px;max-width:100%;display:flex;
-  border-radius:28px;overflow:hidden;background:rgba(255,255,255,.14);
-  backdrop-filter:blur(32px) saturate(180%);-webkit-backdrop-filter:blur(32px) saturate(180%);
-  border:1px solid rgba(255,255,255,.52);
-  box-shadow:0 40px 90px rgba(30,12,4,.38),0 1px 0 rgba(255,255,255,.6) inset;
+  border-radius:28px;overflow:hidden;background:#fff;
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:0 40px 90px rgba(30,12,4,.38);
 }
 .enq-root .close-btn{
   position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;
