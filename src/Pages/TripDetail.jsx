@@ -3,17 +3,18 @@
  * Route: /trips/:slug   (Book Now -> /payment/:tripId)
  * Reuses existing APIs (useGetTripsQuery, useGetAllReviewsQuery). No backend changes.
  */
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSelector } from "react-redux";
-import { Box, Typography, Button, Avatar, Chip, IconButton } from "@mui/material";
+import { Box, Typography, Button, Avatar, Chip, IconButton, TextField } from "@mui/material";
 import {
-  LocationOn, AccessTime, Star, Verified,
-  CheckCircle, Cancel, Favorite, FavoriteBorder, Share, ArrowForward, GridView,
+  LocationOn, AccessTime, Star, Verified, WhatsApp,
+  CheckCircle, Cancel, Favorite, FavoriteBorder, Share, ArrowForward, GridView, KeyboardArrowDown,
 } from "@mui/icons-material";
 import { useGetTripsQuery } from "../services/TripApis";
 import { useGetAllReviewsQuery } from "../services";
+import { useEnquirMutation } from "../services/EnquirApi";
 import LoginModal from "../Modals/LoginModal";
 
 // ─── Brand tokens ─────────────────────────────────────────────
@@ -200,10 +201,13 @@ const OverviewSection = ({ overview, highlights = [] }) => (
   </Box>
 );
 
-const ItineraryTimeline = ({ itinerary = [] }) => (
+const ItineraryTimeline = ({ itinerary = [], totalDays }) => {
+  const [expanded, setExpanded] = useState(false);
+  const shown = expanded ? itinerary : itinerary.slice(0, 3);
+  return (
   <Box sx={{ mb: 4.5 }}>
     <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>Day-by-day itinerary</Typography>
-    {itinerary.length ? itinerary.map((day, i) => (
+    {shown.length ? shown.map((day, i) => (
       <Box key={i} sx={{
         display: "flex", gap: 2.2, py: 2.2, borderBottom: i < itinerary.length - 1 ? `1px solid ${LINE_SOFT}` : "none", position: "relative",
         "&::before": i < itinerary.length - 1 ? { content: '""', position: "absolute", left: 24, top: 60, bottom: -1, width: "1px", bgcolor: LINE } : {},
@@ -222,8 +226,62 @@ const ItineraryTimeline = ({ itinerary = [] }) => (
         </Box>
       </Box>
     )) : <Typography sx={{ fontSize: 14, color: TEXT_LIGHT }}>Detailed day-by-day itinerary shared on enquiry.</Typography>}
+    {itinerary.length > 3 && (
+      <Button onClick={() => setExpanded((e) => !e)} endIcon={<KeyboardArrowDown sx={{ fontSize: 16, transform: expanded ? "rotate(180deg)" : "none", transition: "transform .2s" }} />} sx={{
+        mt: 2, color: TEXT, border: `1px solid ${LINE}`, fontSize: 13.5, fontWeight: 600, textTransform: "none", borderRadius: "10px", px: 2, py: 1,
+        "&:hover": { borderColor: TEXT_DARK, color: TEXT_DARK },
+      }}>{expanded ? "Show less" : `Show full ${totalDays || itinerary.length}-day itinerary`}</Button>
+    )}
   </Box>
-);
+  );
+};
+
+const CallbackForm = ({ tripTitle, userId }) => {
+  const [cb, setCb] = useState({ name: "", phone: "", email: "" });
+  const [sent, setSent] = useState(false);
+  const [enquir, { isLoading }] = useEnquirMutation();
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!cb.name.trim() || (!cb.phone.trim() && !cb.email.trim())) return;
+    try { await enquir({ Name: cb.name, Phone: cb.phone, Email: cb.email, Message: `Callback request for trip: ${tripTitle}`, userId }).unwrap(); } catch { /* noop */ }
+    setSent(true);
+  };
+  const fieldSx = {
+    "& .MuiOutlinedInput-root": { borderRadius: "10px", fontSize: 14, height: 44, bgcolor: "#fff",
+      "& fieldset": { borderColor: LINE, borderWidth: "1.5px" }, "&:hover fieldset": { borderColor: TEXT_LIGHT }, "&.Mui-focused fieldset": { borderColor: ORANGE } },
+  };
+  return (
+    <Box sx={{ bgcolor: "#fff", borderRadius: "14px", border: "1px solid #efeae5", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2)", overflow: "hidden", mt: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, px: 2.2, py: 1.6, bgcolor: ORANGE_TINT, borderBottom: "1px solid #efeae5" }}>
+        <Box sx={{ width: 34, height: 34, borderRadius: "9px", bgcolor: "#fff", display: "grid", placeItems: "center", color: ORANGE }}><WhatsApp sx={{ fontSize: 18 }} /></Box>
+        <Box>
+          <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: ORANGE }}>Born to Roam?</Typography>
+          <Typography sx={{ fontSize: 16, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.1 }}>Let&apos;s Talk</Typography>
+        </Box>
+      </Box>
+      {sent ? (
+        <Box sx={{ p: 2.5 }}><Typography sx={{ fontSize: 13.5, color: GREEN, fontWeight: 600 }}>Thanks! Our team will reach out shortly.</Typography></Box>
+      ) : (
+        <Box component="form" onSubmit={submit} sx={{ p: 2.2, display: "flex", flexDirection: "column", gap: 1.4 }}>
+          <Box>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.6 }}>Full Name <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
+            <TextField fullWidth size="small" placeholder="e.g. John Smith" value={cb.name} onChange={(e) => setCb({ ...cb, name: e.target.value })} sx={fieldSx} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.6 }}>Phone No. <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
+            <TextField fullWidth size="small" placeholder="Enter your 10 digit number" value={cb.phone} onChange={(e) => setCb({ ...cb, phone: e.target.value })} sx={fieldSx} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.6 }}>Email ID</Typography>
+            <TextField fullWidth size="small" placeholder="john@example.com" value={cb.email} onChange={(e) => setCb({ ...cb, email: e.target.value })} sx={fieldSx} />
+          </Box>
+          <Button type="submit" disabled={isLoading} fullWidth sx={{ bgcolor: CHARCOAL, color: "#fff", fontSize: 14, fontWeight: 700, py: 1.4, borderRadius: "10px", textTransform: "none", mt: 0.5, "&:hover": { bgcolor: "#222" } }}>{isLoading ? "Sending…" : "Submit Request"}</Button>
+          <Typography sx={{ fontSize: 10.5, color: TEXT_LIGHTER, textAlign: "center", lineHeight: 1.4 }}>By submitting, you agree to receive a call &amp; WhatsApp updates from Nomadic Townies.</Typography>
+        </Box>
+      )}
+    </Box>
+  );
+};
 
 const InclusionsGrid = ({ included = [], excluded = [] }) => (
   <Box sx={{ mb: 4.5 }}>
@@ -339,6 +397,14 @@ export default function TripDetail() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [favorited, setFavorited] = useState(false);
   const [openL, setOpenL] = useState(false);
+  const sectionRefs = {
+    Overview: useRef(null), Itinerary: useRef(null), Inclusions: useRef(null),
+    Reviews: useRef(null), "Other Info": useRef(null),
+  };
+  const scrollToSection = (tab) => {
+    setActiveTab(tab);
+    sectionRefs[tab]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const raw = useMemo(() => {
     const list = Array.isArray(tripsRes?.data) ? tripsRes.data : [];
@@ -357,7 +423,7 @@ export default function TripDetail() {
   };
 
   return (
-    <Box sx={{ bgcolor: BG_SOFT, minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: BG_SOFT, minHeight: "100vh", textAlign: "left" }}>
       <Helmet>
         <title>{trip.title ? `${trip.title} | Book Now | Nomadic Townies` : "Trip Details"}</title>
         <meta name="description" content={trip.overview ? trip.overview.slice(0, 150) : "Book this experience with Nomadic Townies."} />
@@ -393,17 +459,48 @@ export default function TripDetail() {
             </Box>
 
             {trip.host && <HostStrip host={trip.host} />}
-            <TabBar active={activeTab} onChange={setActiveTab} tabs={["Overview", "Itinerary", "Inclusions", "Reviews", "Other Info"]} />
 
-            {activeTab === "Overview" && <OverviewSection overview={trip.overview} highlights={trip.highlights} />}
-            {activeTab === "Itinerary" && <ItineraryTimeline itinerary={trip.itinerary} />}
-            {activeTab === "Inclusions" && <InclusionsGrid included={trip.inclusions} excluded={trip.exclusions} />}
-            {activeTab === "Reviews" && <ReviewsSection rating={trip.rating} reviewCount={trip.reviewCount} breakdown={trip.ratingBreakdown} reviews={trip.reviews} />}
-            {activeTab === "Other Info" && <InclusionsGrid included={splitList(raw?.ThingsToCarry)} excluded={splitList(raw?.Cancellation)} />}
+            {/* sticky tab bar — scrolls to sections; all sections stay on the page */}
+            <Box sx={{ position: "sticky", top: 70, zIndex: 5, bgcolor: BG_SOFT, pt: 0.5 }}>
+              <TabBar active={activeTab} onChange={scrollToSection} tabs={["Overview", "Itinerary", "Inclusions", "Reviews", "Other Info"]} />
+            </Box>
+
+            <Box ref={sectionRefs.Overview} sx={{ scrollMarginTop: "120px" }}>
+              <OverviewSection overview={trip.overview} highlights={trip.highlights} />
+            </Box>
+            <Box ref={sectionRefs.Itinerary} sx={{ scrollMarginTop: "120px" }}>
+              <ItineraryTimeline itinerary={trip.itinerary} totalDays={trip.days} />
+            </Box>
+            <Box ref={sectionRefs.Inclusions} sx={{ scrollMarginTop: "120px" }}>
+              <InclusionsGrid included={trip.inclusions} excluded={trip.exclusions} />
+            </Box>
+            <Box ref={sectionRefs.Reviews} sx={{ scrollMarginTop: "120px" }}>
+              <ReviewsSection rating={trip.rating} reviewCount={trip.reviewCount} breakdown={trip.ratingBreakdown} reviews={trip.reviews} />
+            </Box>
+            {(splitList(raw?.ThingsToCarry).length > 0 || splitList(raw?.Cancellation).length > 0) && (
+              <Box ref={sectionRefs["Other Info"]} sx={{ scrollMarginTop: "120px", mb: 4.5 }}>
+                <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>Other information</Typography>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+                  {splitList(raw?.ThingsToCarry).length > 0 && (
+                    <Box sx={{ bgcolor: BG_SOFT, borderRadius: "12px", p: 2.2 }}>
+                      <Typography sx={{ fontSize: 15, fontWeight: 700, color: TEXT_DARK, mb: 1.5 }}>Things to carry</Typography>
+                      {splitList(raw.ThingsToCarry).map((x, i) => <Box key={i} sx={{ display: "flex", gap: 1.2, fontSize: 13.5, color: TEXT, mb: 1 }}><span style={{ color: ORANGE }}>•</span><span>{x}</span></Box>)}
+                    </Box>
+                  )}
+                  {splitList(raw?.Cancellation).length > 0 && (
+                    <Box sx={{ bgcolor: BG_SOFT, borderRadius: "12px", p: 2.2 }}>
+                      <Typography sx={{ fontSize: 15, fontWeight: 700, color: TEXT_DARK, mb: 1.5 }}>Cancellation policy</Typography>
+                      {splitList(raw.Cancellation).map((x, i) => <Box key={i} sx={{ display: "flex", gap: 1.2, fontSize: 13.5, color: TEXT, mb: 1 }}><span style={{ color: ORANGE }}>•</span><span>{x}</span></Box>)}
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+            )}
           </Box>
 
           <Box sx={{ position: { lg: "sticky" }, top: { lg: 80 } }}>
             <PriceSidebar trip={trip} onBookNow={handleBookNow} />
+            <CallbackForm tripTitle={trip.title} userId={userDbData?._id} />
           </Box>
         </Box>
       </Box>
