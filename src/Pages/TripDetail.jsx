@@ -248,13 +248,13 @@ const CallbackForm = ({ tripTitle, userId }) => {
     setSent(true);
   };
   const fieldSx = {
-    "& .MuiOutlinedInput-root": { borderRadius: "10px", fontSize: 14.5, height: 48, bgcolor: "#fff",
+    "& .MuiOutlinedInput-root": { borderRadius: "10px", fontSize: 14, height: 42, bgcolor: "#fff",
       "& fieldset": { borderColor: LINE, borderWidth: "1.5px" }, "&:hover fieldset": { borderColor: TEXT_LIGHT }, "&.Mui-focused fieldset": { borderColor: ORANGE } },
   };
   return (
-    <Box sx={{ bgcolor: "#fff", borderRadius: "14px", border: "1px solid #efeae5", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2)", overflow: "hidden", mt: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, px: 2.2, py: 1.6, bgcolor: ORANGE_TINT, borderBottom: "1px solid #efeae5" }}>
-        <Box sx={{ width: 34, height: 34, borderRadius: "9px", bgcolor: "#fff", display: "grid", placeItems: "center", color: ORANGE }}><WhatsApp sx={{ fontSize: 18 }} /></Box>
+    <Box sx={{ bgcolor: "#fff", borderRadius: "14px", border: "1px solid #efeae5", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2)", overflow: "hidden", mt: 1.5 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, px: 2, py: 1.2, bgcolor: ORANGE_TINT, borderBottom: "1px solid #efeae5" }}>
+        <Box sx={{ width: 32, height: 32, borderRadius: "9px", bgcolor: "#fff", display: "grid", placeItems: "center", color: ORANGE }}><WhatsApp sx={{ fontSize: 17 }} /></Box>
         <Box>
           <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: ORANGE }}>Born to Roam?</Typography>
           <Typography sx={{ fontSize: 16, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.1 }}>Let&apos;s Talk</Typography>
@@ -263,20 +263,20 @@ const CallbackForm = ({ tripTitle, userId }) => {
       {sent ? (
         <Box sx={{ p: 2.5 }}><Typography sx={{ fontSize: 13.5, color: GREEN, fontWeight: 600 }}>Thanks! Our team will reach out shortly.</Typography></Box>
       ) : (
-        <Box component="form" onSubmit={submit} sx={{ p: 2.6, display: "flex", flexDirection: "column", gap: 1.9 }}>
+        <Box component="form" onSubmit={submit} sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.2 }}>
           <Box>
-            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: CHARCOAL, mb: 0.8 }}>Full Name <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.5 }}>Full Name <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
             <TextField fullWidth size="small" placeholder="e.g. John Smith" value={cb.name} onChange={(e) => setCb({ ...cb, name: e.target.value })} sx={fieldSx} />
           </Box>
           <Box>
-            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: CHARCOAL, mb: 0.8 }}>Phone No. <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.5 }}>Phone No. <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
             <TextField fullWidth size="small" placeholder="Enter your 10 digit number" value={cb.phone} onChange={(e) => setCb({ ...cb, phone: e.target.value })} sx={fieldSx} />
           </Box>
           <Box>
-            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: CHARCOAL, mb: 0.8 }}>Email ID <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.5 }}>Email ID <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
             <TextField fullWidth size="small" placeholder="john@example.com" value={cb.email} onChange={(e) => setCb({ ...cb, email: e.target.value })} sx={fieldSx} />
           </Box>
-          <Button type="submit" disabled={isLoading} fullWidth sx={{ bgcolor: CHARCOAL, color: "#fff", fontSize: 14.5, fontWeight: 700, py: 1.6, borderRadius: "10px", textTransform: "none", mt: 0.5, "&:hover": { bgcolor: "#222" } }}>{isLoading ? "Sending…" : "Submit Request"}</Button>
+          <Button type="submit" disabled={isLoading} fullWidth sx={{ bgcolor: CHARCOAL, color: "#fff", fontSize: 14, fontWeight: 700, py: 1.3, borderRadius: "10px", textTransform: "none", mt: 0.4, "&:hover": { bgcolor: "#222" } }}>{isLoading ? "Sending…" : "Submit Request"}</Button>
           <Typography sx={{ fontSize: 10.5, color: TEXT_LIGHTER, textAlign: "center", lineHeight: 1.4 }}>By submitting, you agree to receive a call &amp; WhatsApp updates from Nomadic Townies.</Typography>
         </Box>
       )}
@@ -359,12 +359,12 @@ const PriceSidebar = ({ trip, onBookNow }) => (
       <Box sx={{ width: 22, height: 22, borderRadius: "6px", bgcolor: "#fff", display: "grid", placeItems: "center", border: `1px solid ${ORANGE_TINT}`, color: ORANGE }}>💳</Box>
       <Typography sx={{ fontSize: 11, fontWeight: 500, color: CHARCOAL, lineHeight: 1.3 }}>Pay a little now, adventure a lot — flexible payments at checkout.</Typography>
     </Box>
-    <Box sx={{ p: "16px 18px 18px" }}>
+    <Box sx={{ p: "12px 18px 14px" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
         <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#8b837b" }}>Starting from</Typography>
         {trip.tripOff ? <Box sx={{ bgcolor: GREEN_TINT, color: GREEN, fontSize: 10, fontWeight: 700, px: 1, py: 0.4, borderRadius: "999px" }}>✦ {trip.tripOff}% OFF</Box> : null}
       </Box>
-      <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, flexWrap: "wrap", mb: 1.8 }}>
+      <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, flexWrap: "wrap", mb: 1.4 }}>
         <Typography component="b" sx={{ fontSize: 30, fontWeight: 800, color: "#16223a", letterSpacing: "-.02em", lineHeight: 1 }}>₹{(trip.price || 0).toLocaleString("en-IN")}</Typography>
         {trip.strikePrice > trip.price ? <Typography component="s" sx={{ fontSize: 13, fontWeight: 600, color: "#b3aba3" }}>₹{trip.strikePrice.toLocaleString("en-IN")}</Typography> : null}
         <Typography component="em" sx={{ fontSize: 12, fontWeight: 600, color: "#8b837b", fontStyle: "normal" }}>/ person</Typography>
@@ -474,7 +474,7 @@ export default function TripDetail() {
         <Breadcrumb title={trip.title} />
         <HeroGallery images={trip.images} />
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 400px" }, gap: { xs: 3, lg: 4.5 }, alignItems: "start" }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 430px" }, gap: { xs: 3, lg: 3.5 }, alignItems: "start" }}>
           <Box>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1.2 }}>
               {trip.categories?.map((c, i) => (
