@@ -3,7 +3,7 @@
  * Route: /trips/:slug   (Book Now -> /payment/:tripId)
  * Reuses existing APIs (useGetTripsQuery, useGetAllReviewsQuery). No backend changes.
  */
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSelector } from "react-redux";
@@ -413,6 +413,23 @@ export default function TripDetail() {
 
   const trip = useMemo(() => mapTrip(raw, revRes?.data), [raw, revRes]);
 
+  // scroll-spy: highlight the tab of the section currently in view (active tab turns orange)
+  useEffect(() => {
+    if (!trip) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]?.target?.dataset?.tab) setActiveTab(visible[0].target.dataset.tab);
+      },
+      { rootMargin: "-130px 0px -55% 0px", threshold: 0 }
+    );
+    Object.entries(sectionRefs).forEach(([tab, ref]) => {
+      if (ref.current) { ref.current.dataset.tab = tab; observer.observe(ref.current); }
+    });
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trip?._id]);
+
   if (tripsRes && !raw) return <Box sx={{ bgcolor: BG_SOFT, minHeight: "60vh", display: "grid", placeItems: "center", color: TEXT_LIGHT }}>Trip not found.</Box>;
   if (!trip) return <Box sx={{ bgcolor: BG_SOFT, minHeight: "60vh", display: "grid", placeItems: "center", color: TEXT_LIGHT }}>Loading…</Box>;
 
@@ -423,7 +440,7 @@ export default function TripDetail() {
   };
 
   return (
-    <Box sx={{ bgcolor: BG_SOFT, minHeight: "100vh", textAlign: "left" }}>
+    <Box sx={{ bgcolor: BG_SOFT, minHeight: "100vh", textAlign: "left", "& .MuiTypography-root": { textAlign: "left" } }}>
       <Helmet>
         <title>{trip.title ? `${trip.title} | Book Now | Nomadic Townies` : "Trip Details"}</title>
         <meta name="description" content={trip.overview ? trip.overview.slice(0, 150) : "Book this experience with Nomadic Townies."} />
@@ -461,24 +478,24 @@ export default function TripDetail() {
             {trip.host && <HostStrip host={trip.host} />}
 
             {/* sticky tab bar — scrolls to sections; all sections stay on the page */}
-            <Box sx={{ position: "sticky", top: 70, zIndex: 5, bgcolor: BG_SOFT, pt: 0.5 }}>
+            <Box sx={{ position: "sticky", top: 0, zIndex: 10, bgcolor: BG_SOFT, pt: 1 }}>
               <TabBar active={activeTab} onChange={scrollToSection} tabs={["Overview", "Itinerary", "Inclusions", "Reviews", "Other Info"]} />
             </Box>
 
-            <Box ref={sectionRefs.Overview} sx={{ scrollMarginTop: "120px" }}>
+            <Box ref={sectionRefs.Overview} sx={{ scrollMarginTop: "84px" }}>
               <OverviewSection overview={trip.overview} highlights={trip.highlights} />
             </Box>
-            <Box ref={sectionRefs.Itinerary} sx={{ scrollMarginTop: "120px" }}>
+            <Box ref={sectionRefs.Itinerary} sx={{ scrollMarginTop: "84px" }}>
               <ItineraryTimeline itinerary={trip.itinerary} totalDays={trip.days} />
             </Box>
-            <Box ref={sectionRefs.Inclusions} sx={{ scrollMarginTop: "120px" }}>
+            <Box ref={sectionRefs.Inclusions} sx={{ scrollMarginTop: "84px" }}>
               <InclusionsGrid included={trip.inclusions} excluded={trip.exclusions} />
             </Box>
-            <Box ref={sectionRefs.Reviews} sx={{ scrollMarginTop: "120px" }}>
+            <Box ref={sectionRefs.Reviews} sx={{ scrollMarginTop: "84px" }}>
               <ReviewsSection rating={trip.rating} reviewCount={trip.reviewCount} breakdown={trip.ratingBreakdown} reviews={trip.reviews} />
             </Box>
             {(splitList(raw?.ThingsToCarry).length > 0 || splitList(raw?.Cancellation).length > 0) && (
-              <Box ref={sectionRefs["Other Info"]} sx={{ scrollMarginTop: "120px", mb: 4.5 }}>
+              <Box ref={sectionRefs["Other Info"]} sx={{ scrollMarginTop: "84px", mb: 4.5 }}>
                 <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>Other information</Typography>
                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
                   {splitList(raw?.ThingsToCarry).length > 0 && (
@@ -498,7 +515,7 @@ export default function TripDetail() {
             )}
           </Box>
 
-          <Box sx={{ position: { lg: "sticky" }, top: { lg: 80 } }}>
+          <Box sx={{ position: { lg: "sticky" }, top: { lg: 16 }, alignSelf: "start" }}>
             <PriceSidebar trip={trip} onBookNow={handleBookNow} />
             <CallbackForm tripTitle={trip.title} userId={userDbData?._id} />
           </Box>
