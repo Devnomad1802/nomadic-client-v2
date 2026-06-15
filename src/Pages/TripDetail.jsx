@@ -400,25 +400,6 @@ export default function TripDetail() {
   const [openL, setOpenL] = useState(false);
   const [shareAnchor, setShareAnchor] = useState(null);
   const [copied, setCopied] = useState(false);
-
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const shareText = (raw?.title ? `${raw.title} — Nomadic Townies` : "Nomadic Townies");
-  const openShare = async (e) => {
-    if (navigator.share) { try { await navigator.share({ title: shareText, url: shareUrl }); return; } catch { /* fall through to menu */ } }
-    setShareAnchor(e.currentTarget);
-  };
-  const shareTo = (kind) => {
-    const u = encodeURIComponent(shareUrl); const t = encodeURIComponent(shareText);
-    const links = {
-      whatsapp: `https://wa.me/?text=${t}%20${u}`,
-      telegram: `https://t.me/share/url?url=${u}&text=${t}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
-      email: `mailto:?subject=${t}&body=${u}`,
-    };
-    if (kind === "copy") { navigator.clipboard?.writeText(shareUrl); setCopied(true); }
-    else window.open(links[kind], "_blank", "noopener,noreferrer");
-    setShareAnchor(null);
-  };
   const sectionRefs = {
     Overview: useRef(null), Itinerary: useRef(null), Inclusions: useRef(null),
     Reviews: useRef(null), "Other Info": useRef(null),
@@ -459,6 +440,25 @@ export default function TripDetail() {
     if (!userDbData) { setOpenL(true); return; }
     // Phase 2: keep the existing, working booking flow. Phase 4 repoints to /payment/:tripId (BookingFlow).
     navigate("/payment", { state: { paymentDetail: raw } });
+  };
+
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareText = trip?.title ? `${trip.title} — Nomadic Townies` : "Nomadic Townies";
+  const openShare = async (e) => {
+    if (navigator.share) { try { await navigator.share({ title: shareText, url: shareUrl }); return; } catch { /* fall through to menu */ } }
+    setShareAnchor(e.currentTarget);
+  };
+  const shareTo = (kind) => {
+    const u = encodeURIComponent(shareUrl); const t = encodeURIComponent(shareText);
+    const links = {
+      whatsapp: `https://wa.me/?text=${t}%20${u}`,
+      telegram: `https://t.me/share/url?url=${u}&text=${t}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+      email: `mailto:?subject=${t}&body=${u}`,
+    };
+    if (kind === "copy") { navigator.clipboard?.writeText(shareUrl); setCopied(true); }
+    else window.open(links[kind], "_blank", "noopener,noreferrer");
+    setShareAnchor(null);
   };
 
   return (
