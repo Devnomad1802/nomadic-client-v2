@@ -31,9 +31,7 @@ const PrivacyPolicy = React.lazy(() => import("./Pages/PrivacyPolicy"));
 const CategorieDetails = React.lazy(() =>
   import("./Component/Home/CategorieDetails")
 );
-const UpcommingDetails = React.lazy(() =>
-  import("./SmallComponents/Tabs/UpCommingTabs/UpCommingDetails")
-);
+const UpcommingDetails = React.lazy(() => import("./Pages/TripDetail"));
 const BlogDetail = React.lazy(() => import("./Component/BlogDetail"));
 const HostPage = React.lazy(() => import("./Component/Host/HostPage"));
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
