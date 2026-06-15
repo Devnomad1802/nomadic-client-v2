@@ -7,15 +7,16 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSelector } from "react-redux";
-import { Box, Typography, Button, Avatar, Chip, IconButton, TextField } from "@mui/material";
+import { Box, Typography, Button, Avatar, Chip, IconButton, TextField, Menu, MenuItem, ListItemIcon, Snackbar } from "@mui/material";
 import {
-  LocationOn, AccessTime, Star, Verified, WhatsApp,
+  LocationOn, AccessTime, Star, Verified, WhatsApp, Telegram, Email, Facebook, ContentCopy,
   CheckCircle, Cancel, Favorite, FavoriteBorder, Share, ArrowForward, GridView, KeyboardArrowDown,
 } from "@mui/icons-material";
 import { useGetTripsQuery } from "../services/TripApis";
 import { useGetAllReviewsQuery } from "../services";
 import { useEnquirMutation } from "../services/EnquirApi";
 import LoginModal from "../Modals/LoginModal";
+import Footer from "../Component/Footer";
 
 // ─── Brand tokens ─────────────────────────────────────────────
 const ORANGE = "#CD482A";
@@ -397,6 +398,27 @@ export default function TripDetail() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [favorited, setFavorited] = useState(false);
   const [openL, setOpenL] = useState(false);
+  const [shareAnchor, setShareAnchor] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareText = (raw?.title ? `${raw.title} — Nomadic Townies` : "Nomadic Townies");
+  const openShare = async (e) => {
+    if (navigator.share) { try { await navigator.share({ title: shareText, url: shareUrl }); return; } catch { /* fall through to menu */ } }
+    setShareAnchor(e.currentTarget);
+  };
+  const shareTo = (kind) => {
+    const u = encodeURIComponent(shareUrl); const t = encodeURIComponent(shareText);
+    const links = {
+      whatsapp: `https://wa.me/?text=${t}%20${u}`,
+      telegram: `https://t.me/share/url?url=${u}&text=${t}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+      email: `mailto:?subject=${t}&body=${u}`,
+    };
+    if (kind === "copy") { navigator.clipboard?.writeText(shareUrl); setCopied(true); }
+    else window.open(links[kind], "_blank", "noopener,noreferrer");
+    setShareAnchor(null);
+  };
   const sectionRefs = {
     Overview: useRef(null), Itinerary: useRef(null), Inclusions: useRef(null),
     Reviews: useRef(null), "Other Info": useRef(null),
@@ -471,7 +493,14 @@ export default function TripDetail() {
               </Box>
               <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
                 <IconButton onClick={() => setFavorited(!favorited)} size="small">{favorited ? <Favorite sx={{ color: ORANGE }} /> : <FavoriteBorder sx={{ color: TEXT_LIGHT }} />}</IconButton>
-                <IconButton size="small"><Share sx={{ color: TEXT_LIGHT }} /></IconButton>
+                <IconButton size="small" onClick={openShare} aria-label="Share trip"><Share sx={{ color: TEXT_LIGHT }} /></IconButton>
+                <Menu anchorEl={shareAnchor} open={Boolean(shareAnchor)} onClose={() => setShareAnchor(null)} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} transformOrigin={{ vertical: "top", horizontal: "right" }}>
+                  <MenuItem onClick={() => shareTo("copy")}><ListItemIcon><ContentCopy fontSize="small" /></ListItemIcon>Copy link</MenuItem>
+                  <MenuItem onClick={() => shareTo("whatsapp")}><ListItemIcon><WhatsApp fontSize="small" sx={{ color: "#25D366" }} /></ListItemIcon>WhatsApp</MenuItem>
+                  <MenuItem onClick={() => shareTo("telegram")}><ListItemIcon><Telegram fontSize="small" sx={{ color: "#229ED9" }} /></ListItemIcon>Telegram</MenuItem>
+                  <MenuItem onClick={() => shareTo("facebook")}><ListItemIcon><Facebook fontSize="small" sx={{ color: "#1877F2" }} /></ListItemIcon>Facebook</MenuItem>
+                  <MenuItem onClick={() => shareTo("email")}><ListItemIcon><Email fontSize="small" sx={{ color: TEXT_LIGHT }} /></ListItemIcon>Email</MenuItem>
+                </Menu>
               </Box>
             </Box>
 
@@ -515,12 +544,19 @@ export default function TripDetail() {
             )}
           </Box>
 
-          <Box sx={{ position: { lg: "sticky" }, top: { lg: 16 }, alignSelf: "start" }}>
+          <Box sx={{
+            position: { lg: "sticky" }, top: { lg: 16 }, alignSelf: "start",
+            maxHeight: { lg: "calc(100vh - 32px)" }, overflowY: { lg: "auto" }, pr: { lg: 0.5 },
+            "&::-webkit-scrollbar": { width: 6 }, "&::-webkit-scrollbar-thumb": { background: LINE, borderRadius: 3 },
+          }}>
             <PriceSidebar trip={trip} onBookNow={handleBookNow} />
             <CallbackForm tripTitle={trip.title} userId={userDbData?._id} />
           </Box>
         </Box>
       </Box>
+
+      <Footer />
+      <Snackbar open={copied} autoHideDuration={2000} onClose={() => setCopied(false)} message="Link copied to clipboard" anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />
     </Box>
   );
 }
