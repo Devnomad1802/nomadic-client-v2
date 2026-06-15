@@ -140,7 +140,7 @@ const HeroGallery = ({ images = [] }) => {
 };
 
 const HostStrip = ({ host = {} }) => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1.8, p: 2.2, bgcolor: BG_SOFT, borderRadius: "14px", mb: 4 }}>
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1.8, p: 2, bgcolor: BG_SOFT, borderRadius: "14px", mb: 2.5 }}>
     <Avatar sx={{ width: 48, height: 48, bgcolor: ORANGE_TINT, color: ORANGE, fontWeight: 800, fontSize: 18 }}>
       {(host?.hostName || "H")[0].toUpperCase()}
     </Avatar>
@@ -248,7 +248,7 @@ const CallbackForm = ({ tripTitle, userId }) => {
     setSent(true);
   };
   const fieldSx = {
-    "& .MuiOutlinedInput-root": { borderRadius: "10px", fontSize: 14, height: 44, bgcolor: "#fff",
+    "& .MuiOutlinedInput-root": { borderRadius: "10px", fontSize: 14.5, height: 48, bgcolor: "#fff",
       "& fieldset": { borderColor: LINE, borderWidth: "1.5px" }, "&:hover fieldset": { borderColor: TEXT_LIGHT }, "&.Mui-focused fieldset": { borderColor: ORANGE } },
   };
   return (
@@ -263,20 +263,20 @@ const CallbackForm = ({ tripTitle, userId }) => {
       {sent ? (
         <Box sx={{ p: 2.5 }}><Typography sx={{ fontSize: 13.5, color: GREEN, fontWeight: 600 }}>Thanks! Our team will reach out shortly.</Typography></Box>
       ) : (
-        <Box component="form" onSubmit={submit} sx={{ p: 2.2, display: "flex", flexDirection: "column", gap: 1.4 }}>
+        <Box component="form" onSubmit={submit} sx={{ p: 2.6, display: "flex", flexDirection: "column", gap: 1.9 }}>
           <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.6 }}>Full Name <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
+            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: CHARCOAL, mb: 0.8 }}>Full Name <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
             <TextField fullWidth size="small" placeholder="e.g. John Smith" value={cb.name} onChange={(e) => setCb({ ...cb, name: e.target.value })} sx={fieldSx} />
           </Box>
           <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.6 }}>Phone No. <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
+            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: CHARCOAL, mb: 0.8 }}>Phone No. <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
             <TextField fullWidth size="small" placeholder="Enter your 10 digit number" value={cb.phone} onChange={(e) => setCb({ ...cb, phone: e.target.value })} sx={fieldSx} />
           </Box>
           <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.6 }}>Email ID</Typography>
+            <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: CHARCOAL, mb: 0.8 }}>Email ID <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
             <TextField fullWidth size="small" placeholder="john@example.com" value={cb.email} onChange={(e) => setCb({ ...cb, email: e.target.value })} sx={fieldSx} />
           </Box>
-          <Button type="submit" disabled={isLoading} fullWidth sx={{ bgcolor: CHARCOAL, color: "#fff", fontSize: 14, fontWeight: 700, py: 1.4, borderRadius: "10px", textTransform: "none", mt: 0.5, "&:hover": { bgcolor: "#222" } }}>{isLoading ? "Sending…" : "Submit Request"}</Button>
+          <Button type="submit" disabled={isLoading} fullWidth sx={{ bgcolor: CHARCOAL, color: "#fff", fontSize: 14.5, fontWeight: 700, py: 1.6, borderRadius: "10px", textTransform: "none", mt: 0.5, "&:hover": { bgcolor: "#222" } }}>{isLoading ? "Sending…" : "Submit Request"}</Button>
           <Typography sx={{ fontSize: 10.5, color: TEXT_LIGHTER, textAlign: "center", lineHeight: 1.4 }}>By submitting, you agree to receive a call &amp; WhatsApp updates from Nomadic Townies.</Typography>
         </Box>
       )}
@@ -476,16 +476,16 @@ export default function TripDetail() {
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 400px" }, gap: { xs: 3, lg: 4.5 }, alignItems: "start" }}>
           <Box>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1.5 }}>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1.2 }}>
               {trip.categories?.map((c, i) => (
                 <Chip key={i} label={c} size="small" sx={{ bgcolor: ORANGE_TINT, color: ORANGE, fontSize: 11.5, fontWeight: 700, letterSpacing: ".02em", textTransform: "uppercase", height: 24 }} />
               ))}
               {trip.isTrending && <Chip label="🔥 Trending" size="small" sx={{ bgcolor: GREEN_TINT, color: GREEN, fontSize: 11.5, fontWeight: 700, letterSpacing: ".02em", textTransform: "uppercase", height: 24 }} />}
             </Box>
 
-            <Typography sx={{ fontFamily: PLAYFAIR, fontSize: { xs: 28, md: 38 }, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.1, letterSpacing: "-.02em", mb: 1.8 }}>{trip.title}</Typography>
+            <Typography sx={{ fontFamily: PLAYFAIR, fontSize: { xs: 26, md: 36 }, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.12, letterSpacing: "-.02em", mb: 1 }}>{trip.title}</Typography>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, fontSize: 14, color: TEXT_LIGHT, flexWrap: "wrap", mb: 3 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, fontSize: 14, color: TEXT_LIGHT, flexWrap: "wrap", mb: 2.2 }}>
               {trip.location && <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}><LocationOn sx={{ fontSize: 16, color: TEXT_LIGHTER }} /> {trip.location}</Box>}
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}><AccessTime sx={{ fontSize: 16, color: TEXT_LIGHTER }} /> {trip.nights}N · {trip.days}D</Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.7, color: TEXT_DARK, fontWeight: 600 }}>
