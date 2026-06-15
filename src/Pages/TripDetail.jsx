@@ -87,12 +87,8 @@ const mapTrip = (raw, allReviews) => {
     rating: ratingNum, reviewCount, isTrending: !!raw.Trending,
     host: raw.host && typeof raw.host === "object" ? raw.host : null,
     overview: raw.overview,
-    highlights: [
-      `${raw.nights || "—"}N / ${raw.days || "—"}D curated itinerary`,
-      raw.location ? `Explore ${raw.location}` : "Handpicked destinations",
-      raw.host?.hostName ? `Hosted by ${raw.host.hostName}` : "Community-first small group",
-      "Secure payment & on-trip support",
-    ],
+    // highlights are backend-driven (Trip.highlights[]); fall back to derived if none added yet
+    highlights: splitList(raw.highlights),
     itinerary,
     inclusions: splitList(raw.Inclusion),
     exclusions: splitList(raw.Exclusion),
@@ -189,16 +185,16 @@ const OverviewSection = ({ overview, highlights = [] }) => (
     <Typography sx={{ fontSize: 15, color: TEXT, lineHeight: 1.7, mb: 1.5, whiteSpace: "pre-line" }}>
       {overview || "A small-group experience through some of India's most remote landscapes."}
     </Typography>
-    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5, mt: 2 }}>
-      {highlights.map((h, i) => (
-        <Box key={i} sx={{ display: "flex", gap: 1.5, p: 1.8, bgcolor: BG_SOFT, borderRadius: "12px" }}>
-          <Box sx={{ width: 34, height: 34, borderRadius: "9px", bgcolor: ORANGE_TINT, color: ORANGE, display: "grid", placeItems: "center", flexShrink: 0 }}>
-            <Star sx={{ fontSize: 18 }} />
+    {highlights.length > 0 && (
+      <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0, mt: 2.5, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.4 }}>
+        {highlights.map((h, i) => (
+          <Box component="li" key={i} sx={{ display: "flex", gap: 1.4, alignItems: "flex-start" }}>
+            <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: ORANGE, flexShrink: 0, mt: "8px" }} />
+            <Typography sx={{ fontSize: 14.5, color: TEXT_DARK, lineHeight: 1.55 }}>{h}</Typography>
           </Box>
-          <Typography sx={{ fontSize: 13.5, color: TEXT_DARK, fontWeight: 500, lineHeight: 1.4 }}>{h}</Typography>
-        </Box>
-      ))}
-    </Box>
+        ))}
+      </Box>
+    )}
   </Box>
 );
 
@@ -207,7 +203,7 @@ const ItineraryTimeline = ({ itinerary = [], totalDays }) => {
   const shown = expanded ? itinerary : itinerary.slice(0, 3);
   return (
   <Box sx={{ mb: 4.5 }}>
-    <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>Day-by-day itinerary</Typography>
+    <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>Itinerary</Typography>
     {shown.length ? shown.map((day, i) => (
       <Box key={i} sx={{
         display: "flex", gap: 2.2, py: 2.2, borderBottom: i < itinerary.length - 1 ? `1px solid ${LINE_SOFT}` : "none", position: "relative",
@@ -476,14 +472,7 @@ export default function TripDetail() {
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 430px" }, gap: { xs: 3, lg: 3.5 }, alignItems: "start" }}>
           <Box>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1.2 }}>
-              {trip.categories?.map((c, i) => (
-                <Chip key={i} label={c} size="small" sx={{ bgcolor: ORANGE_TINT, color: ORANGE, fontSize: 11.5, fontWeight: 700, letterSpacing: ".02em", textTransform: "uppercase", height: 24 }} />
-              ))}
-              {trip.isTrending && <Chip label="🔥 Trending" size="small" sx={{ bgcolor: GREEN_TINT, color: GREEN, fontSize: 11.5, fontWeight: 700, letterSpacing: ".02em", textTransform: "uppercase", height: 24 }} />}
-            </Box>
-
-            <Typography sx={{ fontFamily: PLAYFAIR, fontSize: { xs: 26, md: 36 }, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.12, letterSpacing: "-.02em", mb: 1 }}>{trip.title}</Typography>
+            <Typography sx={{ fontFamily: PLAYFAIR, fontSize: { xs: 26, md: 36 }, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.12, letterSpacing: "-.02em", mb: 1, mt: 0.5 }}>{trip.title}</Typography>
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, fontSize: 14, color: TEXT_LIGHT, flexWrap: "wrap", mb: 2.2 }}>
               {trip.location && <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}><LocationOn sx={{ fontSize: 16, color: TEXT_LIGHTER }} /> {trip.location}</Box>}
