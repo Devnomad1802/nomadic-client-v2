@@ -1,316 +1,600 @@
-import { Box, Breadcrumbs, Container, Grid, Link, Typography } from "@mui/material";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+/**
+ * BlogDetail.jsx — Editorial redesign (v2, backend-true)
+ * ─────────────────────────────────────────────────────────────
+ * Drop-in replacement for: src/Component/BlogDetail.jsx
+ * Route mounted at:        /blogs/Details/:id
+ *
+ * BACKEND-COMPATIBLE — uses ONLY fields already in models/blogs.js:
+ *   _id, title, author, location, Date, Banner_Image,
+ *   metaDescription, seoTitle, seoSlug,
+ *   items[{ order, type, content, imageIndex, imageUrl }],   // NEW structured
+ *   images[],                                                 // NEW structured
+ *   content1, content2, Add_Image[]                           // LEGACY fallback
+ *
+ * Body renderer handles BOTH formats transparently.
+ *
+ * New design (v2):
+ *   • Full-bleed magazine cover (Banner_Image overlays title + lede + meta)
+ *   • Sticky share rail (left) + scrollspy TOC (right)
+ *   • Justified body with auto-hyphenation, drop-cap
+ *   • Native <blockquote> pullquote styling for body HTML
+ *   • Author bio · newsletter · related (uses existing component)
+ */
 
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, Link as RouterLink, useNavigate } from "react-router-dom";
+import { Box, Container, Typography, IconButton, Button } from "@mui/material";
 import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import RelatedBlogs from "./Blog/RelatedBlogs";
-import { useGetAllBlogsQuery } from "../services";
-import { baseImage } from "../utils";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import LinkIcon from "@mui/icons-material/Link";
+import { Helmet } from "react-helmet-async";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import "../SmallComponents/styles.css";
 
-// import required modules
-import { Pagination } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Helmet } from "react-helmet-async";
+import { useGetAllBlogsQuery } from "../services";
+import RelatedBlogs from "./Blog/RelatedBlogs";
 
-const BlogDetail = () => {
-  const { id } = useParams();
+// ─── Brand tokens ─────────────────────────────────────────────
+const ORANGE = "#CD482A";
+const ORANGE_HOVER = "#B53D1F";
+const ORANGE_TINT = "#FDF3EE";
+const ORANGE_TINT2 = "#FBEAE3";
+const TEXT_DARK = "#1F2937";
+const TEXT = "#4B5563";
+const TEXT_LIGHT = "#6B7280";
+const TEXT_LIGHTER = "#9CA3AF";
+const LINE = "#E5E7EB";
+const LINE_SOFT = "#F3F4F6";
+const BG_CREAM = "#FAF7F2";
+const PLAYFAIR = `"Playfair Display", Georgia, serif`;
+const SERIF = `"Newsreader", Georgia, serif`;
+const INTER = `"Inter", system-ui, sans-serif`;
 
-  const { isError, isFetching, isLoading, data } = useGetAllBlogsQuery();
-  const [blogData, setBlogData] = useState([]);
+// ─── Helpers ──────────────────────────────────────────────────
+const formatDate = d => {
+  if (!d) return "";
+  const dt = new Date(d);
+  const day = dt.getDate();
+  const month = dt.toLocaleString("en-US", { month: "long" });
+  const year = dt.getFullYear();
+  const suf = (n => {
+    const s = ["th", "st", "nd", "rd"], v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+  })(day);
+  return `${day}${suf} ${month} ${year}`;
+};
+
+const estimateReadMinutes = text => {
+  if (!text) return 1;
+  return Math.max(1, Math.round((text || "").trim().split(/\s+/).length / 220));
+};
+
+// ─── Article body — handles items[] OR legacy content1/Add_Image/content2 ──
+const ArticleBody = ({ item, onHeadingsExtracted }) => {
+  const containerRef = useRef(null);
+
+  const blocks = useMemo(() => {
+    // 1. NEW: structured items[]
+    if (Array.isArray(item.items) && item.items.length) {
+      return [...item.items]
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((it, idx) => {
+          if (it.type === "content") return { kind: "content", html: it.content || "", key: `c${idx}` };
+          if (it.type === "image") {
+            const url = it.imageUrl || (item.images && item.images[it.imageIndex]) || null;
+            return { kind: "image", url, key: `i${idx}` };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    }
+    // 2. LEGACY: content1 / Add_Image / content2
+    const legacy = [];
+    if (item.content1) legacy.push({ kind: "content", html: item.content1, key: "lc1" });
+    if (Array.isArray(item.Add_Image) && item.Add_Image.length) {
+      legacy.push({ kind: "swiper", urls: item.Add_Image, key: "lsw" });
+    }
+    if (item.content2) legacy.push({ kind: "content", html: item.content2, key: "lc2" });
+    return legacy;
+  }, [item]);
+
+  // Add id="" to every h2 inside dangerouslySetInnerHTML once rendered, for TOC
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const h2s = containerRef.current.querySelectorAll("h2");
+    const headings = [];
+    h2s.forEach((h, i) => {
+      const slug = (h.textContent || `section-${i}`)
+        .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      if (!h.id) h.id = slug || `section-${i}`;
+      headings.push({ id: h.id, label: h.textContent });
+    });
+    onHeadingsExtracted?.(headings);
+  }, [blocks, onHeadingsExtracted]);
+
+  return (
+    <Box ref={containerRef} className="nt-article-body" sx={{
+      fontFamily: SERIF, fontSize: 19.5, lineHeight: 1.78, color: "#2b3441",
+      maxWidth: 680, width: "100%", letterSpacing: ".003em",
+      "& p": { margin: "0 0 28px", textAlign: "justify", textWrap: "pretty", hyphens: "auto", WebkitHyphens: "auto" },
+      "& p:first-of-type::first-letter": {
+        fontFamily: PLAYFAIR, fontWeight: 700, float: "left",
+        fontSize: 78, lineHeight: 0.85, padding: "8px 14px 0 0", color: ORANGE,
+      },
+      "& h2": {
+        fontFamily: PLAYFAIR, fontSize: 32, fontWeight: 700, color: TEXT_DARK,
+        letterSpacing: "-.02em", lineHeight: 1.18, margin: "56px 0 20px",
+        textWrap: "balance", textAlign: "left", scrollMarginTop: 80,
+      },
+      "& h2:first-of-type": { marginTop: "12px" },
+      "& h3": {
+        fontFamily: PLAYFAIR, fontSize: 22, fontWeight: 700, color: TEXT_DARK,
+        letterSpacing: "-.01em", lineHeight: 1.28, margin: "40px 0 14px", textAlign: "left",
+      },
+      "& a": { color: ORANGE, fontWeight: 600, borderBottom: "1px solid rgba(205,72,42,.3)" },
+      "& a:hover": { borderBottomColor: ORANGE },
+      "& ul, & ol": { paddingLeft: "24px", marginBottom: "28px" },
+      "& li": { marginBottom: "12px", lineHeight: 1.65, textAlign: "left" },
+      "& li::marker": { color: ORANGE },
+      "& strong": { color: TEXT_DARK, fontWeight: 600 },
+      "& em": { fontStyle: "italic" },
+      "& blockquote": {
+        position: "relative", margin: "56px -36px", padding: "60px 44px 32px",
+        borderTop: `2px solid ${ORANGE}`, borderBottom: `1px solid ${LINE}`,
+        fontFamily: PLAYFAIR, fontStyle: "italic", fontWeight: 500,
+        fontSize: 27, lineHeight: 1.32, letterSpacing: "-.015em",
+        color: TEXT_DARK, textWrap: "balance",
+      },
+      "& blockquote::before": {
+        content: '"\\201C"', fontSize: 64, color: ORANGE,
+        position: "absolute", top: 18, left: 36, lineHeight: 0.4, fontFamily: PLAYFAIR,
+      },
+      "& blockquote cite": {
+        display: "block", marginTop: "18px", fontFamily: INTER, fontStyle: "normal",
+        fontSize: 11.5, fontWeight: 800, color: TEXT_LIGHT,
+        letterSpacing: ".14em", textTransform: "uppercase",
+      },
+      "@media (max-width:768px)": {
+        fontSize: 18,
+        "& blockquote": { margin: "40px 0", padding: "48px 0 24px", fontSize: 21 },
+        "& blockquote::before": { left: 0 },
+      },
+      "@media (max-width:600px)": {
+        "& p:first-of-type::first-letter": { fontSize: 64 },
+      },
+    }}>
+      {blocks.map(b => {
+        if (b.kind === "content") {
+          return <Box key={b.key} component="div" dangerouslySetInnerHTML={{ __html: b.html }} />;
+        }
+        if (b.kind === "image" && b.url) {
+          return (
+            <Box key={b.key} component="figure" sx={{ margin: "44px 0", display: "block" }}>
+              <Box sx={{
+                borderRadius: "18px", overflow: "hidden",
+                aspectRatio: "16/10", bgcolor: "#0e1620",
+                boxShadow: "0 6px 24px -14px rgba(0,0,0,.25)",
+              }}>
+                <Box component="img" src={b.url} alt="" loading="lazy" sx={{
+                  width: "100%", height: "100%", objectFit: "cover", display: "block",
+                }} />
+              </Box>
+            </Box>
+          );
+        }
+        if (b.kind === "swiper" && b.urls?.length) {
+          return (
+            <Box key={b.key} sx={{ my: "44px" }}>
+              <Swiper slidesPerView={1} spaceBetween={20} pagination={{ clickable: true }}
+                modules={[Pagination]} className="mySwiper">
+                {b.urls.map((src, i) => (
+                  <SwiperSlide key={i}>
+                    <Box sx={{
+                      borderRadius: "18px", overflow: "hidden",
+                      aspectRatio: "16/10", bgcolor: "#0e1620",
+                    }}>
+                      <img src={src} alt="" loading="lazy"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    </Box>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </Box>
+          );
+        }
+        return null;
+      })}
+    </Box>
+  );
+};
+
+// ─── Share rail (sticky left) ─────────────────────────────────
+const ShareRail = ({ url, title }) => {
+  const enc = encodeURIComponent;
+  const links = {
+    whatsapp: `https://wa.me/?text=${enc(title)}%20${enc(url)}`,
+    twitter: `https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`,
+  };
+  const copy = () => navigator.clipboard?.writeText(url);
+  const btnSx = {
+    width: 44, height: 44, border: `1.5px solid ${LINE}`, bgcolor: "#fff",
+    color: TEXT_LIGHT, transition: "all .15s",
+    "&:hover": { borderColor: ORANGE, color: ORANGE, transform: "translateY(-2px)" },
+  };
+  return (
+    <Box sx={{
+      position: "sticky", top: 84,
+      display: { xs: "none", md: "flex" },
+      flexDirection: "column", alignItems: "center", gap: 1,
+    }}>
+      <Box sx={{
+        fontFamily: INTER, fontSize: 10, fontWeight: 800, letterSpacing: ".18em",
+        textTransform: "uppercase", color: TEXT_LIGHTER,
+        writingMode: "vertical-rl", transform: "rotate(180deg)", mb: 2.2,
+      }}>Share</Box>
+      <IconButton sx={btnSx} title="Bookmark"><BookmarkBorderIcon sx={{ fontSize: 18 }} /></IconButton>
+      <IconButton sx={btnSx} title="WhatsApp" component="a" href={links.whatsapp} target="_blank" rel="noopener">
+        <WhatsAppIcon sx={{ fontSize: 18 }} />
+      </IconButton>
+      <IconButton sx={btnSx} title="X" component="a" href={links.twitter} target="_blank" rel="noopener">
+        <TwitterIcon sx={{ fontSize: 16 }} />
+      </IconButton>
+      <IconButton sx={btnSx} title="Copy link" onClick={copy}><LinkIcon sx={{ fontSize: 18 }} /></IconButton>
+    </Box>
+  );
+};
+
+// ─── Scrollspy TOC (right) ───────────────────────────────────
+const TableOfContents = ({ headings }) => {
+  const [activeId, setActiveId] = useState(null);
 
   useEffect(() => {
-    if (data) {
-      setBlogData(data?.data); // Assuming the structure of your data is { data: [...] }
-    }
+    const onScroll = () => {
+      let cur = null;
+      headings.forEach(h => {
+        const el = document.getElementById(h.id);
+        if (el && el.getBoundingClientRect().top <= 120) cur = h.id;
+      });
+      setActiveId(cur);
+    };
+    document.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => document.removeEventListener("scroll", onScroll);
+  }, [headings]);
+
+  if (!headings.length) return null;
+  return (
+    <Box sx={{ position: "sticky", top: 84, display: { xs: "none", lg: "block" }, fontFamily: INTER }}>
+      <Box sx={{
+        fontSize: 10.5, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase",
+        color: TEXT_LIGHTER, mb: 1.8,
+      }}>In this story</Box>
+      <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0, borderLeft: `1.5px solid ${LINE}` }}>
+        {headings.map(h => (
+          <Box component="li" key={h.id}>
+            <Box component="a" href={`#${h.id}`} sx={{
+              display: "block", py: 1, pl: 2, fontSize: 13,
+              color: activeId === h.id ? ORANGE : TEXT_LIGHT,
+              fontWeight: activeId === h.id ? 600 : 400,
+              borderLeft: `1.5px solid ${activeId === h.id ? ORANGE : "transparent"}`,
+              marginLeft: "-1.5px", textDecoration: "none", lineHeight: 1.4,
+              transition: "all .15s",
+              "&:hover": { color: TEXT_DARK },
+            }}>{h.label}</Box>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
+// ─── Reading progress bar ─────────────────────────────────────
+const ReadingProgress = () => {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      setPct(Math.min(100, (h.scrollTop / Math.max(1, max)) * 100));
+    };
+    document.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => document.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <Box sx={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, zIndex: 60 }}>
+      <Box sx={{ height: "100%", width: `${pct}%`, bgcolor: ORANGE, transition: "width .1s linear" }} />
+    </Box>
+  );
+};
+
+// ─── Author bio ───────────────────────────────────────────────
+const AuthorBio = ({ author, location }) => {
+  if (!author) return null;
+  return (
+    <Box sx={{
+      maxWidth: 760, mx: "auto", mt: 8,
+      display: "grid", gridTemplateColumns: { xs: "1fr", sm: "120px 1fr" }, gap: 4, alignItems: "center",
+      p: 4, bgcolor: BG_CREAM, borderRadius: "20px",
+      textAlign: { xs: "center", sm: "left" },
+    }}>
+      <Box sx={{
+        width: 120, height: 120, borderRadius: "50%",
+        background: "linear-gradient(135deg,#a8703a,#5c3a1a)",
+        display: "grid", placeItems: "center", color: "#fff",
+        fontFamily: PLAYFAIR, fontSize: 46, fontWeight: 700,
+        border: "4px solid #fff", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2)",
+        mx: { xs: "auto", sm: 0 },
+      }}>{(author || "?")[0].toUpperCase()}</Box>
+      <Box>
+        <Box sx={{ fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase", color: ORANGE, mb: 1.2 }}>
+          Written by
+        </Box>
+        <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 0.7 }}>
+          {author}
+        </Typography>
+        {location && (
+          <Box sx={{
+            display: "inline-flex", alignItems: "center", gap: 0.6, fontSize: 13,
+            color: TEXT_LIGHT, mb: 1.5, fontWeight: 500,
+            justifyContent: { xs: "center", sm: "flex-start" },
+          }}>
+            <FmdGoodOutlinedIcon sx={{ fontSize: 14 }} /> {location}
+          </Box>
+        )}
+        <Typography sx={{ fontSize: 14.5, color: TEXT, lineHeight: 1.65, mb: 2.2, fontFamily: SERIF }}>
+          Field notes from the road for Nomadic Townies.
+        </Typography>
+        <Box sx={{
+          display: "flex", gap: 1.2, flexWrap: "wrap",
+          justifyContent: { xs: "center", sm: "flex-start" },
+        }}>
+          <Button component={RouterLink} to="/blogs" sx={{
+            bgcolor: ORANGE, color: "#fff", fontSize: 13, fontWeight: 600, px: 2.2, py: 1,
+            borderRadius: "999px", textTransform: "none",
+            "&:hover": { bgcolor: ORANGE_HOVER },
+          }}>More from the journal →</Button>
+          <Button component={RouterLink} to="/all-packages" sx={{
+            fontSize: 13, fontWeight: 600, px: 2.2, py: 1, borderRadius: "999px", textTransform: "none",
+            color: TEXT_DARK, border: `1.5px solid ${TEXT_DARK}`,
+            "&:hover": { bgcolor: TEXT_DARK, color: "#fff" },
+          }}>Explore trips</Button>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+// ─── Newsletter ───────────────────────────────────────────────
+const NewsletterInline = () => {
+  const [done, setDone] = useState(false);
+  return (
+    <Box sx={{
+      maxWidth: 760, mx: "auto", mt: 6,
+      background: `linear-gradient(135deg,${ORANGE_TINT},${ORANGE_TINT2})`,
+      borderRadius: "20px", p: { xs: 4, sm: "44px 40px" }, textAlign: "center",
+      position: "relative", overflow: "hidden",
+    }}>
+      <Typography sx={{
+        fontFamily: PLAYFAIR, fontSize: { xs: 22, sm: 28 }, fontWeight: 700, color: TEXT_DARK,
+        letterSpacing: "-.01em", lineHeight: 1.2, mb: 1,
+      }}>Field notes, every other Saturday</Typography>
+      <Typography sx={{ fontSize: 14.5, color: TEXT, mb: 2.5, maxWidth: 420, mx: "auto", lineHeight: 1.55 }}>
+        Long-form essays from the road, plus first dibs on upcoming small-group trips.
+      </Typography>
+      <Box component="form" onSubmit={e => { e.preventDefault(); setDone(true); }} sx={{
+        display: "flex", gap: 1, maxWidth: 440, mx: "auto", flexWrap: "wrap", justifyContent: "center",
+      }}>
+        <Box component="input" type="email" required placeholder="you@email.com" sx={{
+          flex: 1, minWidth: 200, padding: "13px 18px",
+          border: "1.5px solid #fff", bgcolor: "#fff", borderRadius: "999px",
+          fontFamily: INTER, fontSize: 14, color: TEXT_DARK, outline: "none",
+          "&:focus": { borderColor: ORANGE },
+        }} />
+        <Button type="submit" sx={{
+          bgcolor: ORANGE, color: "#fff", px: 3, py: 1.5, borderRadius: "999px",
+          fontSize: 14, fontWeight: 700, textTransform: "none", whiteSpace: "nowrap",
+          "&:hover": { bgcolor: ORANGE_HOVER },
+        }}>{done ? "Subscribed ✓" : "Subscribe"}</Button>
+      </Box>
+    </Box>
+  );
+};
+
+// ─── Main ────────────────────────────────────────────────────
+const BlogDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data, isLoading } = useGetAllBlogsQuery();
+  const [blogs, setBlogs] = useState([]);
+  const [headings, setHeadings] = useState([]);
+
+  useEffect(() => {
+    if (data) setBlogs(data?.data || []);
     window.scrollTo(0, 0);
   }, [data]);
 
-  const navigate = useNavigate();
-  const item = blogData && blogData.find((item) => item._id === id);
-  if (!item) {
-    return <Typography>Item not found</Typography>;
+  const item = blogs.find(b => b._id === id);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "grid", placeItems: "center", minHeight: "60vh", fontFamily: INTER, color: TEXT_LIGHT }}>
+        Loading…
+      </Box>
+    );
   }
+  if (!item) {
+    return (
+      <Box sx={{ display: "grid", placeItems: "center", minHeight: "60vh", textAlign: "center", p: 4 }}>
+        <Box>
+          <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 28, fontWeight: 700, color: TEXT_DARK, mb: 1 }}>
+            Story not found
+          </Typography>
+          <Button onClick={() => navigate("/blogs")} sx={{
+            mt: 2, bgcolor: ORANGE, color: "#fff", px: 3, py: 1.2, borderRadius: "999px",
+            textTransform: "none", fontWeight: 700,
+            "&:hover": { bgcolor: ORANGE_HOVER },
+          }}>Back to journal</Button>
+        </Box>
+      </Box>
+    );
+  }
+
+  // SEO + read time
+  const totalText = [
+    item.content1, item.content2, item.metaDescription,
+    ...(item.items?.filter(i => i.type === "content").map(i => i.content) || []),
+  ].join(" ").replace(/<[^>]+>/g, "");
+  const readMins = estimateReadMinutes(totalText);
+  const safeMeta = (item.metaDescription || totalText || "Travel story from Nomadic Townies").substring(0, 155);
+  const title = item.seoTitle || item.title;
+  const pageUrl = typeof window !== "undefined" ? window.location.href : `https://nomadictownies.com/blogs/Details/${id}`;
+
   return (
-    <Box>
+    <Box sx={{ fontFamily: INTER, color: TEXT, bgcolor: "#fff", minHeight: "100vh" }}>
       <Helmet>
-        <title>{item?.title ? `${item.title} | Nomadic Townies Blog` : "Travel Blog | Nomadic Townies"}</title>
-        <meta name="description" content={item?.description ? item.description.substring(0, 155) : "Read travel blogs and destination guides by Nomadic Townies."} />
+        <title>{title ? `${title} | Nomadic Townies Blog` : "Travel Blog | Nomadic Townies"}</title>
+        <meta name="description" content={safeMeta} />
         <link rel="canonical" href={`https://nomadictownies.com/blogs/Details/${id}`} />
-        <meta property="og:title" content={item?.title || "Travel Blog | Nomadic Townies"} />
-        <meta property="og:description" content={item?.description ? item.description.substring(0, 155) : "Read travel blogs and destination guides by Nomadic Townies."} />
-        <meta property="og:image" content={item?.Banner_Image || "https://nomadictownies.com/nt.png"} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
+        <meta property="og:title" content={title || "Travel Blog | Nomadic Townies"} />
+        <meta property="og:description" content={safeMeta} />
+        <meta property="og:image" content={item.Banner_Image || "https://nomadictownies.com/nt.png"} />
         <meta property="og:url" content={`https://nomadictownies.com/blogs/Details/${id}`} />
         <meta property="og:type" content="article" />
-        <meta property="article:published_time" content={item?.Date} />
-        {item && <script type="application/ld+json">{JSON.stringify({
+        <meta property="article:published_time" content={item.Date} />
+        <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BlogPosting",
-          "headline": item.title,
-          "image": item.Banner_Image,
-          "datePublished": item.Date,
-          "dateModified": item.Date,
-          "author": {
-            "@type": "Organization",
-            "name": "Nomadic Townies"
+          headline: title, image: item.Banner_Image,
+          datePublished: item.Date, dateModified: item.Date,
+          author: { "@type": "Person", name: item.author || "Nomadic Townies" },
+          publisher: {
+            "@type": "Organization", name: "Nomadic Townies",
+            logo: { "@type": "ImageObject", url: "https://nomadictownies.com/nt.png" },
           },
-          "publisher": {
-            "@type": "Organization",
-            "name": "Nomadic Townies",
-            "logo": { "@type": "ImageObject", "url": "https://nomadictownies.com/nt.png" }
-          },
-          "description": item.description ? item.description.substring(0, 155) : "",
-          "url": `https://nomadictownies.com/blogs/Details/${id}`
-        })}</script>}
+          description: safeMeta,
+          url: `https://nomadictownies.com/blogs/Details/${id}`,
+        })}</script>
       </Helmet>
-      <Container maxWidth="xl" sx={{ mt: { xs: 10, md: 2 }, mb: 1 }}>
-        <Breadcrumbs
-          separator={<NavigateNextIcon fontSize="small" />}
-          aria-label="breadcrumb"
-          sx={{ mb: 2, fontSize: "14px" }}
-        >
-          <Link underline="hover" color="inherit" href="/" sx={{ cursor: "pointer" }}>
-            Home
-          </Link>
-          <Link underline="hover" color="inherit" href="/blogs" sx={{ cursor: "pointer" }}>
-            Blogs
-          </Link>
-          <Typography color="text.primary" sx={{ fontSize: "14px" }}>
-            {item?.title || "Blog"}
-          </Typography>
-        </Breadcrumbs>
-      </Container>
-      <Container maxWidth="xl" sx={{ mt: 0 }}>
-        <Box
-          sx={{
-            width: "100%",
-            height: { xs: "300px", md: "424px" },
-          }}
-        >
-          <img
-            src={`${item?.Banner_Image}`}
-            alt={item?.title ? `${item.title} - Nomadic Townies` : "Travel blog post by Nomadic Townies"}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderRadius: " 32px 32px 0px 0px",
-            }}
-          />
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            justifyContent: "space-around",
-            width: "100%",
-            background: "#393938",
-            p: 3,
 
-            borderRadius: "0px 0px 32px 32px",
-          }}
-        >
-          <Box sx={{}}>
-            <Typography
-              sx={{
-                color: "#FBFBFB",
-                fontFamily: "Inter",
-                fontSize: { xs: "18px", sm: "25px", md: "32px" },
-                textAlign: { xs: "left", md: "left" },
-                fontStyle: "normal",
-                fontWeight: 500,
-                lineHeight: "140%",
-              }}
-            >
-              {item?.title}
-            </Typography>
-            <Typography
-              sx={{
-                mt: 4,
+      <ReadingProgress />
 
-                textAlign: { xs: "left", md: "left" },
-              }}
-            >
-              {item?.author}
-            </Typography>
-          </Box>
-          <Box sx={{}}>
-            <Box
-              sx={{
-                display: "flex",
-                mt: 2,
-                gap: "0px 10px",
-
-                ml: -0.5,
-              }}
-            >
-              <FmdGoodOutlinedIcon sx={{ color: "#fff" }} />
-              <Typography>{item?.location}</Typography>
-            </Box>
-            <Typography
-              sx={{
-                mt: { xs: 2, md: 7 },
-                textAlign: { xs: "left", md: "right" },
-              }}
-            >
-              {(() => {
-                const dateObj = new Date(item?.Date);
-                const day = dateObj.getDate();
-                const month = dateObj.toLocaleString("en-US", {
-                  month: "long",
-                });
-                const year = dateObj.getFullYear();
-
-                const getOrdinalSuffix = (n) => {
-                  const s = ["th", "st", "nd", "rd"],
-                    v = n % 100;
-                  return s[(v - 20) % 10] || s[v] || s[0];
-                };
-
-                const dayWithSuffix = `${day}${getOrdinalSuffix(day)}`;
-                return `${dayWithSuffix} ${month} ${year}`;
-              })()}
-            </Typography>
-          </Box>
-        </Box>
-      </Container>
-      <Container
-        maxWidth="md"
-        sx={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-
-          alignItems: "center",
-          flexDirection: "column",
-          mt: 2,
-          p: 4,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            gap: "20px 0px",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          <Typography
-            sx={{
-              color: "#6D7280",
-              fontFamily: "Inter",
-              fontSize: "20px",
-              fontStyle: "normal",
-              fontWeight: 400,
-              lineHeight: "140%",
-              textAlign: { xs: "center", md: "left" },
-            }}
-          >
-            {item?.content1}
-          </Typography>
-        </Box>
-      </Container>
-      <Container
-        maxWidth="md"
-        sx={{
-          height: { xs: "220px", sm: "300px", md: "406px" },
-          width: "100%",
-        }}
-      >
-        <Swiper
-          slidesPerView={1}
-          spaceBetween={20}
-          pagination={{
-            clickable: true,
-          }}
-          modules={[Pagination]}
-          className="mySwiper"
-          style={{ color: "#000" }}
-        >
-          {item?.Add_Image &&
-            item?.Add_Image.map((item, index) => {
-              return (
-                <SwiperSlide key={index} style={{ background: "none" }}>
-                  <Box
-                    sx={{
-                      width: "100%",
-                      // border: "1px solid #F3F4F6",
-                      borderRadius: "16px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "30px 0px",
-                      mb: 5,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: { xs: "100%", md: "100%" },
-                        height: { xs: "200px", md: "320px" },
-                        borderRadius: { xs: "15px", md: "32px" },
-                        // mx: "auto",
-                      }}
-                    >
-                      <img
-                        src={`${item}`}
-                        alt=""
-                        srcSet=""
-                        style={{ width: "100%", borderRadius: "15px" }}
-                      />
+      {/* ═══ COVER ═══ */}
+      <Container maxWidth="lg" sx={{ pt: { xs: 4, md: 5 } }}>
+        <Box sx={{
+          position: "relative", display: "flex", alignItems: "flex-end",
+          minHeight: { xs: 480, md: 580 }, borderRadius: { xs: "20px", md: "28px" },
+          overflow: "hidden", bgcolor: "#0a1a24",
+          "&::after": {
+            content: '""', position: "absolute", inset: 0, zIndex: 2,
+            background: "linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.2) 40%,rgba(0,0,0,.85) 100%)",
+          },
+        }}>
+          {item.Banner_Image && (
+            <Box component="img" src={item.Banner_Image}
+              alt={item.title ? `${item.title} — Nomadic Townies` : "Travel story"}
+              sx={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+                objectFit: "cover", zIndex: 1 }} />
+          )}
+          <Box sx={{ position: "relative", zIndex: 3, p: { xs: 3, md: "48px 56px" }, color: "#fff", width: "100%" }}>
+            {item.location && (
+              <Box sx={{
+                display: "inline-flex", alignItems: "center", gap: 1,
+                bgcolor: "rgba(255,255,255,.16)", backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255,255,255,.2)",
+                px: 1.8, py: 0.9, borderRadius: "999px",
+                fontSize: 11.5, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase",
+                color: "#fff", mb: 3,
+              }}>
+                <FmdGoodOutlinedIcon sx={{ fontSize: 14 }} /> {item.location}
+              </Box>
+            )}
+            <Typography component="h1" sx={{
+              fontFamily: PLAYFAIR, fontWeight: 700,
+              fontSize: { xs: 30, sm: 42, md: 56 }, lineHeight: 1.05, letterSpacing: "-.025em",
+              maxWidth: 880, mb: 2.2, textWrap: "balance",
+            }}>{item.title}</Typography>
+            {item.metaDescription && (
+              <Typography sx={{
+                fontFamily: SERIF, fontSize: { xs: 15, md: 20 }, fontStyle: "italic",
+                color: "rgba(255,255,255,.88)", lineHeight: 1.55, maxWidth: 660, textWrap: "pretty",
+              }}>{item.metaDescription}</Typography>
+            )}
+            <Box sx={{
+              display: "flex", alignItems: "center", gap: 2.5, mt: 4,
+              pt: 3, borderTop: "1px solid rgba(255,255,255,.18)",
+              fontSize: 13.5, color: "rgba(255,255,255,.85)", flexWrap: "wrap",
+            }}>
+              {item.author && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Box sx={{
+                    width: 42, height: 42, borderRadius: "50%",
+                    background: `linear-gradient(135deg,${ORANGE_TINT2},${ORANGE_TINT})`,
+                    color: ORANGE, display: "grid", placeItems: "center", fontWeight: 800, fontSize: 15,
+                    border: "2px solid rgba(255,255,255,.4)",
+                  }}>{item.author[0].toUpperCase()}</Box>
+                  <Box>
+                    <Box component="b" sx={{ display: "block", color: "#fff", fontWeight: 700, fontSize: 14, mb: 0.1 }}>
+                      {item.author}
                     </Box>
+                    <Box sx={{ color: "rgba(255,255,255,.7)", fontSize: 12.5 }}>Nomadic Townies</Box>
                   </Box>
-                </SwiperSlide>
-              );
-            })}
-        </Swiper>
-
-        {/* <Box>
-          <img
-            src={image}
-            alt=""
-            srcSet=""
-            style={{ width: "100%", height: "100%" }}
-          />
-        </Box> */}
-      </Container>
-      <Container
-        maxWidth="md"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          flexDirection: "column",
-          mt: 2,
-          p: 4,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            gap: "20px 0px",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          <Typography
-            sx={{
-              color: "#6D7280",
-              fontFamily: "Inter",
-              fontSize: "20px",
-              fontStyle: "normal",
-              fontWeight: 400,
-              lineHeight: "140%",
-              textAlign: { xs: "center", md: "left" },
-            }}
-          >
-            {item?.content2}
-          </Typography>
+                </Box>
+              )}
+              <Box sx={{ width: 3, height: 3, bgcolor: "rgba(255,255,255,.4)", borderRadius: "50%" }} />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}>
+                <CalendarMonthRoundedIcon sx={{ fontSize: 15, color: "rgba(255,255,255,.75)" }} />
+                {formatDate(item.Date)}
+              </Box>
+              <Box sx={{ width: 3, height: 3, bgcolor: "rgba(255,255,255,.4)", borderRadius: "50%" }} />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}>
+                <AccessTimeIcon sx={{ fontSize: 15, color: "rgba(255,255,255,.75)" }} />
+                {readMins} min read
+              </Box>
+            </Box>
+          </Box>
         </Box>
       </Container>
-      <Box>
+
+      {/* ═══ ARTICLE SHELL ═══ */}
+      <Container maxWidth="lg" sx={{ mt: { xs: 5, md: 8 }, pb: 6 }}>
+        <Box sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "54px minmax(0,1fr) 240px" },
+          gap: { md: 6 }, alignItems: "start",
+        }}>
+          <ShareRail url={pageUrl} title={item.title} />
+          <Box>
+            <ArticleBody item={item} onHeadingsExtracted={setHeadings} />
+
+            {/* Foot strip */}
+            <Box sx={{
+              maxWidth: 680, mt: 6, py: 3,
+              borderTop: `1px solid ${LINE}`, borderBottom: `1px solid ${LINE}`,
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              gap: 2.2, flexWrap: "wrap",
+            }}>
+              <Box sx={{ fontSize: 13, color: TEXT_LIGHT }}>
+                {item.location && <>Filed under <b style={{ color: TEXT_DARK, fontWeight: 600 }}>{item.location}</b> · </>}
+                Updated <b style={{ color: TEXT_DARK, fontWeight: 600 }}>{formatDate(item.Date)}</b>
+              </Box>
+            </Box>
+
+            <AuthorBio author={item.author} location={item.location} />
+            <NewsletterInline />
+          </Box>
+          <TableOfContents headings={headings} />
+        </Box>
+      </Container>
+
+      {/* Related blogs */}
+      <Box sx={{ bgcolor: "#F9FAFB", borderTop: `1px solid ${LINE}`, py: 8, mt: 4 }}>
         <RelatedBlogs />
       </Box>
     </Box>
