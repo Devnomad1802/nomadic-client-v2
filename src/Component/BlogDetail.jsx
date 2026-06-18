@@ -607,7 +607,7 @@ const BlogDetail = () => {
                       </IconButton>
                       <IconButton sx={fb} title="X" component="a" target="_blank" rel="noopener"
                         href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(item.title)}&url=${encodeURIComponent(pageUrl)}`}>
-                        <Twitter sx={{ fontSize: 15 }} />
+                        <TwitterIcon sx={{ fontSize: 15 }} />
                       </IconButton>
                       <IconButton sx={fb} title="Copy link" onClick={() => navigator.clipboard?.writeText(pageUrl)}>
                         <LinkIcon sx={{ fontSize: 16 }} />
