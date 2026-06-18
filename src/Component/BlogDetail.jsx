@@ -88,7 +88,7 @@ const ArticleBody = ({ item, onHeadingsExtracted }) => {
           if (it.type === "content") return { kind: "content", html: it.content || "", key: `c${idx}` };
           if (it.type === "image") {
             const url = it.imageUrl || (item.images && item.images[it.imageIndex]) || null;
-            return { kind: "image", url, key: `i${idx}` };
+            return { kind: "image", url, caption: it.caption || "", key: `i${idx}` };
           }
           return null;
         })
@@ -181,10 +181,17 @@ const ArticleBody = ({ item, onHeadingsExtracted }) => {
                 aspectRatio: "16/10", bgcolor: "#0e1620",
                 boxShadow: "0 6px 24px -14px rgba(0,0,0,.25)",
               }}>
-                <Box component="img" src={b.url} alt="" loading="lazy" sx={{
+                <Box component="img" src={b.url} alt={b.caption || ""} loading="lazy" sx={{
                   width: "100%", height: "100%", objectFit: "cover", display: "block",
                 }} />
               </Box>
+              {b.caption && (
+                <Typography component="figcaption" sx={{
+                  fontFamily: SERIF, fontSize: 13.5, color: TEXT_LIGHT,
+                  textAlign: "center", fontStyle: "italic", lineHeight: 1.5,
+                  mt: "14px", letterSpacing: ".01em",
+                }}>{b.caption}</Typography>
+              )}
             </Box>
           );
         }
@@ -315,7 +322,7 @@ const ReadingProgress = () => {
 };
 
 // ─── Author bio ───────────────────────────────────────────────
-const AuthorBio = ({ author, location }) => {
+const AuthorBio = ({ author, location, bio }) => {
   if (!author) return null;
   return (
     <Box sx={{
@@ -349,7 +356,7 @@ const AuthorBio = ({ author, location }) => {
           </Box>
         )}
         <Typography sx={{ fontSize: 14.5, color: TEXT, lineHeight: 1.65, mb: 2.2, fontFamily: SERIF }}>
-          Field notes from the road for Nomadic Townies.
+          {bio || "Field notes from the road for Nomadic Townies."}
         </Typography>
         <Box sx={{
           display: "flex", gap: 1.2, flexWrap: "wrap",
@@ -543,7 +550,7 @@ const BlogDetail = () => {
                     <Box component="b" sx={{ display: "block", color: "#fff", fontWeight: 700, fontSize: 14, mb: 0.1 }}>
                       {item.author}
                     </Box>
-                    <Box sx={{ color: "rgba(255,255,255,.7)", fontSize: 12.5 }}>Nomadic Townies</Box>
+                    <Box sx={{ color: "rgba(255,255,255,.7)", fontSize: 12.5 }}>{item.authorRole || "Nomadic Townies"}</Box>
                   </Box>
                 </Box>
               )}
@@ -584,9 +591,34 @@ const BlogDetail = () => {
                 {item.location && <>Filed under <b style={{ color: TEXT_DARK, fontWeight: 600 }}>{item.location}</b> · </>}
                 Updated <b style={{ color: TEXT_DARK, fontWeight: 600 }}>{formatDate(item.Date)}</b>
               </Box>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Box sx={{ fontSize: 13, color: TEXT_LIGHT, mr: 0.5, fontWeight: 500 }}>Share</Box>
+                {(() => {
+                  const fb = {
+                    width: 38, height: 38, border: `1.5px solid ${LINE}`, bgcolor: "#fff",
+                    color: TEXT_LIGHT, transition: "all .15s",
+                    "&:hover": { borderColor: ORANGE, color: ORANGE, transform: "translateY(-2px)" },
+                  };
+                  return (
+                    <>
+                      <IconButton sx={fb} title="WhatsApp" component="a" target="_blank" rel="noopener"
+                        href={`https://wa.me/?text=${encodeURIComponent(item.title)}%20${encodeURIComponent(pageUrl)}`}>
+                        <WhatsAppIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                      <IconButton sx={fb} title="X" component="a" target="_blank" rel="noopener"
+                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(item.title)}&url=${encodeURIComponent(pageUrl)}`}>
+                        <Twitter sx={{ fontSize: 15 }} />
+                      </IconButton>
+                      <IconButton sx={fb} title="Copy link" onClick={() => navigator.clipboard?.writeText(pageUrl)}>
+                        <LinkIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                    </>
+                  );
+                })()}
+              </Box>
             </Box>
 
-            <AuthorBio author={item.author} location={item.location} />
+            <AuthorBio author={item.author} location={item.location} bio={item.authorBio} />
             <NewsletterInline />
           </Box>
           <TableOfContents headings={headings} />
