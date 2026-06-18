@@ -57,7 +57,7 @@ const hostPerks = [
   { title: "Tools that travel", text: "Bookings, payments, updates and communication — all in one place." },
 ];
 
-const HomeV3 = ({ homebg, homeVideo, toggle }) => {
+const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySectionSubtitle }) => {
   const navigate = useNavigate();
   const [opene, setOpene] = useState(false);
   const toggelModele = () => setOpene(!opene);
@@ -170,7 +170,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle }) => {
       <TripsV3 />
 
       {/* ── CATEGORIES (live, design cards) ── */}
-      <CategoriesV3 />
+      <CategoriesV3 sectionTitle={categorySectionTitle} sectionSubtitle={categorySectionSubtitle} />
 
       {/* ── WHY NOMADIC TOWNIES ── */}
       <section className="section" style={{ background: "#fff" }}>

@@ -75,6 +75,8 @@ function App() {
                   toggle={bannerData[0]?.toggle}
                   homeVideo={bannerData[0]?.homeVideo}
                   aboutSection={bannerData[0]?.aboutSection}
+                  categorySectionTitle={bannerData[0]?.categorySectionTitle}
+                  categorySectionSubtitle={bannerData[0]?.categorySectionSubtitle}
                 />
               }
             />
