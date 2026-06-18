@@ -464,7 +464,11 @@ const BlogDetail = () => {
   const pageUrl = typeof window !== "undefined" ? window.location.href : `https://nomadictownies.com/blogs/Details/${id}`;
 
   return (
-    <Box sx={{ fontFamily: INTER, color: TEXT, bgcolor: "#fff", minHeight: "100vh" }}>
+    <Box sx={{ fontFamily: INTER, color: TEXT, bgcolor: "#fff", minHeight: "100vh",
+      // Theme/global CSS centers text — force left by default, let Typography inherit
+      // their container (cover=left, newsletter/author cards set their own center).
+      textAlign: "left",
+      "& .MuiTypography-root": { textAlign: "inherit" } }}>
       <Helmet>
         <title>{title ? `${title} | Nomadic Townies Blog` : "Travel Blog | Nomadic Townies"}</title>
         <meta name="description" content={safeMeta} />
