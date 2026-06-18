@@ -79,13 +79,18 @@ const estimateReadMinutes = text => {
 const ArticleBody = ({ item, onHeadingsExtracted }) => {
   const containerRef = useRef(null);
 
+  // Old content was saved with &nbsp; ( ) between every word — non-breaking
+  // spaces never wrap, so a paragraph becomes one giant unbreakable line that
+  // overflows horizontally. Convert them back to normal spaces before rendering.
+  const clean = (html) => (html || "").replace(/ |&nbsp;/g, " ");
+
   const blocks = useMemo(() => {
     // 1. NEW: structured items[]
     if (Array.isArray(item.items) && item.items.length) {
       return [...item.items]
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((it, idx) => {
-          if (it.type === "content") return { kind: "content", html: it.content || "", key: `c${idx}` };
+          if (it.type === "content") return { kind: "content", html: clean(it.content), key: `c${idx}` };
           if (it.type === "image") {
             const url = it.imageUrl || (item.images && item.images[it.imageIndex]) || null;
             return { kind: "image", url, caption: it.caption || "", key: `i${idx}` };
@@ -96,11 +101,11 @@ const ArticleBody = ({ item, onHeadingsExtracted }) => {
     }
     // 2. LEGACY: content1 / Add_Image / content2
     const legacy = [];
-    if (item.content1) legacy.push({ kind: "content", html: item.content1, key: "lc1" });
+    if (item.content1) legacy.push({ kind: "content", html: clean(item.content1), key: "lc1" });
     if (Array.isArray(item.Add_Image) && item.Add_Image.length) {
       legacy.push({ kind: "swiper", urls: item.Add_Image, key: "lsw" });
     }
-    if (item.content2) legacy.push({ kind: "content", html: item.content2, key: "lc2" });
+    if (item.content2) legacy.push({ kind: "content", html: clean(item.content2), key: "lc2" });
     return legacy;
   }, [item]);
 
@@ -122,6 +127,8 @@ const ArticleBody = ({ item, onHeadingsExtracted }) => {
     <Box ref={containerRef} className="nt-article-body" sx={{
       fontFamily: SERIF, fontSize: 19.5, lineHeight: 1.78, color: "#2b3441",
       maxWidth: 680, width: "100%", letterSpacing: ".003em",
+      overflowWrap: "break-word", wordBreak: "break-word",
+      "& *": { maxWidth: "100%" },
       "& p": { margin: "0 0 28px", textAlign: "justify", textWrap: "pretty", hyphens: "auto", WebkitHyphens: "auto" },
       "& p:first-of-type::first-letter": {
         fontFamily: PLAYFAIR, fontWeight: 700, float: "left",
