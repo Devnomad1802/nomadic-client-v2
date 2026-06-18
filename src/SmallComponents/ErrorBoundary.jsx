@@ -4,11 +4,15 @@ import { Box, Button, Container, Typography } from "@mui/material";
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, errMsg: "", errStack: "" };
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
+  static getDerivedStateFromError(error) {
+    return {
+      hasError: true,
+      errMsg: error?.message || String(error),
+      errStack: error?.stack || "",
+    };
   }
 
   componentDidCatch(error, errorInfo) {
@@ -85,6 +89,29 @@ class ErrorBoundary extends Component {
             >
               Go to Homepage
             </Button>
+            {this.state.errMsg && (
+              <Box
+                component="pre"
+                sx={{
+                  mt: 4,
+                  textAlign: "left",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  fontSize: "12px",
+                  color: "#B91C1C",
+                  background: "#FEF2F2",
+                  border: "1px solid #FECACA",
+                  borderRadius: "8px",
+                  p: 2,
+                  maxHeight: "40vh",
+                  overflow: "auto",
+                }}
+              >
+                {this.state.errMsg}
+                {"\n\n"}
+                {this.state.errStack}
+              </Box>
+            )}
           </Box>
         </Container>
       );
