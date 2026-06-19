@@ -24,6 +24,7 @@ import "swiper/css";
 import { useGetTripsQuery, useGetAllReviewsQuery, useGetTrendingTripsQuery } from "../services";
 import { useGetAllCategoriesQuery } from "../services/categoriesApis";
 import { TripCardSkeleton } from "../SmallComponents/Skeletons";
+import { matchTemplate } from "../Component/Home/categoryCards";
 import Footer from "../Component/Footer";
 import EnquirNow from "../Modals/EnquirNow";
 
@@ -79,6 +80,20 @@ const AllPackagesV3 = ({ allpkgbg }) => {
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const catNames = useMemo(() => (Array.isArray(catRes?.data) ? catRes.data.map((c)=>c?.Category).filter(Boolean) : []), [catRes]);
+
+  // trip count + cheapest price per category (drives the new category cards)
+  const catStats = useMemo(() => {
+    const allTrips = Array.isArray(tripsRes?.data) ? tripsRes.data : [];
+    const m = {};
+    (Array.isArray(catRes?.data) ? catRes.data : []).forEach((c) => {
+      const name = c?.Category;
+      const inCat = allTrips.filter((t) => parseCats(t.categories).some((x) => x.toLowerCase().trim() === (name || "").toLowerCase().trim()));
+      const prices = inCat.map((t) => parseInt(t?.price || t?.strikePrice || 0, 10)).filter((n) => Number.isFinite(n) && n > 0);
+      const fallback = parseInt(c?.Starting_From || 0, 10) || 0;
+      m[name] = { count: inCat.length, from: prices.length ? Math.min(...prices) : fallback };
+    });
+    return m;
+  }, [catRes, tripsRes]);
 
   const upcoming = useMemo(() => {
     const all = Array.isArray(tripsRes?.data) ? tripsRes.data : [];
@@ -273,24 +288,52 @@ const AllPackagesV3 = ({ allpkgbg }) => {
               autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
               breakpoints={{ 0: { slidesPerView: 1.1 }, 600: { slidesPerView: 1.8 }, 900: { slidesPerView: 2.4 }, 1200: { slidesPerView: 3 } }}
             >
-              {(Array.isArray(catRes?.data) ? catRes.data : []).map((c, i) => (
-                <SwiperSlide key={c?._id || i} style={{ height: "auto" }}>
-                  <div className="ap-cat-card" role="button" tabIndex={0} onClick={() => navigate(`/category/${c?.Category}`, { state: { item: c } })}>
-                    {c?.Banner_Image ? <img src={c.Banner_Image} alt={c?.Category} loading="lazy" /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(160deg,#1a3a2a,#2d6b4a)" }} />}
-                    <div className="ap-cat-overlay" />
-                    {c?.Starting_From ? (
-                      <div className="ap-cat-from">
-                        <div className="ap-cat-from-label">Starting from</div>
-                        <div className="ap-cat-from-val">₹{parseInt(c.Starting_From || 0).toLocaleString("en-IN")}</div>
+              {(Array.isArray(catRes?.data) ? catRes.data : []).map((c, i) => {
+                const tpl = matchTemplate(c?.Category);
+                const { count = 0, from = 0 } = catStats[c?.Category] || {};
+                const empty = count <= 0;
+                return (
+                  <SwiperSlide key={c?._id || i} style={{ height: "auto" }}>
+                    <div
+                      className={`cat-card${empty ? " is-empty" : ""}`}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigate(`/category/${c?.Category}`, { state: { item: c } })}
+                    >
+                      <div className="cat-illus" style={{ background: tpl.gradient }}>
+                        <span className={`cat-count${empty ? " cat-count--soon" : ""}`}>
+                          {empty ? "Coming soon" : (
+                            <>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                              {count} trip{count === 1 ? "" : "s"}
+                            </>
+                          )}
+                        </span>
+                        {!empty && from > 0 && (
+                          <span className="cat-price-tag">
+                            <span className="cat-price-from">From</span>
+                            <span className="cat-price-val">₹{from.toLocaleString("en-IN")}</span>
+                          </span>
+                        )}
+                        <span dangerouslySetInnerHTML={{ __html: tpl.scene }} style={{ display: "contents" }} />
                       </div>
-                    ) : null}
-                    <div className="ap-cat-body">
-                      <div className="ap-cat-name">{c?.Category}</div>
-                      <div className="ap-cat-explore">Explore →</div>
+                      <div className="cat-body">
+                        <div className="cat-name">{tpl.name || c?.Category}</div>
+                        <p className="cat-desc">{tpl.desc}</p>
+                        <div className="cat-foot">
+                          <div className="cat-tags">
+                            {tpl.tags.map((t) => <span className="cat-tag" key={t}>{t}</span>)}
+                          </div>
+                          <span className="cat-explore">
+                            {empty ? "Get notified" : "Explore"}{" "}
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </SwiperSlide>
-              ))}
+                  </SwiperSlide>
+                );
+              })}
             </Swiper>
           </div>
         </section>
