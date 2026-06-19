@@ -100,7 +100,7 @@ const Navbar = () => {
   const dropdownItemSx = {
     px: 2,
     py: 1.2,
-    fontSize: "14px",
+    fontSize: "13px",
     color: TEXT,
     cursor: "pointer",
     textAlign: "left",
@@ -122,11 +122,22 @@ const Navbar = () => {
           py: 1,
           zIndex: 1300,
           mt: 1,
+          // Transparent bridge fills the 8px gap (mt:1) between the menu item and
+          // the panel so moving the cursor down keeps it within the hover area.
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: "-8px",
+            left: 0,
+            right: 0,
+            height: "8px",
+            background: "transparent",
+          },
         }}
       >
         {item.isBlog ? (
           recentBlogs.length === 0 ? (
-            <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "14px" }}>
+            <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "13px" }}>
               No blogs available
             </Typography>
           ) : (
@@ -151,7 +162,7 @@ const Navbar = () => {
             </>
           )
         ) : item.comingSoon ? (
-          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "14px" }}>
+          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "13px" }}>
             Coming soon
           </Typography>
         ) : loadingCategory === item.category ? (
@@ -159,7 +170,7 @@ const Navbar = () => {
             <CircularProgress size={20} sx={{ color: ORANGE }} />
           </Box>
         ) : (dropdownTrips[item.category] || []).length === 0 ? (
-          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "14px" }}>
+          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "13px" }}>
             No trips available
           </Typography>
         ) : (
@@ -229,10 +240,11 @@ const Navbar = () => {
                       gap: "2px",
                       padding: "10px 8px",
                       cursor: "pointer",
-                      fontSize: "16px",
+                      fontSize: "15px",
                       fontFamily: "Inter",
                       color: activeMenu === item.name ? ORANGE : TEXT,
-                      fontWeight: activeMenu === item.name ? 700 : 400,
+                      fontWeight: 400,
+                      "&:hover": { color: ORANGE },
                     }}
                   >
                     {item.name}
@@ -247,7 +259,7 @@ const Navbar = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: "0px 12px" }}>
             <Button
               variant="simplebtn"
-              sx={{ display: { xs: "none", sm: "inline-flex" } }}
+              sx={{ display: { xs: "none", sm: "inline-flex" }, fontSize: "13px" }}
               onClick={() => setOpene(true)}
             >
               Enquire Now
