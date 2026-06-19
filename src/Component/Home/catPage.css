@@ -57,7 +57,7 @@
 .catpg .trip:hover{transform:translateY(-4px);box-shadow:var(--sh-md);border-color:#d6d3d1}
 .catpg .trip:hover .trip-img img{transform:scale(1.05)}
 .catpg .trip:hover .trip-title{color:var(--orange)}
-.catpg .trip-img{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--line-soft)}
+.catpg .trip-img{position:relative;aspect-ratio:16/11;overflow:hidden;background:var(--line-soft)}
 .catpg .trip-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .catpg .trip-rating{position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.95);backdrop-filter:blur(4px);font-size:12.5px;font-weight:700;color:var(--text-dark);padding:5px 11px;border-radius:999px;z-index:2}
 .catpg .trip-rating svg{color:var(--amber)}
@@ -101,3 +101,23 @@
 .catpg .suggest-chip:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-2px)}
 .catpg .suggest-chip .c{font-size:12px;color:var(--text-lighter);font-weight:600}
 .catpg .cat-loading{text-align:center;padding:80px 0;color:var(--text-light);font-size:15px}
+
+/* reviews */
+.catpg .reviews{background:var(--bg-soft);border-top:1px solid var(--line);padding:64px 0;margin-top:56px}
+.catpg .reviews-head{text-align:center;margin-bottom:40px}
+.catpg .reviews-head .kicker{display:inline-flex;align-items:center;gap:10px;font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-bottom:12px}
+.catpg .reviews-head .kicker::before,.catpg .reviews-head .kicker::after{content:'';width:30px;height:1.5px;background:var(--orange)}
+.catpg .reviews-head h2{font-family:var(--playfair);font-size:34px;font-weight:700;color:var(--text-dark);letter-spacing:-.02em;line-height:1.1;margin-bottom:14px}
+.catpg .reviews-summary{display:inline-flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+.catpg .reviews-summary .stars{color:var(--amber);font-size:16px;letter-spacing:1px}
+.catpg .reviews-summary b{color:var(--text-dark);font-weight:700}
+.catpg .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media(max-width:900px){.catpg .reviews-grid{grid-template-columns:1fr}}
+.catpg .review-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px 24px;display:flex;flex-direction:column}
+.catpg .rc-stars{color:var(--amber);font-size:15px;letter-spacing:1px;margin-bottom:14px}
+.catpg .rc-text{font-family:var(--serif);font-size:15.5px;color:var(--text);line-height:1.6;margin-bottom:20px;flex:1}
+.catpg .rc-who{display:flex;align-items:center;gap:12px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.catpg .rc-avatar{width:42px;height:42px;border-radius:50%;background:var(--orange-tint);color:var(--orange);display:grid;place-items:center;font-weight:800;font-size:15px;flex-shrink:0;overflow:hidden}
+.catpg .rc-avatar img{width:100%;height:100%;object-fit:cover}
+.catpg .rc-name{font-size:14px;font-weight:700;color:var(--text-dark)}
+.catpg .rc-trip{font-size:12.5px;color:var(--text-light)}

@@ -7,6 +7,7 @@ import Footer from "../Footer";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import { useGetTripsByCagtegoryMutation } from "../../services/categoriesApis";
 import { useGetTripsQuery } from "../../services/TripApis";
+import { useGetAllReviewsQuery } from "../../services/ReviewsApis";
 import { matchTemplate } from "./categoryCards";
 
 // ─── helpers ──────────────────────────────────────────────
@@ -48,6 +49,7 @@ const CategorieDetails = () => {
 
   const { data: catRes } = useGetAllCategoriesQuery();
   const { data: allTripsRes } = useGetTripsQuery();
+  const { data: revRes } = useGetAllReviewsQuery();
   const [GetTripsByCagtegory, { isLoading }] = useGetTripsByCagtegoryMutation();
   const [trips, setTrips] = useState([]);
   const [sort, setSort] = useState("soonest");
@@ -92,6 +94,9 @@ const CategorieDetails = () => {
       .filter((c) => c.n > 0)
       .slice(0, 4);
   }, [cats, allTripsRes, categoryParam]);
+
+  const reviews = (Array.isArray(revRes?.data) ? revRes.data : []).slice(0, 3);
+  const stars = (n) => { const r = Math.max(0, Math.min(5, Math.round(Number(n) || 5))); return "★".repeat(r) + "☆".repeat(5 - r); };
 
   const seoTitle = `${displayName} Trips & Tours | Nomadic Townies`;
   const seoDesc = `Explore ${displayName} trips with Nomadic Townies. Handcrafted group tours, expert hosts, and unforgettable adventures.`;
@@ -239,6 +244,38 @@ const CategorieDetails = () => {
           </>
         )}
       </div>
+
+      {reviews.length > 0 && (
+        <section className="reviews">
+          <div className="wrap">
+            <div className="reviews-head">
+              <div className="kicker">Loved by travellers</div>
+              <h2>What our community says</h2>
+              <div className="reviews-summary">
+                <span className="stars">★★★★★</span>
+                <span><b>4.9</b> average from <b>120+</b> travellers</span>
+              </div>
+            </div>
+            <div className="reviews-grid">
+              {reviews.map((rev) => (
+                <div className="review-card" key={rev._id}>
+                  <div className="rc-stars">{stars(rev.rating)}</div>
+                  <p className="rc-text">{rev.Review || rev.Title}</p>
+                  <div className="rc-who">
+                    <div className="rc-avatar">
+                      {rev.Profile_Image ? <img src={rev.Profile_Image} alt={rev.Name} /> : (rev.Name || "?").trim()[0]?.toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="rc-name">{rev.Name}</div>
+                      <div className="rc-trip">{rev.Title || rev.Job}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>
