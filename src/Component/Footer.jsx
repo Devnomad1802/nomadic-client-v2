@@ -85,7 +85,7 @@ const Footer = () => {
                 fontFamily: "Inter",
               }}
             >
-              Nanded City - 411041
+              Nanded City, Pune, Maharashtra, India
             </Typography>
           </Box>
 
