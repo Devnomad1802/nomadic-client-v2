@@ -148,7 +148,7 @@ const Navbar = () => {
                   onClick={() => handleBlogClick(blog._id)}
                   sx={dropdownItemSx}
                 >
-                  {blog.title}
+                  {blog.location || blog.title}
                 </Typography>
               ))}
               <Box sx={{ borderTop: "1px solid #E5E7EB", mt: 0.5, pt: 0.5 }}>
@@ -351,7 +351,7 @@ const Navbar = () => {
                               onClick={() => handleBlogClick(blog._id)}
                               sx={{ pl: 4, py: 1, fontSize: "14px", color: TEXT, cursor: "pointer", "&:hover": { color: ORANGE } }}
                             >
-                              {blog.title}
+                              {blog.location || blog.title}
                             </Typography>
                           ))}
                           <Typography
