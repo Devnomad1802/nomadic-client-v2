@@ -28,6 +28,9 @@ export const inputStyle = {
   },
 };
 
+// Fallback hero image (used until a Contact banner is set in admin → coverImages.contactUS)
+const HERO_FALLBACK = "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=70";
+
 const CHIPS = ["General enquiry", "Trip booking", "Group / custom trip", "Become a host"];
 
 const FAQS = [
@@ -79,7 +82,7 @@ const ContactUs = ({ contactbg }) => {
 
       {/* HERO */}
       <section className="hero">
-        {contactbg && <img src={contactbg} alt="Traveller looking out over a mountain landscape" />}
+        <img src={contactbg || HERO_FALLBACK} alt="Traveller looking out over a mountain landscape" />
         <div className="hero-inner">
           <div className="wrap">
             <div className="hero-eyebrow">We&apos;re here to help</div>
