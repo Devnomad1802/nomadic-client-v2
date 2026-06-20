@@ -16,7 +16,7 @@ const Setting = () => {
           lineHeight: "140%",
         }}
       >
-        Sattings
+        Settings
       </Typography>
       <Button
         sx={{
