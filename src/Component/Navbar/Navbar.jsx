@@ -253,6 +253,21 @@ const Navbar = () => {
                   {activeMenu === item.name && renderDropdownPanel(item)}
                 </Box>
               ))}
+              <Box
+                onClick={() => { setActiveMenu(null); navigate("/hosts"); window.scrollTo(0, 0); }}
+                sx={{
+                  whiteSpace: "nowrap",
+                  padding: "10px 8px",
+                  cursor: "pointer",
+                  fontSize: "15px",
+                  fontFamily: "Inter",
+                  color: TEXT,
+                  fontWeight: 400,
+                  "&:hover": { color: ORANGE },
+                }}
+              >
+                Meet Our Hosts
+              </Box>
             </Box>
           </Box>
 
@@ -389,6 +404,14 @@ const Navbar = () => {
                 </Box>
               );
             })}
+            <ListItemButton
+              onClick={() => { setMobileOpen(false); navigate("/hosts"); window.scrollTo(0, 0); }}
+              sx={{ py: 1.5 }}
+            >
+              <Typography sx={{ fontSize: "16px", fontFamily: "Inter", color: TEXT }}>
+                Meet Our Hosts
+              </Typography>
+            </ListItemButton>
           </List>
 
           <Box sx={{ mt: 3, display: "flex", flexDirection: "column", gap: 1.5 }}>
