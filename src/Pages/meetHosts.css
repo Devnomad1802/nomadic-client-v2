@@ -59,26 +59,26 @@
 @media(max-width:640px){.mhpg .host-grid{grid-template-columns:1fr}}
 .mhpg .host-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:all .25s;cursor:pointer}
 .mhpg .host-card:hover{transform:translateY(-4px);box-shadow:var(--sh-md);border-color:#e3dfd9}
-.mhpg .host-cover{aspect-ratio:16/10;position:relative;overflow:hidden;background:#1a1a1a}
+.mhpg .host-cover{aspect-ratio:16/9;position:relative;overflow:hidden;background:#1a1a1a}
 .mhpg .host-cover img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .mhpg .host-card:hover .host-cover img{transform:scale(1.05)}
 .mhpg .host-badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap;max-width:80%}
 .mhpg .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;backdrop-filter:blur(8px)}
 .mhpg .badge-verified{background:rgba(17,135,91,.92);color:#fff}
 .mhpg .badge-specialty{background:rgba(180,90,30,.92);color:#fff}
-.mhpg .host-avatar{width:74px;height:74px;border-radius:50%;border:4px solid #fff;position:absolute;bottom:-30px;left:22px;z-index:3;overflow:hidden;background:var(--orange-tint);box-shadow:0 4px 12px rgba(0,0,0,.12);display:grid;place-items:center;color:var(--orange);font-family:var(--playfair);font-size:26px;font-weight:700}
+.mhpg .host-avatar{width:62px;height:62px;border-radius:50%;border:4px solid #fff;position:absolute;bottom:-24px;left:20px;z-index:3;overflow:hidden;background:var(--orange-tint);box-shadow:0 4px 12px rgba(0,0,0,.12);display:grid;place-items:center;color:var(--orange);font-family:var(--playfair);font-size:24px;font-weight:700}
 .mhpg .host-avatar img{width:100%;height:100%;object-fit:cover}
 .mhpg .host-rating-pill{position:absolute;bottom:12px;right:12px;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);font-size:12.5px;font-weight:700;color:var(--text-dark);padding:5px 11px;border-radius:999px;display:inline-flex;align-items:center;gap:4px}
 .mhpg .host-rating-pill svg{color:var(--amber)}
-.mhpg .host-body{padding:40px 22px 22px;display:flex;flex-direction:column;flex:1}
-.mhpg .host-name-row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.mhpg .host-body{padding:30px 20px 18px;display:flex;flex-direction:column;flex:1}
+.mhpg .host-name-row{display:flex;align-items:center;gap:7px;margin-bottom:2px}
 .mhpg .host-name{font-family:var(--playfair);font-size:20px;font-weight:700;color:var(--text-dark);letter-spacing:-.01em;line-height:1.15}
 .mhpg .host-name-row .vrf{color:var(--green);flex-shrink:0;display:inline-flex}
-.mhpg .host-loc{font-size:13px;color:var(--text-light);display:flex;align-items:center;gap:4px;margin-bottom:12px}
+.mhpg .host-loc{font-size:13px;color:var(--text-light);display:flex;align-items:center;gap:4px;margin-bottom:8px}
 .mhpg .host-loc svg{color:var(--text-lighter)}
-.mhpg .host-specialty{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:12px;font-weight:700;color:var(--orange);background:var(--orange-tint);padding:5px 11px;border-radius:999px;margin-bottom:12px}
-.mhpg .host-bio{font-family:var(--serif);font-size:14.5px;color:var(--text);line-height:1.55;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.mhpg .host-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mhpg .host-specialty{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:12px;font-weight:700;color:var(--orange);background:var(--orange-tint);padding:5px 11px;border-radius:999px;margin-bottom:10px}
+.mhpg .host-bio{font-family:var(--serif);font-size:14.5px;color:var(--text);line-height:1.55;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mhpg .host-foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .mhpg .host-exp{font-size:13px;color:var(--text-light)}
 .mhpg .host-exp b{color:var(--text-dark);font-weight:700}
 .mhpg .host-view{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;font-weight:700;color:var(--orange);transition:gap .15s}
