@@ -57,7 +57,8 @@ const HostPage = () => {
   const location = [host?.city, host?.state].filter(Boolean).join(", ") || host?.location || host?.hqLocation || "";
   const verified = host?.isVerified || host?.status === "approved";
   const avgRating = reviews.length ? (reviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / reviews.length) : (Number(host?.successRate) ? 4.9 : 4.9);
-  const years = host?.experience || (host?.foundedYear ? `${Math.max(1, new Date().getFullYear() - parseInt(host.foundedYear, 10))} yrs` : "—");
+  const rawExp = host?.experience || (host?.foundedYear ? `${Math.max(1, new Date().getFullYear() - parseInt(host.foundedYear, 10))}` : "");
+  const years = rawExp ? (/^\d+$/.test(`${rawExp}`.trim()) ? `${`${rawExp}`.trim()} yrs` : rawExp) : "—";
   const specialties = Array.isArray(host?.specialties) ? host.specialties.filter(Boolean) : [];
   const languages = Array.isArray(host?.languages) ? host.languages.filter(Boolean) : [];
   const certifications = Array.isArray(host?.achievements) ? host.achievements.filter(Boolean) : [];

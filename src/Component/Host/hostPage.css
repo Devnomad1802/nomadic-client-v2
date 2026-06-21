@@ -24,9 +24,9 @@
 .hostpg .hero{height:200px;border-radius:0 0 24px 24px;background:linear-gradient(120deg,#1a3a4a,#0a1a24);position:relative;overflow:hidden}
 .hostpg .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 @media(max-width:700px){.hostpg .hero{height:150px}}
-.hostpg .profile-card{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:flex-end;margin-top:-60px;position:relative;z-index:2}
-@media(max-width:760px){.hostpg .profile-card{grid-template-columns:1fr;text-align:center;justify-items:center;gap:14px}}
-.hostpg .avatar{width:128px;height:128px;border-radius:50%;border:4px solid #fff;background:var(--orange-tint);color:var(--orange);display:grid;place-items:center;font-family:var(--playfair);font-size:48px;font-weight:700;position:relative;box-shadow:var(--sh-md);overflow:hidden}
+.hostpg .profile-card{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;margin-top:14px;position:relative;z-index:2}
+@media(max-width:760px){.hostpg .profile-card{grid-template-columns:1fr;text-align:center;justify-items:center;gap:14px;margin-top:0}}
+.hostpg .avatar{width:128px;height:128px;border-radius:50%;border:4px solid #fff;background:var(--orange-tint);color:var(--orange);display:grid;place-items:center;font-family:var(--playfair);font-size:48px;font-weight:700;position:relative;box-shadow:var(--sh-md);overflow:hidden;margin-top:-78px}
 .hostpg .avatar img{width:100%;height:100%;object-fit:cover}
 .hostpg .avatar-badge{position:absolute;right:6px;bottom:8px;width:30px;height:30px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--green);box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .hostpg .ph-info{padding-bottom:6px}
