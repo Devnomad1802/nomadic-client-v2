@@ -48,6 +48,24 @@ const HostApi = api.injectEndpoints({
       }),
       providesTags: ["Hosts", "Reviews"],
     }),
+    // Reviews filed against a host (dedicated endpoint)
+    getReviewsByHostId: builder.query({
+      query: (hostId) => ({
+        url: `/getAllReviewsByHostId/${hostId}`,
+        method: "POST",
+        body: {},
+      }),
+      providesTags: ["Reviews"],
+    }),
+    // Traveller writes a review for a host
+    addUserReview: builder.mutation({
+      query: (body) => ({
+        url: "/addUserReview",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Reviews"],
+    }),
   }),
 });
 
@@ -57,4 +75,6 @@ export const {
   useGetHostDetailsQuery,
   useGetHostTripsQuery,
   useGetHostReviewsQuery,
+  useGetReviewsByHostIdQuery,
+  useAddUserReviewMutation,
 } = HostApi;
