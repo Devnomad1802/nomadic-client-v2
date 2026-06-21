@@ -8,7 +8,14 @@ import { useGetAllHostsQuery } from "../services";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1454942901704-3c44c11b2ad1?auto=format&fit=crop&w=1600&q=70";
 const BECOME_IMG = "https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?auto=format&fit=crop&w=1400&q=70";
-const initial = (s) => (s ? s.trim()[0]?.toUpperCase() : "H");
+// Clean default cover when a host has no image (no random initials / blank cards)
+const DEFAULT_COVER = "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=900&q=65";
+const DEFAULT_BIO = "Curating meaningful travel experiences with Nomadic Townies.";
+const truncate = (s, n) => { const t = `${s || ""}`.trim(); return t.length > n ? `${t.slice(0, n).trim()}…` : t; };
+// Neutral default avatar icon (used instead of raw initials when no logo)
+const AvatarFallback = () => (
+  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+);
 
 const StarSvg = () => (<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17.8 6.6 20l1-6.1L3.2 9.5l6.1-.9L12 3Z" /></svg>);
 const PinSvg = () => (<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" /><circle cx="12" cy="10" r="2.6" /></svg>);
@@ -32,8 +39,9 @@ const MeetHosts = () => {
     name: h?.hostTitle || h?.hostName || "Host",
     specialty: (Array.isArray(h?.specialties) && h.specialties[0]) || h?.hostTitle || "",
     location: [h?.city, h?.state].filter(Boolean).join(", ") || h?.location || "",
-    bio: h?.tagline || h?.hostOverview || "",
-    image: h?.coverImage || h?.brandingLogo || "",
+    // Card description fallback chain: shortBio → cardDescription → about(trunc) → tagline → safe default
+    bio: h?.shortBio || h?.cardDescription || truncate(h?.hostOverview, 150) || h?.tagline || DEFAULT_BIO,
+    image: h?.coverImage || h?.brandingLogo || DEFAULT_COVER,
     logo: h?.brandingLogo || "",
     rating: Number(h?.rating) || 4.9,
     experiences: h?.tripsHosted ?? 0,
@@ -128,9 +136,8 @@ const MeetHosts = () => {
                   {c.image ? <img src={c.image} alt={c.name} loading="lazy" /> : null}
                   <div className="host-badges">
                     {c.verified && <span className="badge badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2Z" /></svg>Verified</span>}
-                    {c.specialty && <span className="badge badge-specialty">{c.specialty}</span>}
                   </div>
-                  <div className="host-avatar">{c.logo ? <img src={c.logo} alt="" /> : initial(c.name)}</div>
+                  <div className="host-avatar">{c.logo ? <img src={c.logo} alt={c.name} /> : <AvatarFallback />}</div>
                   <span className="host-rating-pill"><StarSvg />{c.rating.toFixed(1)}</span>
                 </div>
                 <div className="host-body">
