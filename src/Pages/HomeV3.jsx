@@ -106,9 +106,10 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
           <div className="wrap">
             <h1 className="hero-h1">The way to <em>experience</em><br />the world.</h1>
             <p className="hero-sub">
-              Discover breathtaking destinations, community trips, wellness retreats and cultural
-              immersions — run by passionate independent hosts. Not a tour operator. A marketplace
-              built for real travel.
+              Discover experiences that matter.<br /><br />
+              Explore community trips, backpacking adventures, wellness retreats, workshops, and
+              cultural immersions hosted by passionate communities around the world.<br /><br />
+              A curated marketplace for transformative travel experiences.
             </p>
             <div className="hero-ctas">
               <button className="btn btn-orange btn-xl" onClick={() => setOpene(true)}>
