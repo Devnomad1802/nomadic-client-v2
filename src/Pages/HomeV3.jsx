@@ -52,9 +52,9 @@ const whyCards = [
 ];
 
 const hostPerks = [
-  { title: "Zero listing fees", text: "Pay a commission only when you get a confirmed booking." },
-  { title: "Built-in audience", text: "A growing community of travellers actively looking for experiences like yours." },
-  { title: "Tools that travel", text: "Bookings, payments, updates and communication — all in one place." },
+  { title: "Curated experiences", text: "Hand-picked trips led by trusted community hosts." },
+  { title: "Travel with your kind", text: "Join small groups of like-minded travellers." },
+  { title: "Book in minutes", text: "Reserve your spot fast — simple, secure checkout." },
 ];
 
 const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySectionSubtitle }) => {
@@ -238,20 +238,19 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
             <div>
               <div className="section-label" style={{ color: "#f0b59f" }}>
                 <span style={{ width: 22, height: 2, background: "#f0b59f", borderRadius: 2, display: "block" }} />
-                For hosts &amp; organizers
+                Community-led travel
               </div>
               <h2 style={{ fontFamily: "var(--playfair)", color: "#fff", fontSize: "clamp(26px,3.5vw,46px)", fontWeight: 700, margin: "14px 0 16px", lineHeight: 1.1, letterSpacing: "-.02em" }}>
-                Your community is already<br />out there.
-                <em style={{ color: "#f0b59f", fontStyle: "italic" }}> Let&apos;s bring them to you.</em>
+                Real trips, real people.<br />
+                <em style={{ color: "#f0b59f", fontStyle: "italic" }}>Find your next adventure.</em>
               </h2>
               <p style={{ fontSize: 17, color: "rgba(255,255,255,.75)", lineHeight: 1.65, maxWidth: 500, marginBottom: 32 }}>
-                You run the experience. We bring the audience. List once — reach thousands of
-                travellers actively looking for what you offer. Zero listing fees. Pay only when you
-                fill seats.
+                Discover community-led experiences hosted by people who live them.
+                Browse curated trips, join a like-minded crew, and book your spot in minutes.
               </p>
               <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                <button className="btn btn-orange btn-lg" onClick={() => setOpene(true)}>Start Hosting</button>
-                <button className="btn btn-lg" style={{ background: "rgba(255,255,255,.1)", color: "rgba(255,255,255,.9)", border: "1.5px solid rgba(255,255,255,.22)" }} onClick={() => setOpene(true)}>How It Works</button>
+                <button className="btn btn-orange btn-lg" onClick={() => navigate("/all-packages")}>Explore Trips</button>
+                <button className="btn btn-lg" style={{ background: "rgba(255,255,255,.1)", color: "rgba(255,255,255,.9)", border: "1.5px solid rgba(255,255,255,.22)" }} onClick={() => navigate("/hosts")}>Meet Our Hosts</button>
               </div>
             </div>
             <div className="host-perks">
