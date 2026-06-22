@@ -62,6 +62,8 @@ const HostPage = () => {
   const specialties = Array.isArray(host?.specialties) ? host.specialties.filter(Boolean) : [];
   const languages = Array.isArray(host?.languages) ? host.languages.filter(Boolean) : [];
   const certifications = Array.isArray(host?.achievements) ? host.achievements.filter(Boolean) : [];
+  const gallery = Array.isArray(host?.gallery) ? host.gallery.filter(Boolean) : [];
+  const firstName = host?.hostName?.split(" ")[0] || name;
   const social = host?.socialMedia || {};
   const rankLabel = (Number(host?.successRate) >= 95 || verified) ? "Top-rated host" : "Trusted host";
 
@@ -99,7 +101,7 @@ const HostPage = () => {
         {/* profile card */}
         <div className="profile-card">
           <div className="avatar">
-            {host?.brandingLogo ? <img src={host.brandingLogo} alt={name} /> : initial(name)}
+            {host?.brandingLogo ? <img src={host.brandingLogo} alt={name} /> : <i className="ti ti-user" style={{ fontSize: 54 }} aria-hidden="true" />}
             {verified && <span className="avatar-badge"><i className="ti ti-rosette-discount-check" /></span>}
           </div>
           <div className="ph-info">
@@ -268,6 +270,42 @@ const HostPage = () => {
             )}
           </aside>
         </div>
+
+        {/* Gallery */}
+        {gallery.length > 0 && (
+          <section style={{ paddingBottom: 48 }}>
+            <h2 className="section-h" style={{ marginBottom: 4 }}>From {firstName}&apos;s trips</h2>
+            <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 18 }}>Real moments from past experiences.</p>
+            <div className="gallery-grid">
+              {gallery.slice(0, 8).map((src, i) => (
+                <div key={i} className={`gal-item${i === 0 ? " gal-tall" : ""}${i === 3 ? " gal-wide" : ""}`}>
+                  <img src={src} alt={`${firstName} trip ${i + 1}`} loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Ask the host (FAQ) */}
+        <section style={{ paddingBottom: 56 }}>
+          <div style={{ textAlign: "center", marginBottom: 28 }}>
+            <h2 className="section-h" style={{ marginBottom: 4 }}>Ask the host</h2>
+            <p style={{ fontSize: 14, color: "#6B7280" }}>Common questions travellers ask before booking with {firstName}.</p>
+          </div>
+          <div className="faq-wrap">
+            {[
+              { q: "Is this experience suitable for beginners?", a: "Most trips welcome beginners — each listing notes the difficulty level. If you're new, the host suggests gentler routes and helps you prepare." },
+              { q: "Can solo travellers join?", a: "Absolutely. Many travellers come solo and leave with a whole group of friends — the small group size makes it easy to connect." },
+              { q: "What fitness level is required?", a: "A basic level of fitness helps, as trips involve walking at altitude. Each experience lists the expected fitness level so you can pick what suits you." },
+              { q: "How do I book or enquire?", a: "Use the Contact host button to send an enquiry. The host replies and helps you pick the right trip and dates." },
+            ].map((f, i) => (
+              <details className="faq-item" key={i} open={i === 0}>
+                <summary>{f.q}<span className="q-ic"><i className="ti ti-plus" /></span></summary>
+                <div className="faq-a">{f.a}</div>
+              </details>
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* mobile sticky CTA */}
