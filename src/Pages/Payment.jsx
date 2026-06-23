@@ -91,7 +91,7 @@ const Payment = () => {
   }, [AddSection, quantities]);
 
   const gstAmount = (totalAmount - coupenDiscount) * 0.05;
-  const finalAmount = totalAmount - coupenDiscount + gstAmount;
+  const finalAmount = Math.round(totalAmount - coupenDiscount + gstAmount);
 
   const changeQty = (id, delta, title = "") => {
     setQuantities((prev) => {
