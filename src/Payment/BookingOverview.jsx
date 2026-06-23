@@ -1,15 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Container, Button, IconButton } from "@mui/material";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
-import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   useNewBookingMutation,
@@ -19,6 +8,7 @@ import Loading from "../SmallComponents/Loading";
 import Toastify from "../SmallComponents/Tostify";
 import { useSelector } from "react-redux";
 import LoginModal from "../Modals/LoginModal";
+import "./booking.css";
 
 const BookingOverview = () => {
   const [openL, setOpenL] = useState(false);
@@ -102,67 +92,17 @@ const BookingOverview = () => {
   const Total = totalAmount || 0;
 
   const array = [
+    { heading: "Location", text: paymentDetail?.location || "" },
+    { heading: "No of Travellers", text: cardData?.numberOfTravelers || 0 },
     {
-      icon: <PlaceOutlinedIcon sx={{ color: "#0D99FF" }} />,
-      heading: "Location",
-      text: paymentDetail?.location || "",
-    },
-    {
-      icon: <DirectionsWalkIcon sx={{ color: "#0D99FF" }} />,
-      heading: "No of Travellers",
-      text: cardData?.numberOfTravelers || 0,
-    },
-    {
-      icon: <CalendarTodayOutlinedIcon sx={{ color: "#0D99FF" }} />,
       heading: "Date",
-      text: (
-        <>
-          {cardData?.cardDate?.batchDate && cardData?.cardDate?.endSelectDate ? (
-            <>
-              {new Date(cardData?.cardDate?.batchDate).toLocaleDateString(
-                undefined,
-                {
-                  month: "short",
-                  day: "numeric",
-                }
-              )}
-              {" - "}
-              {new Date(cardData?.cardDate?.endSelectDate).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-              })}
-            </>
-          ) : (
-            "00, 00"
-          )}
-        </>
-      ),
+      text: cardData?.cardDate?.batchDate && cardData?.cardDate?.endSelectDate
+        ? `${new Date(cardData.cardDate.batchDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })} - ${new Date(cardData.cardDate.endSelectDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+        : "—",
     },
-    {
-      icon: <PlaceOutlinedIcon sx={{ color: "#0D99FF" }} />,
-      heading: "Pick Up/Drop Off",
-      text: `${paymentDetail?.pickUp || "Bagdogra"} - ${paymentDetail?.dropOff || "Bagdogra"}`,
-    },
-    {
-      icon: <AccessTimeOutlinedIcon sx={{ color: "#0D99FF" }} />,
-      heading: "No of Days",
-      text: `${paymentDetail?.days || 7}D/${paymentDetail?.nights || 6}N`,
-    },
+    { heading: "Pick Up/Drop Off", text: `${paymentDetail?.pickUp || "Bagdogra"} - ${paymentDetail?.dropOff || "Bagdogra"}` },
+    { heading: "No of Days", text: `${paymentDetail?.days || 7}D/${paymentDetail?.nights || 6}N` },
   ];
-
-  const array1 = [
-    {
-      heading: "GST @5%",
-      amount: "",
-      totalamount: `${Number(cardData?.gstTax || 0).toFixed(0)}`,
-    },
-    {
-      heading: "Discount",
-      amount: "",
-      totalamount: `-${coupenDiscount || 0}`,
-    },
-  ];
-  const matches = useMediaQuery("(min-width:600px)");
 
   // value
   const [selectedValue, setSelectedValue] = useState(Total);
@@ -327,449 +267,130 @@ const BookingOverview = () => {
       setPartialShow(true);
     }
   }, [cardData?.cardDate?.batchDate]);
+  const StepperBO = () => (
+    <div className="stepper">
+      {["Select Batch", "Your Details", "Confirmation"].map((label, i) => (
+        <div key={label} style={{ display: "contents" }}>
+          <div className={`step ${i < 2 ? "done" : "on"}`}>
+            <div className="step-num">{i < 2 ? "✓" : 3}</div>
+            <span className="lbl">{label}</span>
+          </div>
+          {i < 2 && <div className={`step-line ${i < 2 ? "done" : ""}`} />}
+        </div>
+      ))}
+    </div>
+  );
+
+  const lineItems = (cardData?.cardSectionData || []).flat();
+  const cover = paymentDetail?.cardImage || paymentDetail?.bannerImage;
+  const dateStr = cardData?.cardDate?.batchDate && cardData?.cardDate?.endSelectDate
+    ? `${new Date(cardData.cardDate.batchDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })} - ${new Date(cardData.cardDate.endSelectDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+    : (batchDate || "—");
 
   return (
-    <Box>
-      <Loading isLoading={loading} />{" "}
+    <div className="bkpg">
+      <Loading isLoading={loading} />
       <Toastify setAlertState={setAlertState} alertState={alertState} />
-      <LoginModal
-        openL={openL}
-        setOpenL={setOpenL}
-        toggelModelL={toggelModelL}
-      />
-      <Container>
-        <Box sx={{ background: "#FBFBFB" }}>
-          <Box
-            sx={{
-              display: "flex",
-              gap: "0px 20px",
-              alignItems: "center",
-              py: 2,
-            }}
-          >
-            <IconButton
-              onClick={() => {
-                navigate(-1);
-              }}
-            >
-              <KeyboardBackspaceIcon
-                sx={{ color: "#000", fontSize: "25px", fontWeight: 400 }}
-              />
-            </IconButton>
-            <Typography sx={{ color: "#0D99FF", fontSize: "22px" }}>
-              Booking Overview
-            </Typography>
-          </Box>
-          <Box
-            sx={{ width: "100%", height: "1px", border: "1px solid #F3F4F6" }}
-          />
-          <Box
-            sx={{
-              display: "flex",
-              p: { xs: 1, md: 3 },
-              justifyContent: "space-between",
-              flexDirection: { xs: "column", md: "row" },
-              Width: { xs: "100%", md: "60%" },
-            }}
-          >
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: "15px",
-                  color: "#0D99FF",
-                  textAlign: "start",
-                  py: 2,
-                }}
-              >
-                Booking Details
-              </Typography>
-              <Box sx={{ border: "1px solid #F3F4F6", borderRadius: "15px" }}>
-                <Box
-                  sx={{
-                    background: "#F9FAFB",
-                    borderRadius: "15px 15px 0px 0px ",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#4B5563",
-                      p: 2,
-                      fontSize: { xs: "20px", md: "22px" },
-                      textAlign: "left",
-                    }}
-                  >
-                    {paymentDetail?.title}
-                  </Typography>
-                </Box>
-                {array.map((item, index) => {
-                  return (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        p: 2,
-                        alignItems: "center",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: { xs: "0px 10px", md: "0px 15px" },
-                          width: { xs: "auto", md: "200px" },
-                          alignItems: "center",
-                        }}
-                      >
-                        {item.icon}
-                        <Typography
-                          sx={{
-                            color: "#9CA3AF",
-                            fontSize: { xs: "12px", sm: "14px", md: "15px" },
-                            textAlign: "center",
-                          }}
-                        >
-                          {item.heading}
-                        </Typography>
-                      </Box>
+      <LoginModal openL={openL} setOpenL={setOpenL} toggelModelL={toggelModelL} />
+      <div className="wrap">
+        <StepperBO />
 
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                          textAlign: "left",
-                        }}
-                      >
-                        {item.text}
-                      </Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Box>
-            <Box sx={{ width: { xs: "100%", md: "60%" } }}>
-              <Typography
-                sx={{
-                  fontSize: "15px",
-                  color: "#0D99FF",
-                  textAlign: "start",
-                  py: 2,
-                }}
-              >
-                Payment Details
-              </Typography>
-              <Box
-                sx={{
-                  background: "#F8F8F8",
-                  width: "100%",
-                  borderRadius: "15px",
-                }}
-              >
-                {cardData?.cardSectionData?.flat().map((item, index) => {
-                  return (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        p: 2,
-                        borderBottom: "1px solid #EDEDED",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        {item?.Title}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        &#8377;{Number(item?.TitlePrice || 0).toFixed(1)} x {item.quantity}
-                      </Typography>
+        {/* trip strip */}
+        <div className="bk-summary-strip">
+          {cover ? <img src={cover} alt="" /> : <div className="ph" />}
+          <div className="bk-summary-strip-info">
+            <h3>{paymentDetail?.title}</h3>
+            <div className="bk-summary-strip-meta">
+              <span>{dateStr}</span><span className="bk-batch-meta-dot" />
+              <span>{cardData?.numberOfTravelers || 0} traveller{(cardData?.numberOfTravelers || 0) === 1 ? "" : "s"}</span>
+            </div>
+          </div>
+          <span className="bk-summary-strip-edit" onClick={() => navigate(-1)}>&larr; Edit</span>
+        </div>
 
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        &#8377;{(Number(item?.TitlePrice || 0) * item.quantity).toFixed(1)}
-                      </Typography>
-                    </Box>
-                  );
-                })}
+        <div className="bk-grid">
+          <div>
+            {/* trip details */}
+            <div className="bk-card">
+              <div className="bk-card-head"><h3 className="bk-card-title">Trip Details</h3></div>
+              <div className="sc-card-body" style={{ padding: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+                {array.map((a, i) => (
+                  <div key={i}>
+                    <div className="sc-detail-label">{a.heading}</div>
+                    <div className="sc-detail-val">{a.text}</div>
+                  </div>
+                ))}
+                {roomType && (
+                  <div><div className="sc-detail-label">Room</div><div className="sc-detail-val">{roomType}</div></div>
+                )}
+              </div>
+            </div>
 
-                {array1?.map((item, index) => {
-                  return (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        p: 2,
-                        borderBottom: "1px solid #EDEDED",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        {item?.heading}
-                      </Typography>
+            {/* travellers */}
+            {Array.isArray(travellers) && travellers.length > 0 && (
+              <div className="bk-card">
+                <div className="bk-card-head"><h3 className="bk-card-title">Travellers</h3></div>
+                {travellers.map((t, i) => (
+                  <div className="bk-traveler-card" key={i} style={{ marginTop: i ? 10 : 0 }}>
+                    <div className="bk-traveler-head">
+                      <div className="bk-traveler-num"><span className="num">{i + 1}</span> {t.name || `Traveller ${i + 1}`}</div>
+                      {t.isLead && <span className="bk-traveler-primary">Lead</span>}
+                    </div>
+                    <div className="bk-summary-strip-meta">
+                      {t.age && <span>{t.age} yrs</span>}
+                      {t.gender && <><span className="bk-batch-meta-dot" /><span>{t.gender}</span></>}
+                      {t.phone && <><span className="bk-batch-meta-dot" /><span>{t.phone}</span></>}
+                    </div>
+                  </div>
+                ))}
+                {dietary && <p className="bk-card-note" style={{ marginTop: 12, marginBottom: 0 }}>Special requests: {dietary}</p>}
+              </div>
+            )}
+          </div>
 
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        &#8377; {Number(item?.totalamount || 0).toFixed(1)}
-                      </Typography>
-                    </Box>
-                  );
-                })}
+          {/* sticky pay */}
+          <aside className="bk-side">
+            <h3>Payment Summary</h3>
+            {lineItems.map((item, i) => (
+              <div className="bk-side-summary" key={i}>
+                <span>{item.Title} {item.quantity ? `× ${item.quantity}` : ""}</span>
+                <b>&#8377;{(Number(item.TitlePrice || 0) * (item.quantity || 1)).toLocaleString("en-IN")}</b>
+              </div>
+            ))}
+            <div className="bk-side-divider" />
+            <div className="bk-side-summary"><span>GST (5%)</span><b>&#8377;{Number(cardData?.gstTax || 0).toFixed(0)}</b></div>
+            {coupenDiscount > 0 && <div className="bk-side-summary discount"><span>Discount</span><b>&minus;&#8377;{Number(coupenDiscount).toLocaleString("en-IN")}</b></div>}
+            <div className="bk-side-total">
+              <span className="bk-side-total-label">Total</span>
+              <span className="bk-side-total-val">&#8377;{Math.round(Number(Total)).toLocaleString("en-IN")}</span>
+            </div>
 
-                <Box
-                  sx={{
-                    background: "#EDEDED",
-                    borderRadius: "0px 0px 15px 15px",
-                    display: "flex",
-                    p: 3,
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#4B5563",
-                      fontSize: { xs: "16px", sm: "20px", md: "21px" },
-                      fontWeight: 500,
-                    }}
-                  >
-                    Total Trip Amount
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: "#4B5563",
-                      fontSize: { xs: "16px", sm: "20px", md: "21px" },
-                      fontWeight: 500,
-                    }}
-                  >
-                    &#8377;{Total.toFixed(1)}
-                  </Typography>
-                </Box>
-              </Box>
-              {particalShow === false && (
-                <>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      background: "#F9FAFB",
-                      borderRadius: "15px",
-                      justifyContent: "space-between",
+            {/* payment option */}
+            {particalShow === false && (
+              <div style={{ marginTop: 16 }}>
+                <div className="bk-side-coupon-label">Payment option</div>
+                <label style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 0", cursor: "pointer", fontSize: 13.5, color: "var(--text)" }}>
+                  <input type="radio" name="firstPayment" value={Number(paymentDetail?.firstBookingPrice || 0)} checked={paymentStatus === "firstPayment"} onChange={handleChange} style={{ accentColor: "var(--orange)", marginTop: 2 }} />
+                  <span><b style={{ color: "var(--text-dark)" }}>&#8377;{Number(paymentDetail?.firstBookingPrice || 0).toFixed(0)}</b> now &middot; pay &#8377;{(Total - Number(paymentDetail?.firstBookingPrice || 0)).toFixed(0)} before the trip</span>
+                </label>
+                <label style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "10px 0", cursor: "pointer", fontSize: 13.5, color: "var(--text)" }}>
+                  <input type="radio" name="fullPayment" value={Total} checked={paymentStatus === "fullPayment"} onChange={handleChange} style={{ accentColor: "var(--orange)", marginTop: 2 }} />
+                  <span><b style={{ color: "var(--text-dark)" }}>&#8377;{Number(Total).toFixed(0)}</b> &middot; pay in full now</span>
+                </label>
+              </div>
+            )}
 
-                      p: 2,
-                      mt: 3,
-                      alignItems: { xs: "center", sm: "start" },
-                      flexDirection: { xs: "column", sm: "row" },
-                      gap: { xs: "20px 0px" },
-                      // border: "2px solid red",
-                    }}
-                  >
-                    <Box sx={{}}>
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "15px", md: "19px" },
-                          textAlign: { xs: "center", sm: "left", md: "left" },
-                          fontWeight: 500,
-                        }}
-                      >
-                        Book this trip now by paying
-                      </Typography>
-                      {particalShow === false ? (
-                        <>
-                          <Typography
-                            sx={{
-                              color: "#4B5563",
-                              fontSize: { xs: "12px", md: "15px" },
-                              textAlign: { xs: "center", md: "left" },
-                              mt: 2,
-                            }}
-                          >
-                            Note: Balance amount of &#8377;
-                            {(Total - Number(paymentDetail?.firstBookingPrice || 0)).toFixed(1)}{" "}
-                            can be paid upto{" "}
-                            {cardData?.cardDate?.batchDate ?
-                              new Date(cardData?.cardDate?.batchDate).toLocaleDateString("en", {
-                                weekday: "short",
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                              }) : "Invalid Date"}
-                          </Typography>
-                        </>
-                      ) : null}
-                    </Box>
-
-                    <Typography
-                      sx={{
-                        color: "#00C30F",
-                        fontSize: { xs: "17px", md: "21px" },
-                        fontWeight: 500,
-                        textAlign: { xs: "center", md: "right" },
-                      }}
-                    >
-                      &#8377;{Number(paymentDetail?.firstBookingPrice || 0).toFixed(1)}
-                    </Typography>
-                  </Box>
-                </>
-              )}
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: "15px",
-                    color: "#0D99FF",
-                    textAlign: "start",
-                    py: 2,
-                  }}
-                >
-                  Select amount
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <FormControl>
-                    <RadioGroup
-                      aria-labelledby="demo-radio-buttons-group-label"
-                      defaultValue={Total} // Set the default value to Total
-                      name="radio-buttons-group"
-                      onChange={(e) => {
-                        handleChange(e);
-                      }}
-                    >
-                      {particalShow === false ? (
-                        <>
-                          <FormControlLabel
-                            sx={{
-                              color: "#CD482A",
-                            }}
-                            name="firstPayment"
-                            value={Number(paymentDetail?.firstBookingPrice)}
-                            control={<Radio style={{ color: "#CD482A" }} />}
-                            label={
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  gap: "0px 20px",
-                                  alignItems: "start",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    color: "#4B5563",
-                                    fontSize: matches ? "20px" : "16px",
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  &#8377;
-                                  {Number(paymentDetail?.firstBookingPrice || 0).toFixed(1)}
-                                </span>
-                                <span
-                                  style={{
-                                    fontSize: matches ? "16px" : "12px",
-                                    color: "#9CA3AF",
-                                    fontWeight: "400",
-                                    textAlign: "left",
-                                  }}
-                                >
-                                  Book by paying partial amount <br /> Amount
-                                  payable later &#8377;
-                                  {(Total - Number(paymentDetail?.firstBookingPrice || 0)).toFixed(1)}
-                                </span>
-                              </Box>
-                            }
-                            disabled={particalShow === true} // Disable if particalShow is true
-                          />
-                        </>
-                      ) : null}
-
-                      <FormControlLabel
-                        sx={{
-                          color: "#CD482A",
-                          display: "flex",
-                          alignItems: "start",
-                        }}
-                        name="fullPayment"
-                        value={Total}
-                        control={
-                          <Radio
-                            style={{ color: "#CD482A" }}
-                          // Disable the Radio if condition is met
-                          />
-                        }
-                        label={
-                          <Box sx={{ display: "flex", gap: "0px 20px", mt: 1 }}>
-                            <span
-                              style={{
-                                color: "#4B5563",
-                                fontSize: matches ? "20px" : "16px",
-                                fontWeight: "600",
-                              }}
-                            >
-                              &#8377;{Total.toFixed(1)}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: matches ? "16px" : "12px",
-                                color: "#9CA3AF",
-                                fontWeight: "400",
-                              }}
-                            >
-                              Book by paying full amount{" "}
-                            </span>
-                          </Box>
-                        }
-                      />
-                    </RadioGroup>
-                  </FormControl>
-
-                  <Box
-                    sx={{
-                      width: "100%",
-                      borderRadius: "20px",
-                      mt: 3,
-                    }}
-                  >
-                    <Button
-                      sx={{
-                        color: "#fff",
-                        p: 1,
-                        width: "100%",
-                        background: "#EC3F18",
-                        "&:hover": {
-                          background: "#EC3F18",
-                        },
-                      }}
-                      onClick={handleOrder}
-                    >
-                      Proceed to Pay &#8377; {Number(selectedValue || 0).toFixed(1)}
-                    </Button>
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
+            <button className="bk-side-cta" disabled={!userDbData || !selectedValue} onClick={handleOrder}>
+              Pay &#8377;{Math.round(Number(selectedValue || Total)).toLocaleString("en-IN")}
+            </button>
+            <div className="bk-side-secure">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2Z" /></svg>
+              Secured by Razorpay &middot; 256-bit encryption
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
   );
 };
 
