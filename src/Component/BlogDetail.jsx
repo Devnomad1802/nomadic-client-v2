@@ -109,17 +109,30 @@ const ArticleBody = ({ item, onHeadingsExtracted }) => {
     return legacy;
   }, [item]);
 
-  // Add id="" to every h2 inside dangerouslySetInnerHTML once rendered, for TOC
+  // Build the "In this story" TOC dynamically from the blog's own headings.
+  // Works for every blog (not hardcoded): prefer h2 sections; if a post only
+  // uses h3 subheadings, fall back to those so the sidebar still appears.
   useEffect(() => {
     if (!containerRef.current) return;
-    const h2s = containerRef.current.querySelectorAll("h2");
-    const headings = [];
-    h2s.forEach((h, i) => {
-      const slug = (h.textContent || `section-${i}`)
-        .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      if (!h.id) h.id = slug || `section-${i}`;
-      headings.push({ id: h.id, label: h.textContent });
-    });
+    const seen = new Set();
+    const collect = (sel, level) =>
+      [...containerRef.current.querySelectorAll(sel)].map((h, i) => {
+        const text = (h.textContent || "").trim();
+        if (!text) return null;
+        let slug = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `section-${level}-${i}`;
+        while (seen.has(slug)) slug += "-x";
+        seen.add(slug);
+        if (!h.id) h.id = slug;
+        return { id: h.id, label: text, level };
+      }).filter(Boolean);
+
+    const h2 = collect("h2", 2);
+    // include h3 too — as sub-items under h2, or as the only items if no h2
+    const h3 = collect("h3", 3);
+    const headings = h2.length ? [...h2, ...h3].sort((a, b) => {
+      const ax = document.getElementById(a.id), bx = document.getElementById(b.id);
+      return (ax?.compareDocumentPosition(bx) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+    }) : h3;
     onHeadingsExtracted?.(headings);
   }, [blocks, onHeadingsExtracted]);
 
@@ -293,7 +306,7 @@ const TableOfContents = ({ headings }) => {
         {headings.map(h => (
           <Box component="li" key={h.id}>
             <Box component="a" href={`#${h.id}`} sx={{
-              display: "block", py: 1, pl: 2, fontSize: 13,
+              display: "block", py: 1, pl: h.level === 3 ? 3.5 : 2, fontSize: h.level === 3 ? 12.5 : 13,
               color: activeId === h.id ? ORANGE : TEXT_LIGHT,
               fontWeight: activeId === h.id ? 600 : 400,
               borderLeft: `1.5px solid ${activeId === h.id ? ORANGE : "transparent"}`,
@@ -636,10 +649,8 @@ const BlogDetail = () => {
         </Box>
       </Container>
 
-      {/* Related blogs */}
-      <Box sx={{ bgcolor: "#F9FAFB", borderTop: `1px solid ${LINE}`, py: 8, mt: 4 }}>
-        <RelatedBlogs />
-      </Box>
+      {/* Related blogs — new card design, dynamic, excludes current */}
+      <RelatedBlogs currentId={item?._id} location={item?.location} />
     </Box>
   );
 };
