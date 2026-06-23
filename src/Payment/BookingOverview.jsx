@@ -30,7 +30,8 @@ const BookingOverview = () => {
   const location = useLocation();
   const currency = "INR";
   const reciptId = "123IndNomadic444";
-  const { paymentDetail, selectedBatch, selections, totalAmount, coupenDiscount } =
+  const { paymentDetail, selectedBatch, selections, totalAmount, coupenDiscount,
+    travellers, emergencyContact, dietary, batchDate, roomType } =
     location.state || {};
 
 
@@ -234,6 +235,11 @@ const BookingOverview = () => {
                 selectedValue,
                 paymentStatus,
                 coupenDiscount,
+                travellers,
+                emergencyContact,
+                dietary,
+                batchDate,
+                roomType,
               }).unwrap();
 
               showToast(message, "success");
