@@ -243,7 +243,7 @@ const AllPackagesV3 = ({ allpkgbg }) => {
                 return (
                   <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
                     <div className="tc-img">
-                      {trip.cardImage ? <img className="tc-img-inner" src={trip.cardImage} alt={trip.title} loading="lazy" /> : <div className="tc-img-inner" style={{ background: "linear-gradient(135deg,#1a3020,#2d6b4a)" }} />}
+                      {trip.cardImage ? <img className="tc-img-inner" src={trip.cardImage} alt={trip.title} loading="lazy" onError={(e) => { const p = e.currentTarget.parentElement; if (p) p.style.background = "linear-gradient(135deg,#1a3020,#2d6b4a)"; e.currentTarget.style.display = "none"; }} /> : <div className="tc-img-inner" style={{ background: "linear-gradient(135deg,#1a3020,#2d6b4a)" }} />}
                       <button className="tc-fav" aria-label="Save" onClick={(e) => { e.preventDefault(); e.currentTarget.classList.toggle("on"); }}><FavoriteIcon sx={{ fontSize: 14 }} /></button>
                       {trip.tripOff ? <span className="tc-off">{trip.tripOff}% OFF</span> : null}
                       <div className="tc-rating"><StarIcon sx={{ fontSize: 12, color: "#f5a623" }} />{avgRating(trip).toFixed(1)}</div>
@@ -355,7 +355,7 @@ const AllPackagesV3 = ({ allpkgbg }) => {
                 return (
                   <div key={item?._id || i} className="trend-card">
                     <div className="trend-img">
-                      {item?.cardImage ? <img src={item.cardImage} alt={item?.title} loading="lazy" /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#1a2c5c,#2d4b9f)" }} />}
+                      {item?.cardImage ? <img src={item.cardImage} alt={item?.title} loading="lazy" onError={(e) => { const p = e.currentTarget.parentElement; if (p) p.style.background = "linear-gradient(135deg,#1a2c5c,#2d4b9f)"; e.currentTarget.style.display = "none"; }} /> : <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#1a2c5c,#2d4b9f)" }} />}
                       <div className="trend-rating"><StarIcon sx={{ fontSize: 12, color: "#f5a623" }} />{avgRating(item).toFixed(1)}</div>
                       {item?.price ? <div className="trend-price-tag"><span>₹{Number(item.price).toLocaleString("en-IN")} / person</span></div> : null}
                     </div>
