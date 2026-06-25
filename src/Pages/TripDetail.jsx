@@ -114,18 +114,27 @@ const HeroGallery = ({ images = [] }) => {
       display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gridTemplateRows: "1fr 1fr",
       gap: 1, height: { xs: 280, md: 460 }, borderRadius: "18px", overflow: "hidden", mb: 4, position: "relative",
     }}>
-      {photos.map((src, i) => (
-        <Box key={i} sx={{
-          gridRow: i === 0 ? "1/3" : "auto", position: "relative", overflow: "hidden", cursor: "pointer", bgcolor: BG_SOFT,
-          "&:hover img": { transform: "scale(1.04)" },
-        }}>
-          {src ? (
-            <img src={src} alt="" loading={i === 0 ? "eager" : "lazy"} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .4s" }} />
-          ) : (
-            <Box sx={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${["#1a5f3f", "#5c3a1a", "#1a3a5c", "#5c1a1a", "#3a2c1a"][i]}, ${["#3a9b6f", "#a8703a", "#3a6ca8", "#a83a3a", "#7a5c3a"][i]})` }} />
-          )}
-        </Box>
-      ))}
+      {photos.map((src, i) => {
+        // Gradient always sits behind the photo, so a missing/slow/failed
+        // image degrades to a clean gradient instead of a broken-image icon.
+        const grad = `linear-gradient(135deg, ${["#1a5f3f", "#5c3a1a", "#1a3a5c", "#5c1a1a", "#3a2c1a"][i]}, ${["#3a9b6f", "#a8703a", "#3a6ca8", "#a83a3a", "#7a5c3a"][i]})`;
+        return (
+          <Box key={i} sx={{
+            gridRow: i === 0 ? "1/3" : "auto", position: "relative", overflow: "hidden", cursor: "pointer", background: grad,
+            "&:hover img": { transform: "scale(1.04)" },
+          }}>
+            {src ? (
+              <img
+                src={src}
+                alt=""
+                loading={i === 0 ? "eager" : "lazy"}
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+                style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .4s" }}
+              />
+            ) : null}
+          </Box>
+        );
+      })}
       <Button startIcon={<GridView sx={{ fontSize: 14 }} />} sx={{
         position: "absolute", bottom: 16, right: 16, bgcolor: "#fff", color: TEXT_DARK, fontSize: 13, fontWeight: 600,
         textTransform: "none", border: `1px solid ${LINE}`, px: 2, py: 1.2,

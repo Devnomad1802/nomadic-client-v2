@@ -131,7 +131,7 @@ const TripsV3 = () => {
                 <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
                   <div className="tc-img">
                     {trip.cardImage
-                      ? <img className="tc-img-inner" src={trip.cardImage} alt={trip.title} loading="lazy" />
+                      ? <img className="tc-img-inner" src={trip.cardImage} alt={trip.title} loading="lazy" onError={(e) => { const p = e.currentTarget.parentElement; if (p) p.style.background = "linear-gradient(135deg,#2c3e50,#4a6741)"; e.currentTarget.style.display = "none"; }} />
                       : <div className="tc-img-inner" style={{ background: "linear-gradient(135deg,#2c3e50,#4a6741)" }} />}
                     <button className="tc-fav" aria-label="Save" onClick={(e) => { e.preventDefault(); e.currentTarget.classList.toggle("on"); }}>
                       <FavoriteIcon sx={{ fontSize: 14 }} />
