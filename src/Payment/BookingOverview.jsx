@@ -211,10 +211,15 @@ const BookingOverview = () => {
           throw new Error("Failed to fetch order details");
         }
 
+        const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+        if (!razorpayKey) {
+          showToast("Payments are temporarily unavailable. Please try again later.", "error");
+          return;
+        }
+
         // Construct options for Razorpay
         const options = {
-          // Test by default; set VITE_RAZORPAY_KEY_ID=rzp_live_... in Vercel to go live
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Slffqw3YxojtUf",
+          key: razorpayKey,
           amount: Math.round(selectedValue * 100),
           currency,
           name: "Nomadic Townies",
