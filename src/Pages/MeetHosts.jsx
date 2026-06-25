@@ -168,7 +168,7 @@ const MeetHosts = () => {
             <h2>Share what you love. Host with us.</h2>
             <p>Reach a community of travellers who are actively looking for real, meaningful experiences — not tourist traps. We curate, verify, and help you fill your trips.</p>
             <div className="become-actions">
-              <a className="btn-light" onClick={() => navigate("/contact-us")} style={{ cursor: "pointer" }}>
+              <a className="btn-light" onClick={() => navigate("/become-a-host")} style={{ cursor: "pointer" }}>
                 Become a Host
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </a>

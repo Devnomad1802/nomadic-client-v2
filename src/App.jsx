@@ -35,6 +35,7 @@ const UpcommingDetails = React.lazy(() => import("./Pages/TripDetail"));
 const BlogDetail = React.lazy(() => import("./Component/BlogDetail"));
 const HostPage = React.lazy(() => import("./Component/Host/HostPage"));
 const MeetHosts = React.lazy(() => import("./Pages/MeetHosts"));
+const BecomeHost = React.lazy(() => import("./Pages/BecomeHost"));
 const NotFound = React.lazy(() => import("./Pages/NotFound"));
 
 // Resolves a legacy /UpCommingDetails/:id URL to the new /trips/:slug path.
@@ -106,6 +107,7 @@ function App() {
             <Route path="/UpCommingDetails/:id" element={<TripIdToSlugRedirect />} />
 
             <Route path="/hosts" element={<MeetHosts />} />
+            <Route path="/become-a-host" element={<BecomeHost />} />
             <Route path="/hosts/:id" element={<HostPage />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
