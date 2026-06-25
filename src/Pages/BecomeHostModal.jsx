@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./becomeHost.css";
 import { useEnquirMutation } from "../services/EnquirApi";
+import { logof } from "../Images";
 
 const ILLUS = "https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?auto=format&fit=crop&w=700&q=72";
 const CATEGORIES = [
@@ -108,9 +109,7 @@ const BecomeHostModal = ({ open, onClose }) => {
           {/* LEFT — logo top · illustration middle · text bottom */}
           <aside className="bh-left">
             <div className="bh-left-inner">
-              <div className="bh-logo-row" style={{ fontFamily: "var(--playfair)", fontWeight: 700, fontSize: 19, color: "#F8F4ED", letterSpacing: "-.01em" }}>
-                <span style={{ color: "#F0B49C" }}>Nomadic</span> Townies
-              </div>
+              <img className="bh-logo" src={logof} alt="Nomadic Townies" />
               <div className="bh-illus">
                 <img src={ILLUS} alt="A host welcoming travellers" loading="lazy" />
               </div>
