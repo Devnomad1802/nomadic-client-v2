@@ -12,7 +12,7 @@ const TermsAndConditions = () => {
         <Box>
             <Helmet>
                 <title>Terms and Conditions | Nomadic Townies</title>
-                <meta name="description" content="Read the terms and conditions for booking adventure trips and group tours with Nomadic Townies." />
+                <meta name="description" content="Read the terms and conditions for booking travel experiences with Nomadic Townies." />
                 <link rel="canonical" href="https://nomadictownies.com/terms-and-conditions" />
             </Helmet>
 

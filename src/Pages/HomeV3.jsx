@@ -66,13 +66,16 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
   return (
     <div className="ntv3">
       <Helmet>
-        <title>Curated Travel Experiences &amp; Community Trips | Nomadic Townies</title>
-        <meta name="description" content="Nomadic Townies is a curated marketplace for transformative travel experiences — community trips, wellness retreats, cultural immersions &amp; workshops hosted by passionate communities. Join 5000+ travelers." />
+        <title>Curated Travel Experiences, Community Trips &amp; Retreats | Nomadic Townies</title>
+        <meta name="description" content="Discover community trips, backpacking adventures, wellness retreats, workshops, and cultural immersions hosted by passionate communities. Nomadic Townies is a curated marketplace for transformative travel experiences." />
         <link rel="canonical" href="https://nomadictownies.com/" />
-        <meta property="og:title" content="Curated Travel Experiences &amp; Community Trips | Nomadic Townies" />
-        <meta property="og:description" content="A curated marketplace for transformative travel experiences hosted by passionate communities across India and the world." />
+        <meta property="og:title" content="Nomadic Townies | Curated Travel Experiences &amp; Community Trips" />
+        <meta property="og:description" content="Explore meaningful travel experiences hosted by passionate communities — from backpacking adventures and retreats to workshops and cultural immersions." />
         <meta property="og:url" content="https://nomadictownies.com/" />
         <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Nomadic Townies | Curated Travel Experiences" />
+        <meta name="twitter:description" content="Discover host-led community trips, retreats, workshops, and cultural immersions through Nomadic Townies." />
       </Helmet>
 
       <EnquirNow opene={opene} setOpene={setOpene} toggelModele={toggelModele} />
@@ -211,9 +214,10 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
                 meaningful, mindful, and accessible for everyone.
               </p>
               <p style={{ fontSize: 16, color: "var(--text)", lineHeight: 1.7, marginBottom: 28 }}>
-                We're a curated marketplace for transformative travel experiences — not a tour
-                operator, not a travel agency. A platform where passionate independent hosts bring
-                their best experiences to people who are ready to be changed by travel.
+                We're a curated marketplace for transformative travel experiences — community
+                trips, backpacking adventures, wellness retreats, workshops and cultural immersions
+                where passionate independent hosts bring their best experiences to people ready to
+                be changed by travel.
               </p>
               <button className="btn btn-orange btn-md" onClick={() => navigate("/about-us")}>More About Us</button>
             </div>

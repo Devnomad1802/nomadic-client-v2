@@ -98,8 +98,8 @@ const CategorieDetails = () => {
   const reviews = (Array.isArray(revRes?.data) ? revRes.data : []).slice(0, 3);
   const stars = (n) => { const r = Math.max(0, Math.min(5, Math.round(Number(n) || 5))); return "★".repeat(r) + "☆".repeat(5 - r); };
 
-  const seoTitle = `${displayName} Trips & Tours | Nomadic Townies`;
-  const seoDesc = `Explore ${displayName} trips with Nomadic Townies. Handcrafted group tours, expert hosts, and unforgettable adventures.`;
+  const seoTitle = `${displayName} Experiences & Community Trips | Nomadic Townies`;
+  const seoDesc = `Discover curated ${displayName} experiences on Nomadic Townies — community trips, retreats, workshops and cultural immersions led by passionate hosts.`;
 
   return (
     <div className="catpg">

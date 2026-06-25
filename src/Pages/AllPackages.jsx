@@ -39,11 +39,11 @@ const AllPackages = ({ allpkgbg }) => {
   return (
     <Box>
       <Helmet>
-        <title>All Travel Packages | Group &amp; Adventure Tours in India | Nomadic Townies</title>
-        <meta name="description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more. Find your perfect trip today." />
+        <title>All Travel Experiences | Community Trips &amp; Retreats | Nomadic Townies</title>
+        <meta name="description" content="Browse all Nomadic Townies experiences — community trips, backpacking adventures, retreats, workshops and cultural immersions. Find your next experience today." />
         <link rel="canonical" href="https://nomadictownies.com/all-packages" />
-        <meta property="og:title" content="All Travel Packages | Nomadic Townies" />
-        <meta property="og:description" content="Browse all Nomadic Townies travel packages — group tours, adventure trips, international packages &amp; more." />
+        <meta property="og:title" content="All Travel Experiences | Nomadic Townies" />
+        <meta property="og:description" content="Browse all Nomadic Townies experiences — community trips, retreats, workshops and cultural immersions." />
         <meta property="og:url" content="https://nomadictownies.com/all-packages" />
       </Helmet>
       <AllPakgaeshome allpkgbg={allpkgbg} onSearch={setSearchQuery} initialSearch={initialQuery} />

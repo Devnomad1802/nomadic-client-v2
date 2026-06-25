@@ -129,10 +129,11 @@ const AllPackagesV3 = ({ allpkgbg }) => {
   return (
     <div className="ntv3 apv3">
       <Helmet>
-        <title>All Travel Packages | Group &amp; Adventure Trips | Nomadic Townies</title>
-        <meta name="description" content="Browse all Nomadic Townies experiences — community trips, treks, wellness retreats, cultural immersions and more. Filter by category and month, hosted by verified local hosts." />
+        <title>All Travel Experiences | Community Trips &amp; Retreats | Nomadic Townies</title>
+        <meta name="description" content="Browse all Nomadic Townies experiences — community trips, backpacking adventures, wellness retreats, workshops and cultural immersions. Filter by category and month, hosted by passionate communities." />
         <link rel="canonical" href="https://nomadictownies.com/all-packages" />
-        <meta property="og:title" content="All Travel Packages | Nomadic Townies" />
+        <meta property="og:title" content="All Travel Experiences | Nomadic Townies" />
+        <meta property="og:description" content="Curated community trips, backpacking adventures, retreats, workshops and cultural immersions — hosted by passionate communities." />
         <meta property="og:url" content="https://nomadictownies.com/all-packages" />
       </Helmet>
 
