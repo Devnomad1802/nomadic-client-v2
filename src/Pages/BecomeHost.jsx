@@ -172,10 +172,10 @@ const BecomeHost = () => {
               <h2>Tell us about you</h2>
               <p className="bh-sub">A few details and our hosting team will be in touch. Takes about 3 minutes.</p>
               <div className="bh-grid">
-                {field("fullName", "Full name", { placeholder: "Tenzing Sherpa" })}
-                {field("email", "Email address", { placeholder: "you@email.com", type: "email" })}
-                {field("mobile", "Mobile number", { placeholder: "+977 ·····" })}
-                {field("city", "City / country", { placeholder: "Pokhara, Nepal" })}
+                {field("fullName", "Full name", {})}
+                {field("email", "Email address", { type: "email" })}
+                {field("mobile", "Mobile number", {})}
+                {field("city", "City / country", {})}
 
                 <div className="bh-fld full">
                   <label>Experience category</label>
@@ -199,7 +199,7 @@ const BecomeHost = () => {
 
                 {selectField("years", "Years of experience", YEARS)}
                 {selectField("groupSize", "Expected group size", GROUPS)}
-                {field("website", "Website / social profile", { full: true, optional: true, placeholder: "instagram.com/yourhandle" })}
+                {field("website", "Website / social profile", { full: true, placeholder: "instagram.com/yourhandle" })}
               </div>
               <div className="bh-actions">
                 <button type="submit" className="bh-cta" disabled={isLoading}>
