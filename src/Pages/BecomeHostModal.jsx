@@ -9,14 +9,7 @@ import { useSelector } from "react-redux";
 import "./becomeHost.css";
 import { useEnquirMutation } from "../services/EnquirApi";
 
-const GALLERY = [
-  "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?auto=format&fit=crop&w=400&q=70",
-  "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=400&q=70",
-];
+const ILLUS = "https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?auto=format&fit=crop&w=700&q=72";
 const CATEGORIES = [
   "Homestays & living", "Trekking & guiding", "Backpacking & trips",
   "Workshops — pottery, crafts, painting, cooking", "Spiritual & wellness",
@@ -112,21 +105,24 @@ const BecomeHostModal = ({ open, onClose }) => {
       <div className="bhm-dialog" role="dialog" aria-modal="true" aria-label="Become a Host">
         <button className="bhm-close" onClick={onClose} aria-label="Close">×</button>
         <div className="bhpg">
-          {/* LEFT */}
+          {/* LEFT — logo top · illustration middle · text bottom */}
           <aside className="bh-left">
             <div className="bh-left-inner">
-              <div>
+              <div className="bh-logo-row" style={{ fontFamily: "var(--playfair)", fontWeight: 700, fontSize: 19, color: "#F8F4ED", letterSpacing: "-.01em" }}>
+                <span style={{ color: "#F0B49C" }}>Nomadic</span> Townies
+              </div>
+              <div className="bh-illus">
+                <img src={ILLUS} alt="A host welcoming travellers" loading="lazy" />
+              </div>
+              <div className="bh-left-text">
                 <div className="bh-eyebrow">Become a host</div>
                 <h1>Share your corner of the world.</h1>
                 <p className="bh-lede">Join a curated community of local guides, homestays and mountain hosts turning everyday places into experiences travellers never forget.</p>
-              </div>
-              <div className="bh-gallery">
-                {GALLERY.map((src, i) => <img key={i} src={src} alt="" loading="lazy" />)}
-              </div>
-              <div className="bh-chips">
-                <span className="bh-chip">Vetted community</span>
-                <span className="bh-chip">You set the terms</span>
-                <span className="bh-chip">Real connection</span>
+                <div className="bh-chips">
+                  <span className="bh-chip">Vetted community</span>
+                  <span className="bh-chip">You set the terms</span>
+                  <span className="bh-chip">Real connection</span>
+                </div>
               </div>
             </div>
           </aside>
@@ -179,7 +175,7 @@ const BecomeHostModal = ({ open, onClose }) => {
 
                     <div className="bh-fld full">
                       <label>Tell us about your experience</label>
-                      <textarea className={`bh-in${errors.about ? " invalid" : ""}`} name="about" rows={4} value={form.about} onChange={set("about")} placeholder="What will travellers do, see and feel with you? What makes your place special?" />
+                      <textarea className={`bh-in${errors.about ? " invalid" : ""}`} name="about" rows={3} value={form.about} onChange={set("about")} placeholder="What will travellers do, see and feel with you? What makes your place special?" />
                       {errors.about && <span className="bh-err">{errors.about}</span>}
                     </div>
 
