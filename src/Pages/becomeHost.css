@@ -79,3 +79,30 @@
 .bhpg .bh-btn-ghost{padding:13px 22px;font-size:14px;font-weight:700;color:#F4EEE4;background:transparent;border:1px solid rgba(244,238,228,.35);border-radius:11px;cursor:pointer}
 @keyframes bh-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
 @keyframes bh-rise{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ===== Compact popup modal variant ===== */
+.bhm-overlay{position:fixed;inset:0;z-index:1300;background:rgba(28,22,17,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:bh-fade .2s ease both}
+@keyframes bh-fade{from{opacity:0}to{opacity:1}}
+.bhm{--orange:#CD482A;--orange-hover:#B53D1F;--cream:#F4EEE4;--cream-soft:#FFFDF9;--ink:#221C17;--muted:#726A5E;--muted-2:#8A8073;--placeholder:#A89C8A;--line:#E6DDCF;--err:#C0392B;--playfair:"Playfair","Playfair Display",Georgia,serif;--inter:"Inter",system-ui,sans-serif;font-family:var(--inter);color:var(--ink);background:var(--cream);width:100%;max-width:560px;max-height:92vh;overflow-y:auto;border-radius:20px;position:relative;animation:bh-rise .28s ease both;box-shadow:0 24px 60px -20px rgba(0,0,0,.5)}
+/* form-field scope reset inside modal (reuse .bhpg field rules without page layout) */
+.bhm .bhpg{display:block;min-height:0;background:transparent;flex-wrap:nowrap}
+.bhm *,.bhm *::before,.bhm *::after{box-sizing:border-box}
+.bhm .bhm-head{position:relative;padding:22px 24px 16px;background:linear-gradient(165deg,#3a2b1f,#251b13);border-radius:20px 20px 0 0}
+.bhm .bhm-eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#F0B49C;margin-bottom:6px}
+.bhm .bhm-head h2{font-family:var(--playfair);font-weight:700;font-size:23px;letter-spacing:-.01em;color:#F8F4ED}
+.bhm .bhm-head p{margin-top:5px;font-size:13px;line-height:1.45;color:#C9BFAE}
+.bhm .bhm-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(244,238,228,.14);color:#F4EEE4;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;transition:background .15s}
+.bhm .bhm-close:hover{background:rgba(244,238,228,.26)}
+.bhm .bhm-body{padding:22px 24px 24px}
+.bhm .bh-grid{margin-top:0;gap:14px 16px}
+.bhm .bh-fld label{font-size:11px}
+.bhm .bh-in{padding:11px 13px;font-size:14px;border-radius:10px}
+.bhm textarea.bh-in{min-height:84px}
+.bhm .bh-actions{margin-top:20px;gap:12px 16px}
+.bhm .bh-cta{padding:13px 22px;font-size:14px}
+.bhm .bh-note{font-size:12px;max-width:200px}
+@media(max-width:600px){.bhm .bh-grid{grid-template-columns:1fr}}
+/* success compact */
+.bhm .bh-success{border-radius:16px;padding:32px 24px}
+.bhm .bh-success h2{font-size:24px}
+.bhm .bh-success p{font-size:14px}

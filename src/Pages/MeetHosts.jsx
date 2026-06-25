@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./meetHosts.css";
 import Footer from "../Component/Footer";
+import BecomeHostModal from "./BecomeHostModal";
 import { useGetAllHostsQuery } from "../services";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1454942901704-3c44c11b2ad1?auto=format&fit=crop&w=1600&q=70";
@@ -33,6 +34,7 @@ const MeetHosts = () => {
   const [loc, setLoc] = useState("All");
   const [spec, setSpec] = useState("All");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [openHost, setOpenHost] = useState(false);
 
   const card = (h) => ({
     id: h?._id,
@@ -168,7 +170,7 @@ const MeetHosts = () => {
             <h2>Share what you love. Host with us.</h2>
             <p>Reach a community of travellers who are actively looking for real, meaningful experiences — not tourist traps. We curate, verify, and help you fill your trips.</p>
             <div className="become-actions">
-              <a className="btn-light" onClick={() => navigate("/become-a-host")} style={{ cursor: "pointer" }}>
+              <a className="btn-light" onClick={() => setOpenHost(true)} style={{ cursor: "pointer" }}>
                 Become a Host
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </a>
@@ -179,6 +181,7 @@ const MeetHosts = () => {
       </div>
 
       <Footer />
+      <BecomeHostModal open={openHost} onClose={() => setOpenHost(false)} />
     </div>
   );
 };
