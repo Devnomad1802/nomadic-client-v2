@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /**
- * BecomeHostModal — compact popup host enquiry form (design: Become a Host).
+ * BecomeHostModal — full "Become a Host" two-panel design shown as a popup.
  * Opened from "Become a Host" in Meet Our Hosts. Submits via useEnquirMutation.
  */
 import { useEffect, useState } from "react";
@@ -9,6 +9,14 @@ import { useSelector } from "react-redux";
 import "./becomeHost.css";
 import { useEnquirMutation } from "../services/EnquirApi";
 
+const GALLERY = [
+  "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?auto=format&fit=crop&w=400&q=70",
+  "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=400&q=70",
+];
 const CATEGORIES = [
   "Homestays & living", "Trekking & guiding", "Backpacking & trips",
   "Workshops — pottery, crafts, painting, cooking", "Spiritual & wellness",
@@ -37,7 +45,6 @@ const BecomeHostModal = ({ open, onClose }) => {
   const [errors, setErrors] = useState({});
   const [done, setDone] = useState(false);
 
-  // lock body scroll while open
   useEffect(() => {
     if (!open) return undefined;
     const prev = document.body.style.overflow;
@@ -74,6 +81,7 @@ const BecomeHostModal = ({ open, onClose }) => {
     ].filter(Boolean).join("\n");
     try { await enquir({ Name: form.fullName, Email: form.email, Phone: form.mobile, Message, userId: userDbData?._id }).unwrap(); } catch { /* follow up regardless */ }
     setDone(true);
+    document.querySelector(".bhm-dialog .bhpg")?.scrollTo(0, 0);
   };
   const reset = () => { setForm(empty); setErrors({}); setDone(false); };
   const firstName = form.fullName.trim().split(" ")[0];
@@ -101,76 +109,94 @@ const BecomeHostModal = ({ open, onClose }) => {
 
   return (
     <div className="bhm-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose?.(); }}>
-      <div className="bhm" role="dialog" aria-modal="true" aria-label="Become a Host">
-        <div className="bhm-head">
-          <button className="bhm-close" onClick={onClose} aria-label="Close">×</button>
-          <div className="bhm-eyebrow">Become a host</div>
-          <h2>{done ? "You're in 🎉" : "Tell us about you"}</h2>
-          {!done && <p>A few details and our hosting team will be in touch. ~3 minutes.</p>}
-        </div>
-
-        <div className="bhm-body">
-          <div className="bhpg">
-            {done ? (
-              <div className="bh-success">
-                <div className="bh-success-in">
-                  <div className="bh-check">✓</div>
-                  <h2>Welcome to the journey{firstName ? `, ${firstName}` : ""}.</h2>
-                  <p>Your inquiry is in. Our hosting team reviews every application personally — once approved, we&apos;ll send your host welcome and next steps, usually within 3 days.</p>
-                  <div className="bh-steps">
-                    <div className="bh-step done"><span className="bh-step-dot done">✓</span><span>Submitted</span></div>
-                    <div className="bh-step-line a" />
-                    <div className="bh-step now"><span className="bh-step-dot now">2</span><span>Under review</span></div>
-                    <div className="bh-step-line b" />
-                    <div className="bh-step next"><span className="bh-step-dot next">3</span><span>Approved</span></div>
-                  </div>
-                  <div className="bh-success-actions">
-                    <button className="bh-btn-light" onClick={() => { onClose?.(); navigate("/all-packages"); }}>Explore experiences</button>
-                    <button className="bh-btn-ghost" onClick={reset}>Submit another</button>
-                  </div>
-                </div>
+      <div className="bhm-dialog" role="dialog" aria-modal="true" aria-label="Become a Host">
+        <button className="bhm-close" onClick={onClose} aria-label="Close">×</button>
+        <div className="bhpg">
+          {/* LEFT */}
+          <aside className="bh-left">
+            <div className="bh-left-inner">
+              <div>
+                <div className="bh-eyebrow">Become a host</div>
+                <h1>Share your corner of the world.</h1>
+                <p className="bh-lede">Join a curated community of local guides, homestays and mountain hosts turning everyday places into experiences travellers never forget.</p>
               </div>
-            ) : (
-              <form onSubmit={submit} noValidate>
-                <div className="bh-grid">
-                  {field("fullName", "Full name")}
-                  {field("email", "Email address", { type: "email" })}
-                  {field("mobile", "Mobile number")}
-                  {field("city", "City / country")}
+              <div className="bh-gallery">
+                {GALLERY.map((src, i) => <img key={i} src={src} alt="" loading="lazy" />)}
+              </div>
+              <div className="bh-chips">
+                <span className="bh-chip">Vetted community</span>
+                <span className="bh-chip">You set the terms</span>
+                <span className="bh-chip">Real connection</span>
+              </div>
+            </div>
+          </aside>
 
-                  <div className="bh-fld full">
-                    <label>Experience category</label>
-                    <div className="bh-select">
-                      <select className={`bh-in${errors.category ? " invalid" : ""}`} name="category" value={form.category} onChange={set("category")} style={{ color: form.category ? "var(--ink)" : "var(--placeholder)" }}>
-                        <option value="">Select what you offer…</option>
-                        {CATEGORIES.map((c) => <option key={c} value={c}>{c === "Other" ? "Other (tell us)" : c}</option>)}
-                      </select>
-                      <Caret />
+          {/* RIGHT */}
+          <main className="bh-right">
+            <div className="bh-form-wrap">
+              {done ? (
+                <div className="bh-success">
+                  <div className="bh-success-in">
+                    <div className="bh-check">✓</div>
+                    <h2>Welcome to the journey{firstName ? `, ${firstName}` : ""}.</h2>
+                    <p>Your inquiry is in. Our hosting team reviews every application personally — once you&apos;re approved, we&apos;ll send your host welcome and next steps, usually within 3 days.</p>
+                    <div className="bh-steps">
+                      <div className="bh-step done"><span className="bh-step-dot done">✓</span><span>Submitted</span></div>
+                      <div className="bh-step-line a" />
+                      <div className="bh-step now"><span className="bh-step-dot now">2</span><span>Under review</span></div>
+                      <div className="bh-step-line b" />
+                      <div className="bh-step next"><span className="bh-step-dot next">3</span><span>Approved</span></div>
                     </div>
-                    {errors.category && <span className="bh-err">{errors.category}</span>}
+                    <div className="bh-success-actions">
+                      <button className="bh-btn-light" onClick={() => { onClose?.(); navigate("/all-packages"); }}>Explore experiences</button>
+                      <button className="bh-btn-ghost" onClick={reset}>Submit another</button>
+                    </div>
                   </div>
+                </div>
+              ) : (
+                <form onSubmit={submit} noValidate>
+                  <h2>Tell us about you</h2>
+                  <p className="bh-sub">A few details and our hosting team will be in touch. Takes about 3 minutes.</p>
+                  <div className="bh-grid">
+                    {field("fullName", "Full name")}
+                    {field("email", "Email address", { type: "email" })}
+                    {field("mobile", "Mobile number")}
+                    {field("city", "City / country")}
 
-                  {form.category === "Other" && field("categoryOther", "Tell us what you offer", { full: true, placeholder: "e.g. Mountain photography walks…" })}
+                    <div className="bh-fld full">
+                      <label>Experience category</label>
+                      <div className="bh-select">
+                        <select className={`bh-in${errors.category ? " invalid" : ""}`} name="category" value={form.category} onChange={set("category")} style={{ color: form.category ? "var(--ink)" : "var(--placeholder)" }}>
+                          <option value="">Select what you offer…</option>
+                          {CATEGORIES.map((c) => <option key={c} value={c}>{c === "Other" ? "Other (tell us)" : c}</option>)}
+                        </select>
+                        <Caret />
+                      </div>
+                      {errors.category && <span className="bh-err">{errors.category}</span>}
+                    </div>
 
-                  <div className="bh-fld full">
-                    <label>Tell us about your experience</label>
-                    <textarea className={`bh-in${errors.about ? " invalid" : ""}`} name="about" rows={3} value={form.about} onChange={set("about")} placeholder="What will travellers do, see and feel with you?" />
-                    {errors.about && <span className="bh-err">{errors.about}</span>}
+                    {form.category === "Other" && field("categoryOther", "Tell us what you offer", { full: true, placeholder: "e.g. Mountain photography walks, language exchange…" })}
+
+                    <div className="bh-fld full">
+                      <label>Tell us about your experience</label>
+                      <textarea className={`bh-in${errors.about ? " invalid" : ""}`} name="about" rows={4} value={form.about} onChange={set("about")} placeholder="What will travellers do, see and feel with you? What makes your place special?" />
+                      {errors.about && <span className="bh-err">{errors.about}</span>}
+                    </div>
+
+                    {selectField("years", "Years of experience", YEARS)}
+                    {selectField("groupSize", "Expected group size", GROUPS)}
+                    {field("website", "Website / social profile", { full: true, placeholder: "instagram.com/yourhandle" })}
                   </div>
-
-                  {selectField("years", "Years of experience", YEARS)}
-                  {selectField("groupSize", "Expected group size", GROUPS)}
-                  {field("website", "Website / social profile", { full: true, placeholder: "instagram.com/yourhandle" })}
-                </div>
-                <div className="bh-actions">
-                  <button type="submit" className="bh-cta" disabled={isLoading}>
-                    {isLoading ? "Sending…" : "Send your inquiry"} <span style={{ fontSize: 16 }}>→</span>
-                  </button>
-                  <span className="bh-note">We review every application personally. No fees to apply.</span>
-                </div>
-              </form>
-            )}
-          </div>
+                  <div className="bh-actions">
+                    <button type="submit" className="bh-cta" disabled={isLoading}>
+                      {isLoading ? "Sending…" : "Send your inquiry"} <span style={{ fontSize: 16 }}>→</span>
+                    </button>
+                    <span className="bh-note">We review every application personally. No fees to apply.</span>
+                  </div>
+                </form>
+              )}
+            </div>
+          </main>
         </div>
       </div>
     </div>
