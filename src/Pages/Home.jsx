@@ -43,7 +43,7 @@ const Home = ({ homebg, aboutSection, toggle, homeVideo }) => {
           "name": "Nomadic Townies",
           "url": "https://nomadictownies.com",
           "logo": "https://nomadictownies.com/nt.png",
-          "description": "Handcrafted adventure trips, group tours and travel packages across India and the world.",
+          "description": "Curated community trips, backpacking adventures, retreats, workshops and cultural immersions across India and the world.",
           "contactPoint": {
             "@type": "ContactPoint",
             "contactType": "customer service",

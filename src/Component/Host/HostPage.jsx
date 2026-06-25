@@ -68,7 +68,7 @@ const HostPage = () => {
   const rankLabel = (Number(host?.successRate) >= 95 || verified) ? "Top-rated host" : "Trusted host";
 
   const seoTitle = `${name} | Travel Host | Nomadic Townies`;
-  const seoDesc = host?.tagline ? `${host.tagline} — Book trips with ${name} on Nomadic Townies.` : `Book adventure trips and group tours with ${name} on Nomadic Townies.`;
+  const seoDesc = host?.tagline ? `${host.tagline} — discover host-led experiences with ${name} on Nomadic Townies.` : `Discover host-led community trips, retreats and cultural immersions with ${name} on Nomadic Townies.`;
 
   if (!id || isLoading) {
     return <div className="hostpg" style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6B7280" }}>Loading host…</div>;

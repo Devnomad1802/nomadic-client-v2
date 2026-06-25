@@ -15,7 +15,7 @@ const NotFound = () => {
     <>
       <Helmet>
         <title>Page Not Found | Nomadic Townies</title>
-        <meta name="description" content="The page you're looking for doesn't exist. Explore adventure trips and group tours with Nomadic Townies." />
+        <meta name="description" content="The page you're looking for doesn't exist. Explore community trips, retreats and cultural immersions with Nomadic Townies." />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

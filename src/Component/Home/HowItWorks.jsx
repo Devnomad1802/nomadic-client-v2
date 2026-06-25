@@ -50,7 +50,7 @@ const HowItWorks = () => {
             lineHeight: "150%",
           }}
         >
-          A curated marketplace, not a travel agency — independent hosts create the
+          A curated marketplace for transformative travel — independent hosts create the
           experiences, and we bring you the travelers.
         </Typography>
 

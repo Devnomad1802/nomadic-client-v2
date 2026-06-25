@@ -12,7 +12,7 @@ const CancellationAndRefund = () => {
         <Box>
             <Helmet>
                 <title>Cancellation &amp; Refund Policy | Nomadic Townies</title>
-                <meta name="description" content="Understand our cancellation and refund policy for adventure trips and group tours booked with Nomadic Townies." />
+                <meta name="description" content="Understand our cancellation and refund policy for travel experiences booked with Nomadic Townies." />
                 <link rel="canonical" href="https://nomadictownies.com/cancellation-and-refund" />
             </Helmet>
 
