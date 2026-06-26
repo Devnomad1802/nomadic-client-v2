@@ -7,6 +7,7 @@ import AllPackages from "./Pages/AllPackagesV3";
 import Parent from "./Pages/Parent";
 import Payment from "./Pages/Payment";
 import BookingOverview from "./Payment/BookingOverview";
+import TravellerDetails from "./Payment/TravellerDetails";
 import Paymentfail from "./Payment/PaymentFail";
 import Paymentsuccess from "./Payment/Paymentsuccess";
 import { useGetAllBannerQuery } from "./services";
@@ -125,6 +126,7 @@ function App() {
             <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/booking_details" element={<TravellerDetails />} />
             <Route path="/booking_overview" element={<BookingOverview />} />
             <Route path="/paymentsuccess" element={<Paymentsuccess />} />
             <Route path="/paymentfail" element={<Paymentfail />} />

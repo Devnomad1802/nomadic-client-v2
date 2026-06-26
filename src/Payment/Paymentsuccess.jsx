@@ -1,592 +1,172 @@
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
-import SnowshoeingOutlinedIcon from "@mui/icons-material/SnowshoeingOutlined";
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  IconButton,
-  Typography,
-} from "@mui/material";
-import { useEffect } from "react";
+/* eslint-disable react/prop-types */
+/**
+ * Paymentsuccess.jsx — Booking Success / Confirmation (scoped .bkpg).
+ * Reads the saved booking doc from location.state.data (newBooking response).
+ * No backend change — all fields already persisted.
+ */
+import { Helmet } from "react-helmet-async";
+import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { currency, ps1, ps2 } from "../Images";
+import "./booking.css";
 
-const succesBooking = [
-  {
-    icon: <SnowshoeingOutlinedIcon sx={{ color: "#3E92CC" }} />,
-    typo1: "No of Travellers",
-    typo2: "1",
-  },
+const fmtDate = (d) => {
+  if (!d) return "—";
+  const x = new Date(d);
+  if (Number.isNaN(x.getTime())) return `${d}`;
+  return x.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+};
+const inr = (n) => `₹${Math.round(Number(n) || 0).toLocaleString("en-IN")}`;
 
-  {
-    icon: <FmdGoodOutlinedIcon sx={{ color: "#3E92CC" }} />,
-    typo1: "Pick Up/Drop Off",
-    typo2: "Delhi - Delhi",
-  },
-];
 const Paymentsuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const { data } = location?.state || {};
 
-  // Helper function to safely parse JSON strings
-  const safeParse = (jsonString, fallback = null) => {
-    try {
-      if (!jsonString) return fallback;
-      if (typeof jsonString === 'string') {
-        return JSON.parse(jsonString);
-      }
-      return jsonString; // Already an object
-    } catch (error) {
-      console.warn("JSON parse error:", error);
-      return fallback;
-    }
+  const safeParse = (s, fb = null) => {
+    try { if (!s) return fb; return typeof s === "string" ? JSON.parse(s) : s; } catch { return fb; }
   };
-
-  // Safely parse data with fallbacks
   const CardData = safeParse(data?.cardData, { cardSectionData: [], cardDate: {}, gstTax: 0 });
-  const PaymentDetail = safeParse(data?.paymentDetail, { title: "", location: "", price: 0 });
+  const PaymentDetail = safeParse(data?.paymentDetail, { title: "", location: "" });
 
+  useEffect(() => { if (!data) navigate("/"); }, [data, navigate]);
 
-  // Redirect to home if no data
-  useEffect(() => {
-    if (!data) {
-      console.warn("No payment data found, redirecting to home");
-      navigate("/");
-    }
-  }, [data, navigate]);
+  const { travellers, paymentStatus, bookingId, roomType } = data || {};
+  const travArr = Array.isArray(travellers) ? travellers : [];
+  const lead = travArr.find((t) => t?.isLead) || travArr[0];
 
-  // Calculate total amount from cardSectionData
-  const calculateTotalAmount = () => {
-    if (!CardData?.cardSectionData) return 0;
-    return CardData.cardSectionData.reduce((sum, item) => {
-      return sum + Number(item.TitlePrice || 0) * (item.quantity || 0);
-    }, 0);
-  };
+  const fullTotal = useMemo(() => {
+    const base = (CardData?.cardSectionData || []).reduce((s, i) => s + Number(i.TitlePrice || 0) * (i.quantity || 1), 0);
+    return Math.round(base - (Number(data?.coupenDiscount) || 0) + (Number(CardData?.gstTax) || 0));
+  }, [CardData, data]);
 
-  const totalAmount = calculateTotalAmount();
+  const amountPaid = Number(data?.total) || 0;
+  const isPartial = paymentStatus === "firstPayment";
+  const remaining = isPartial ? Math.max(0, fullTotal - amountPaid) : 0;
 
-  const itemarray = [
-    {
-      packeg: "Package Price",
-      price: <>&#8377; {PaymentDetail?.price}</>,
-    },
-    {
-      packeg: "Amount",
-      price: <>&#8377; {totalAmount.toFixed(0)}</>,
-    },
-    {
-      packeg: "GST",
-      price: <>&#8377; {Number(CardData?.gstTax).toFixed(0)}</>,
-    },
-    {
-      packeg: "Discount",
-      price: <>&#8377; -{Number(data?.coupenDiscount).toFixed(0)}</>,
-    },
-    {
-      packeg: "Total Amount",
-      price: (
-        <>
-          &#8377;{" "}
-          {Number(
-            totalAmount + CardData?.gstTax - data?.coupenDiscount
-          ).toFixed(0)}
-        </>
-      ),
-      color: "#000",
-      fontWeight: "600",
-    },
-    // Conditionally add the following if paymentStatus is "firstPayment"
-    ...(data?.paymentStatus === "firstPayment"
-      ? [
-        {
-          packeg: "Amount Paid",
-          price: <>&#8377; {Number(data?.total).toFixed(0)}</>,
-          color: "#000",
-          fontWeight: "600",
-        },
-        {
-          packeg: "Remaining Amount",
-          price: (
-            <>
-              &#8377;{" "}
-              {Number(
-                totalAmount +
-                CardData?.gstTax -
-                data?.coupenDiscount -
-                data?.total
-              ).toFixed(0)}
-            </>
-          ),
-          color: "#000",
-          fontWeight: "600",
-        },
-      ]
-      : []),
-  ];
+  const batchRange = data?.batchDate
+    || (CardData?.cardDate?.batchDate
+      ? `${fmtDate(CardData.cardDate.batchDate)} - ${fmtDate(CardData.cardDate.endSelectDate)}`
+      : "—");
 
-  const travelHistory = [
-    {
-      icon: <FmdGoodOutlinedIcon sx={{ color: "#3E92CC" }} />,
-      typo1: "Location",
-      typo2: PaymentDetail?.location,
-    },
-    {
-      icon: <CalendarTodayOutlinedIcon sx={{ color: "#3E92CC" }} />,
-      typo1: "Date",
-      typo2: (
-        <>
-          {new Date(CardData?.cardDate?.batchDate).toLocaleDateString(
-            undefined,
-            {
-              month: "short",
-              day: "numeric",
-            }
-          )}
-          -{" "}
-          {new Date(
-            new Date(CardData?.cardDate?.endSelectDate).getTime() +
-            CardData?.cardDate?.numberOfDays * 24 * 60 * 60 * 1000
-          ).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-          })}
-        </>
-      ),
-    },
-    {
-      icon: <SnowshoeingOutlinedIcon sx={{ color: "#3E92CC" }} />,
-      typo1: "Number of Travlers",
-      typo2: CardData?.numberOfTravelers,
-    },
-  ];
+  if (!data) return null;
 
   return (
-    <Container>
-      <Box
-        sx={{
-          width: "100%",
+    <div className="bkpg">
+      <Helmet><title>Booking Confirmed | Nomadic Townies</title><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <div className="wrap">
+        {/* stepper all done */}
+        <div className="stepper">
+          {["Select Batch", "Your Details", "Confirmation"].map((label, i) => (
+            <div key={label} style={{ display: "contents" }}>
+              <div className="step done"><div className="step-num">✓</div><span className="lbl">{label}</span></div>
+              {i < 2 && <div className="step-line done" />}
+            </div>
+          ))}
+        </div>
 
-          backgroundImage: `url(${ps1})`,
-          height: "400px",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          borderRadius: "17px",
-          backgroundColor: "#EEF5FB",
-          mt: { xs: 10, md: 0 },
-        }}
-      >
-        <Box
-          sx={{
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Box
-            sx={{
-              width: "100%",
-              mb: 1,
-            }}
-          >
-            <img src={ps2} alt="" srcSet="" style={{ width: "50px" }} />
-          </Box>
-          <Typography
-            sx={{ color: "#111827", fontSize: "28px", fontWeight: "600" }}
-          >
-            Booking Successful!
-          </Typography>
-          <Typography sx={{ color: "#6D7280", mt: 1 }}>
-            An confirmation mail is sent to your registered mail
-          </Typography>
-          <Box>
-            <Button
-              onClick={() => {
-                navigate("/");
-              }}
-              sx={{
-                background: "#EC3F18",
-                color: "#fff",
-                width: "100px",
-                borderRadius: "18px",
-                mt: 3,
-              }}
-            >
-              Done
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-      <Box>
-        <Typography sx={{ color: "#6D7280", textAlign: "left", mt: 4, mb: 1 }}>
-          Booking Details
-        </Typography>
-        <Box>
-          <Box
-            sx={{
-              display: { xs: "column", sm: "flex", md: "flex" },
-              p: 3,
-              background: "#F9FAFB",
-              borderRadius: "17px 17px 0px 0px",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "#4B5563",
-                fontSize: { xs: "20px", sm: "22px", md: "23px" },
-                fontWeight: "500",
-              }}
-            >
-              {PaymentDetail?.title}
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                gap: "0px 30px",
-                mt: { xs: 2, sm: 0, md: 0 },
-                justifyContent: { xs: "center", sm: "none", md: "none" },
-              }}
-            >
-              <Button
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: "0px 10px",
-                  background: "none",
-                  "&:hover": { background: "none" },
-                }}
-              >
-                <IconButton
-                  size="small"
-                  sx={{
-                    background: "#3E92CC",
-                    "&:hover": {
-                      background: "#286894",
-                    },
-                  }}
-                >
-                  <FileDownloadOutlinedIcon
-                    sx={{ color: "#fff", fontSize: "20px" }}
-                  />
-                </IconButton>
-                <Typography
-                  sx={{
-                    color: "#0081AF",
-                    textTransform: "lowercase",
-                    fontSize: { xs: "14px", sm: "16px" },
-                  }}
-                >
-                  Download
-                </Typography>
-              </Button>
-              <Button
-                sx={{
-                  border: "2px solid #EC3F18",
-                  borderRadius: "20px",
-                  width: "100px",
-                  color: "#EC3F18",
-                }}
-              >
-                Share
-              </Button>
-            </Box>
-          </Box>
+        <div className="sc-wrap">
+          <div className="sc-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m4.5 12.5 5 5 10-10" /></svg>
+          </div>
+          <h1 className="sc-title">Booking Confirmed 🎉</h1>
+          <p className="sc-sub">
+            {lead?.email ? <>A confirmation has been sent to <b>{lead.email}</b>. </> : null}
+            Your trip lead will reach out on WhatsApp within 24 hours.
+          </p>
 
-          <Box>
-            <Grid
-              container
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "start",
-                // gap: "50px 0px",
-                width: "100%",
-                borderWidth: "0px 2px 2px 2px",
-                borderStyle: "solid",
-                borderColor: "#E5E7EB",
-                borderRadius: "0px 0px 17px 17px",
-                mb: 4,
-              }}
-            >
-              <Grid
-                item
-                xs={12}
-                md={5}
-                sx={{
-                  // height: "230px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  p: 3,
-                }}
-              >
-                {travelHistory.map(({ icon, typo1, typo2 }, index) => {
-                  return (
-                    <Box key={index} sx={{ mb: 5, width: "50%" }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          alignItems: "start",
-                          gap: "0px 10px",
-                        }}
-                      >
-                        {icon}
-                        <Box>
-                          <Typography
-                            sx={{
-                              color: "#9CA3AF",
-                              fontSize: "13px",
-                              textAlign: "left",
-                            }}
-                          >
-                            {typo1}
-                          </Typography>
-                          <Typography
-                            sx={{ color: "#4B5563", mt: 1, textAlign: "left" }}
-                          >
-                            {typo2}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  );
-                })}
+          {/* booking card */}
+          <div className="sc-card">
+            <div className="sc-card-head">
+              <div className="sc-card-head-left">
+                <h3>{PaymentDetail?.title || "Your Trip"}</h3>
+                <div className="sc-card-head-meta">{PaymentDetail?.location ? `${PaymentDetail.location} · ` : ""}Nomadic Townies</div>
+              </div>
+              {bookingId && <div className="sc-booking-id">#{bookingId}</div>}
+            </div>
 
-                <Box></Box>
-              </Grid>
+            <div className="sc-card-body">
+              <div>
+                <div className="sc-detail-label">Batch Date</div>
+                <div className="sc-detail-val">{batchRange}</div>
+              </div>
+              <div>
+                <div className="sc-detail-label">Travellers</div>
+                <div className="sc-detail-val">{travArr.length || CardData?.numberOfTravelers || 1}{roomType ? ` · ${roomType}` : ""}</div>
+                {lead?.name && <div className="sc-detail-sub">Lead: {lead.name}</div>}
+              </div>
+              <div>
+                <div className="sc-detail-label">Payment Status</div>
+                <div className="sc-detail-val" style={{ color: isPartial ? "#D97706" : "var(--green)" }}>{isPartial ? "Partially paid" : "Paid in full"}</div>
+                <div className="sc-detail-sub">Booked on {fmtDate(data?.DateOfBooking || Date.now())}</div>
+              </div>
+              <div>
+                <div className="sc-detail-label">Amount Paid</div>
+                <div className="sc-detail-val">{inr(amountPaid)}</div>
+                {isPartial && remaining > 0 && <div className="sc-detail-sub">Balance {inr(remaining)} due before trip</div>}
+              </div>
+            </div>
 
-              <Grid item xs={12} md={5} sx={{ p: 3 }}>
-                <Box sx={{ display: "flex", gap: "0px 15px", mb: 2 }}>
-                  <img
-                    src={currency}
-                    alt=""
-                    srcSet=""
-                    style={{ width: "10px", objectFit: "contain" }}
-                  />
-                  <Typography sx={{ color: "#9CA3AF" }}>
-                    Payment Details
-                  </Typography>
-                </Box>
+            {/* travellers list */}
+            {travArr.length > 0 && (
+              <div style={{ padding: "0 24px 20px" }}>
+                <div className="sc-detail-label" style={{ marginBottom: 10 }}>Traveller Details</div>
+                {travArr.map((t, i) => (
+                  <div className="bk-traveler-card" key={i} style={{ marginTop: i ? 8 : 0 }}>
+                    <div className="bk-traveler-head">
+                      <div className="bk-traveler-num"><span className="num">{i + 1}</span> {t?.name || `Traveller ${i + 1}`}</div>
+                      {t?.isLead && <span className="bk-traveler-primary">Lead</span>}
+                    </div>
+                    <div className="bk-summary-strip-meta">
+                      {t?.age && <span>{t.age} yrs</span>}
+                      {t?.gender && <><span className="bk-batch-meta-dot" /><span>{t.gender}</span></>}
+                      {t?.phone && <><span className="bk-batch-meta-dot" /><span>{t.phone}</span></>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-                {/* Payment Breakdown */}
-                <Box
-                  sx={{
-                    background: "#F8F8F8",
-                    borderRadius: "10px",
-                    mb: 2,
-                    overflow: "hidden",
-                  }}
-                >
-                  {CardData?.cardSectionData?.map((item, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        p: 2,
-                        borderBottom: "1px solid #EDEDED",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        {item?.Title}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        ₹{Number(item?.TitlePrice || 0).toFixed(0)} x{" "}
-                        {item.quantity}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: "#4B5563",
-                          fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                        }}
-                      >
-                        ₹
-                        {(
-                          Number(item?.TitlePrice || 0) * item.quantity
-                        ).toFixed(0)}
-                      </Typography>
-                    </Box>
-                  ))}
+            <div className="sc-total">
+              <span className="sc-total-label">{isPartial ? "Paid now" : "Paid in full"}</span>
+              <span className="sc-total-val">{inr(amountPaid)}</span>
+            </div>
+            {isPartial && remaining > 0 && (
+              <div className="sc-total" style={{ background: "var(--orange-tint)", borderTop: "none" }}>
+                <span className="sc-total-label">Balance due before trip</span>
+                <span className="sc-total-val" style={{ fontSize: 18 }}>{inr(remaining)}</span>
+              </div>
+            )}
+          </div>
 
-                  {/* GST and Discount */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      width: "100%",
-                      p: 2,
-                      borderBottom: "1px solid #EDEDED",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: "#4B5563",
-                        fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                      }}
-                    >
-                      GST @5%
-                    </Typography>
-                    <Typography
-                      sx={{
-                        color: "#4B5563",
-                        fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                      }}
-                    >
-                      ₹{Number(CardData?.gstTax || 0).toFixed(0)}
-                    </Typography>
-                  </Box>
+          {/* next steps */}
+          <div className="bk-card" style={{ textAlign: "left", marginBottom: 24 }}>
+            <div className="bk-card-head"><h3 className="bk-card-title">Next steps</h3></div>
+            {[
+              "Your trip lead will WhatsApp you within 24 hours with the group invite.",
+              "We'll send a packing checklist + weather brief 5 days before departure.",
+              ...(isPartial ? [`Pay the remaining ${inr(remaining)} before the trip start date.`] : []),
+            ].map((s, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10, fontSize: 14, color: "var(--text)" }}>
+                <span style={{ color: "var(--orange)", fontWeight: 700 }}>{i + 1}.</span>{s}
+              </div>
+            ))}
+          </div>
 
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      width: "100%",
-                      p: 2,
-                      borderBottom: "1px solid #EDEDED",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: "#4B5563",
-                        fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                      }}
-                    >
-                      Discount
-                    </Typography>
-                    <Typography
-                      sx={{
-                        color: "#4B5563",
-                        fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                      }}
-                    >
-                      -₹{Number(data?.coupenDiscount || 0).toFixed(0)}
-                    </Typography>
-                  </Box>
-                  {data?.paymentStatus === "firstPayment" && (
-                    <>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          width: "100%",
-                          p: 2,
-                          borderBottom: "1px solid #EDEDED",
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            color: "#4B5563",
-                            fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                          }}
-                        >
-                          Amount paid
-                        </Typography>
-                        <Typography
-                          sx={{
-                            color: "#4B5563",
-                            fontSize: { xs: "12px", sm: "15px", md: "17px" },
-                          }}
-                        >
-                          -₹{Number(data?.total || 0).toFixed(0)}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          background: "#EDEDED",
-                          borderRadius: "0px 0px 10px 10px",
-                          display: "flex",
-                          p: 2,
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            color: "#4B5563",
-                            fontSize: { xs: "16px", sm: "20px", md: "21px" },
-                            fontWeight: 500,
-                          }}
-                        >
-                          Remaining Amount
-                        </Typography>
-                        <Typography
-                          sx={{
-                            color: "#4B5563",
-                            fontSize: { xs: "16px", sm: "20px", md: "21px" },
-                            fontWeight: 500,
-                          }}
-                        >
-                          ₹
-                          {(
-                            Number(
-                              totalAmount +
-                              CardData?.gstTax -
-                              data?.coupenDiscount
-                            ) - Number(data?.total || 0)
-                          ).toFixed(0)}
-                        </Typography>
-                      </Box>
-                    </>
-                  )}
-
-                  {/* Total Trip Amount */}
-                  <Box
-                    sx={{
-                      background: "#EDEDED",
-                      borderRadius: "0px 0px 10px 10px",
-                      display: "flex",
-                      p: 2,
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: "#4B5563",
-                        fontSize: { xs: "16px", sm: "20px", md: "21px" },
-                        fontWeight: 500,
-                      }}
-                    >
-                      Total Trip Amount
-                    </Typography>
-                    <Typography
-                      sx={{
-                        color: "#4B5563",
-                        fontSize: { xs: "16px", sm: "20px", md: "21px" },
-                        fontWeight: 500,
-                      }}
-                    >
-                      ₹{Number(totalAmount + CardData?.gstTax - data?.coupenDiscount).toFixed(0)}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Box>
-    </Container>
+          {/* CTAs */}
+          <div className="sc-next">
+            <button className="btn btn-orange btn-md" onClick={() => navigate("/profile")}>
+              View My Booking
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </button>
+            <a className="btn btn-ghost btn-md" href="https://wa.me/918623929751" target="_blank" rel="noreferrer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
+              Contact Support
+            </a>
+            <button className="btn btn-ghost btn-md" onClick={() => navigate("/all-packages")}>Explore more trips</button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
