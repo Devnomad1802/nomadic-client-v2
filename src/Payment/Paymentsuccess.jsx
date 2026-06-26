@@ -461,6 +461,14 @@ const css = `
 .nt-success .share-btn:hover{border-color:var(--text-dark)}
 @media(max-width:900px){.nt-success .main-grid{grid-template-columns:1fr;padding:0 16px}}
 @media(max-width:700px){.nt-success .confirm-hero{padding:40px 20px}.nt-success .trip-chips{gap:6px}.nt-success .cta-row{flex-direction:column}.nt-success .btn-primary,.nt-success .btn-secondary{flex:none;width:100%}}
+@media print{
+  body *{visibility:hidden!important}
+  .nt-success,.nt-success *{visibility:visible!important}
+  .nt-success{position:absolute;left:0;top:0;width:100%;background:#fff}
+  .nt-success .share-row,.nt-success .btn-ghost-sm,.nt-success .whatsapp-btn,.nt-success .btn-primary,.nt-success .btn-secondary,.nt-success .sidebar>div:last-child{display:none!important}
+  .nt-success .confirm-hero{background:#1a5f3f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .nt-success .main-grid{grid-template-columns:1fr 320px}
+}
 `;
 
 export default Paymentsuccess;
