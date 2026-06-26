@@ -967,6 +967,8 @@ const Payment = () => {
                     selections,
                     totalAmount: finalAmount,
                     coupenDiscount,
+                    couponCode,
+                    batchIndex: selectedBatchObj?.id,
                   },
                 });
               }}

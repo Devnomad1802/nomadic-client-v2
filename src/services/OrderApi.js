@@ -11,6 +11,22 @@ const OrderApi = api.injectEndpoints({
         body: { amount, currency, receipt },
       }),
     }),
+
+    // ── Secure flow (C1/C2): server decides price + verifies payment ──
+    createSecureOrder: builder.mutation({
+      query: ({ tripId, quantities, couponCode, batchIndex, paymentType }) => ({
+        url: "/createSecureOrder",
+        method: "POST",
+        body: { tripId, quantities, couponCode, batchIndex, paymentType },
+      }),
+    }),
+    confirmBooking: builder.mutation({
+      query: (body) => ({
+        url: "/confirmBooking",
+        method: "POST",
+        body,
+      }),
+    }),
     validate: builder.mutation({
       query: ({ body }) => ({
         url: "/validate",
@@ -57,4 +73,6 @@ export const {
   useValidateMutation,
   useNewBookingMutation,
   useGetPartialTripMutation,
+  useCreateSecureOrderMutation,
+  useConfirmBookingMutation,
 } = OrderApi;
