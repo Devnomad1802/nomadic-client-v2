@@ -27,6 +27,21 @@ const OrderApi = api.injectEndpoints({
         body,
       }),
     }),
+    // ── Balance top-up on an existing firstPayment booking ──
+    createBalanceOrder: builder.mutation({
+      query: ({ bookingId }) => ({
+        url: "/createBalanceOrder",
+        method: "POST",
+        body: { bookingId },
+      }),
+    }),
+    confirmBalancePayment: builder.mutation({
+      query: (body) => ({
+        url: "/confirmBalancePayment",
+        method: "POST",
+        body,
+      }),
+    }),
     validate: builder.mutation({
       query: ({ body }) => ({
         url: "/validate",
@@ -75,4 +90,6 @@ export const {
   useGetPartialTripMutation,
   useCreateSecureOrderMutation,
   useConfirmBookingMutation,
+  useCreateBalanceOrderMutation,
+  useConfirmBalancePaymentMutation,
 } = OrderApi;
