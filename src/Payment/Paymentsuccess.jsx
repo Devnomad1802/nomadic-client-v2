@@ -195,9 +195,6 @@ const Paymentsuccess = () => {
             <div className="card-head">
               {Ic.doc(18)}
               <h3>Booking Details</h3>
-              <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-                <button className="btn-ghost-sm" onClick={() => window.print()}>Download</button>
-              </div>
             </div>
             <div className="card-body">
               <div className="det-row">
@@ -404,7 +401,7 @@ const css = `
 .nt-success .booking-id-pill:hover{background:rgba(255,255,255,.24)}
 .nt-success .booking-id-pill .copy-ic{opacity:.7}
 .nt-success .copied-msg{font-size:11px;color:rgba(255,255,255,.7);margin-top:8px;position:relative;height:16px}
-.nt-success .status-banner{padding:16px 22px;display:flex;align-items:center;gap:14px;font-size:14px;font-weight:600}
+.nt-success .status-banner{padding:16px 22px;display:flex;align-items:center;gap:10px 14px;font-size:14px;font-weight:600;flex-wrap:wrap}
 .nt-success .status-banner.full{background:#f0fdf6;border-bottom:1px solid #d1fae5;color:var(--green)}
 .nt-success .status-banner.partial{background:#fffbeb;border-bottom:1px solid #fef3c7;color:#92400e}
 .nt-success .status-banner svg{flex-shrink:0}
@@ -417,7 +414,9 @@ const css = `
 .nt-success .card-body{padding:20px}
 .nt-success .trip-banner{aspect-ratio:16/7;overflow:hidden;background:linear-gradient(135deg,#1a5f3f,#2d6b4a)}
 .nt-success .trip-banner img{width:100%;height:100%;object-fit:cover}
-.nt-success .trip-info{padding:18px 20px}
+.nt-success .trip-info{padding:18px 20px;text-align:left}
+.nt-success .trip-name{text-align:left}
+.nt-success .trip-chips{justify-content:flex-start}
 .nt-success .trip-name{font-family:var(--playfair);font-size:22px;font-weight:700;color:var(--text-dark);letter-spacing:-.01em;margin-bottom:10px;line-height:1.2}
 .nt-success .trip-chips{display:flex;gap:8px;flex-wrap:wrap}
 .nt-success .chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--text);background:var(--bg-soft)}
@@ -439,7 +438,8 @@ const css = `
 .nt-success .partial-card h4{font-size:14px;font-weight:700;color:#92400e;margin-bottom:6px;display:flex;align-items:center;gap:7px}
 .nt-success .partial-card p{font-size:13px;color:#78350f;line-height:1.55}
 .nt-success .partial-card .due{font-size:18px;font-weight:800;color:var(--orange);margin-top:8px}
-.nt-success .sidebar{display:flex;flex-direction:column;gap:16px}
+.nt-success .sidebar{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;align-self:start}
+@media(max-width:900px){.nt-success .sidebar{position:static}}
 .nt-success .steps-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .nt-success .steps-head{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--orange-tint)}
 .nt-success .steps-head h3{font-size:15px;font-weight:700;color:var(--text-dark)}
