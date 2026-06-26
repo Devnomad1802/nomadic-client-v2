@@ -258,16 +258,16 @@ const Paymentsuccess = () => {
                   <span className="val">{inr(Number(it.TitlePrice) * Number(it.quantity))}</span>
                 </div>
               ))}
-              {gst > 0 && (
-                <div className="pay-row">
-                  <span className="lbl">GST @ 5%</span>
-                  <span className="val">{inr(gst)}</span>
-                </div>
-              )}
               {discount > 0 && (
                 <div className="pay-row">
                   <span className="lbl">Coupon{data.couponCode ? ` (${data.couponCode})` : ""}</span>
                   <span className="green">− {inr(discount)}</span>
+                </div>
+              )}
+              {gst > 0 && (
+                <div className="pay-row">
+                  <span className="lbl">GST @ 5%</span>
+                  <span className="val">{inr(gst)}</span>
                 </div>
               )}
               <div className="total-row">
