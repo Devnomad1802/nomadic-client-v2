@@ -14,6 +14,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   useNewBookingMutation,
   useOrderMutation,
+  useCreateSecureOrderMutation,
+  useConfirmBookingMutation,
 } from "../services";
 import Loading from "../SmallComponents/Loading";
 import Toastify from "../SmallComponents/Tostify";
@@ -30,7 +32,7 @@ const BookingOverview = () => {
   const location = useLocation();
   const currency = "INR";
   const reciptId = "123IndNomadic444";
-  const { paymentDetail, selectedBatch, selections, totalAmount, coupenDiscount } =
+  const { paymentDetail, selectedBatch, selections, totalAmount, coupenDiscount, couponCode, batchIndex } =
     location.state || {};
 
 
@@ -191,103 +193,65 @@ const BookingOverview = () => {
       severity: type,
     });
   };
-  const [order] = useOrderMutation();
-  const [newBooking] = useNewBookingMutation();
+  const [createSecureOrder] = useCreateSecureOrderMutation();
+  const [confirmBooking] = useConfirmBookingMutation();
 
+  // Secure flow (C1/C2): the SERVER decides the amount and verifies the payment.
+  // The browser only sends WHAT was chosen (trip + selections + coupon + batch),
+  // never the price, and only the Razorpay receipt codes to confirm.
   const handleOrder = async (event) => {
     event.preventDefault();
+    if (!userDbData) return;
 
-    // User login is already checked on component mount
-    if (userDbData) {
-      try {
-        const response = await order({
-          amount: Math.round(selectedValue * 100),
-          currency,
-          receipt: reciptId,
-        });
-        const order2 = await response;
+    try {
+      const so = await createSecureOrder({
+        tripId: paymentDetail?._id,
+        quantities: selections?.quantities || {},
+        couponCode: couponCode || "",
+        batchIndex,
+        paymentType: paymentStatus === "firstPayment" ? "firstPayment" : "full",
+      }).unwrap();
 
-        if (response?.status === "created") {
-          throw new Error("Failed to fetch order details");
-        }
-
-        const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
-        if (!razorpayKey) {
-          showToast("Payments are temporarily unavailable. Please try again later.", "error");
-          return;
-        }
-
-        // Construct options for Razorpay
-        const options = {
-          key: razorpayKey,
-          amount: Math.round(selectedValue * 100),
-          currency,
-          name: "Nomadic Townies",
-          description: "Trip Booking Payment",
-          image: "https://i.ibb.co/5Y3m33n/test.png",
-          order_id: order2.id,
-          handler: async function (response) {
-            try {
-              const body = { ...response };
-              const bookingid = body?.razorpay_payment_id;
-
-              const { data, message } = await newBooking({
-                userId: userDbData._id,
-                bookingId: bookingid,
-                paymentDetail,
-                cardData,
-                selectedValue,
-                paymentStatus,
-                coupenDiscount,
-              }).unwrap();
-
-              showToast(message, "success");
-              navigate("/paymentsuccess", {
-                state: {
-                  data,
-                },
-              });
-            } catch (error) {
-              console.error("Error in payment handler:", error);
-              showToast("Payment successful but booking failed. Please contact support.", "error");
-              // Still navigate to success page if payment was successful
-              navigate("/paymentsuccess", {
-                state: {
-                  data: {
-                    cardData: JSON.stringify(cardData),
-                    paymentDetail: JSON.stringify(paymentDetail),
-                    total: selectedValue,
-                    paymentStatus,
-                    coupenDiscount,
-                  },
-                },
-              });
-            }
-          },
-        };
-
-        // Initialize Razorpay with the options
-        var rzp1 = new window.Razorpay(options);
-
-        // Handle payment failure
-        rzp1.on("payment.failed", function (response) {
-          alert(response.error.code);
-          alert(response.error.description);
-          alert(response.error.source);
-          alert(response.error.step);
-          alert(response.error.reason);
-          alert(response.error.metadata.order_id);
-          alert(response.error.metadata.payment_id);
-        });
-
-        // Open the Razorpay payment dialog
-        rzp1.open();
-        event.preventDefault();
-      } catch (error) {
-        // Handle errors
-        console.error("Error:", error);
-        navigate("/paymentfail", {});
+      if (!so?.orderId || !so?.key) {
+        showToast("Payments are temporarily unavailable. Please try again later.", "error");
+        return;
       }
+
+      const options = {
+        key: so.key, // provided by the server (no client-side key/test fallback)
+        amount: so.amount * 100, // server-decided amount, in paise
+        currency: so.currency || "INR",
+        name: "Nomadic Townies",
+        description: "Trip Booking Payment",
+        image: "https://i.ibb.co/5Y3m33n/test.png",
+        order_id: so.orderId,
+        handler: async (response) => {
+          try {
+            const { data, message } = await confirmBooking({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }).unwrap();
+            showToast(message || "Booking confirmed", "success");
+            navigate("/paymentsuccess", { state: { data } });
+          } catch (err) {
+            console.error("confirmBooking failed:", err);
+            showToast("Payment received but confirmation failed. Please contact support.", "error");
+            navigate("/paymentfail");
+          }
+        },
+      };
+
+      const rzp1 = new window.Razorpay(options);
+      rzp1.on("payment.failed", (resp) => {
+        console.error("Payment failed:", resp?.error);
+        navigate("/paymentfail");
+      });
+      rzp1.open();
+    } catch (error) {
+      console.error("createSecureOrder failed:", error);
+      showToast("Could not start payment. Please try again.", "error");
+      navigate("/paymentfail");
     }
   };
 
