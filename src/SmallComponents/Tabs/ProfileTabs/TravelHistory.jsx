@@ -8,9 +8,9 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   useGetPartialTripMutation,
-  useOrderMutation
+  useCreateBalanceOrderMutation,
+  useConfirmBalancePaymentMutation,
 } from "../../../services";
-import { useUpdateBookingMutation } from "../../../services/BookingApi";
 
 const TravelHistory = () => {
   const { userDbData } = useSelector((store) => store.global);
@@ -70,91 +70,60 @@ const TravelHistory = () => {
 
   // ---------------------------- Handle Partical Paymnet ----------------------
 
-  const currency = "INR";
-  const reciptId = "123IndNomadic444";
   const navigate = useNavigate();
 
-  const [paymentStatus] = useState("fullPayment");
-  const [order] = useOrderMutation();
-  const [updateBooking] = useUpdateBookingMutation();
+  const [createBalanceOrder] = useCreateBalanceOrderMutation();
+  const [confirmBalancePayment] = useConfirmBalancePaymentMutation();
+
+  // Secure balance top-up: the SERVER computes the remaining balance from the
+  // stored booking snapshot and verifies the payment. The browser only sends
+  // the booking id and the Razorpay receipt codes — never the amount.
   const handleOrder = async (selectedValue, item) => {
-    
     if (!userDbData) {
       alert("Please login to continue with the payment");
       return;
     }
-    
-      try {
-        const response = await order({
-        amount: Math.round(selectedValue * 100),
-          currency,
-          receipt: reciptId,
-        });
-      
-        const order2 = await response;
 
-        if (response?.status === "created") {
-          throw new Error("Failed to fetch order details");
-        }
+    try {
+      const so = await createBalanceOrder({ bookingId: item?._id }).unwrap();
+      if (!so?.orderId || !so?.key) {
+        alert("Payments are temporarily unavailable. Please try again later.");
+        return;
+      }
 
-        const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
-        if (!razorpayKey) {
-          alert("Payments are temporarily unavailable. Please try again later.");
-          return;
-        }
-
-        // Construct options for Razorpay
-        const options = {
-          // Key from env only — no test-key fallback in production.
-          key: razorpayKey,
-          amount: Math.round(selectedValue * 100),
-          currency,
-          name: "Nomadic Townies",
-          description: "Trip Booking Payment",
-          image: "https://i.ibb.co/5Y3m33n/test.png",
-          order_id: order2.id,
-          handler: async function (response) {
+      const options = {
+        key: so.key, // provided by the server
+        amount: so.amount * 100, // server-decided remaining, in paise
+        currency: so.currency || "INR",
+        name: "Nomadic Townies",
+        description: "Trip Balance Payment",
+        image: "https://i.ibb.co/5Y3m33n/test.png",
+        order_id: so.orderId,
+        handler: async (response) => {
           try {
-            const body = { ...response };
-            const bookingid = body?.razorpay_payment_id;
-
-            const { data, message } = await updateBooking({
-              _id: item?._id,
-              bookingId: bookingid,
-              paymentStatus,
-              total: selectedValue + item?.total,
+            const { data } = await confirmBalancePayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
             }).unwrap();
-
-            navigate("/paymentsuccess", {
-              state: {
-                data,
-              },
-            });
+            navigate("/paymentsuccess", { state: { data } });
           } catch (error) {
-            console.error("Error updating booking:", error);
-            alert("Payment was successful but there was an error updating your booking. Please contact support.");
+            console.error("Balance confirmation failed:", error);
+            alert("Payment received but confirmation failed. Please contact support.");
             navigate("/paymentfail");
           }
-          },
-        };
+        },
+      };
 
-        // Initialize Razorpay with the options
       const rzp1 = new window.Razorpay(options);
-
-        // Handle payment failure
-        rzp1.on("payment.failed", function (response) {
-        console.error("Payment failed:", response.error);
-        alert(`Payment failed: ${response.error.description || "Unknown error"}`);
+      rzp1.on("payment.failed", (response) => {
+        console.error("Payment failed:", response?.error);
         navigate("/paymentfail");
-        });
-
-        // Open the Razorpay payment dialog
-        rzp1.open();
-      } catch (error) {
-        // Handle errors
-      console.error("Error initiating payment:", error);
-      alert("Failed to initiate payment. Please try again.");
-      navigate("/paymentfail");
+      });
+      rzp1.open();
+    } catch (error) {
+      console.error("Error initiating balance payment:", error);
+      alert(error?.data?.error || "Failed to initiate payment. Please try again.");
     }
   };
 
