@@ -232,6 +232,12 @@ const Paymentsuccess = () => {
                 <span className="det-lbl">{Ic.cal(14)} Booked on</span>
                 <span className="det-val">{fmtDate(data.DateOfBooking, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" })}</span>
               </div>
+              {data.razorpayPaymentId && (
+                <div className="det-row">
+                  <span className="det-lbl">{Ic.wallet(14)} Razorpay Payment ID</span>
+                  <span className="det-val" style={{ fontFamily: "monospace", fontSize: 12 }}>{data.razorpayPaymentId}</span>
+                </div>
+              )}
               <div className="cta-row" style={{ padding: "14px 0 0", borderTop: "none" }}>
                 <div className="share-row">
                   <button className="share-btn" onClick={shareWhatsApp}>{Ic.whatsapp(15)} Share on WhatsApp</button>
