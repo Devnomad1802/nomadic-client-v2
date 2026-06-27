@@ -37,6 +37,36 @@
     <meta name="twitter:description" content="Discover host-led community trips, retreats, workshops, and cultural immersions through Nomadic Townies." />
     <meta name="twitter:image" content="https://nomadic-townies-assets.sgp1.cdn.digitaloceanspaces.com/about-images/aboutbg1.jpg" />
 
+    <!-- Structured Data: Organization + WebSite (no fabricated stats/ratings) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": "Nomadic Townies",
+            "url": "https://nomadictownies.com/",
+            "logo": "https://nomadictownies.com/nt.png",
+            "description": "A curated marketplace for host-led travel experiences — community trips, retreats, workshops and cultural immersions.",
+            "sameAs": [
+              "https://www.instagram.com/nomadictownies",
+              "https://www.facebook.com/nomadictownies"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "name": "Nomadic Townies",
+            "url": "https://nomadictownies.com/",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://nomadictownies.com/all-packages?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
+
     <!-- Geo Tags -->
     <meta name="geo.region" content="IN" />
     <meta name="geo.country" content="India" />
