@@ -9,7 +9,6 @@ import SavedTripsPanel from "./SavedTripsPanel";
 
 const TABS = [
   { key: "account", icon: "◍", label: "My Account" },
-  { key: "coupon", icon: "✦", label: "Marketing Coupon" },
   { key: "trips", icon: "⛰", label: "My Trips" },
   { key: "saved", icon: "♥", label: "Saved Trips" },
   { key: "settings", icon: "⚙", label: "Settings" },
@@ -54,7 +53,8 @@ const UserProfile = () => {
   const onPickAvatar = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (!f.type.startsWith("image/")) return ping("Please choose an image file.");
+    if (!["image/jpeg", "image/jpg", "image/png"].includes(f.type)) return ping("JPG or PNG, up to ~5MB.");
+    if (f.size > 5 * 1024 * 1024) return ping("JPG or PNG, up to ~5MB.");
     setAvatarFile(f);
     setAvatarPreview(URL.createObjectURL(f));
   };
@@ -94,14 +94,8 @@ const UserProfile = () => {
     navigate("/");
   };
 
-  const copyCoupon = (code) => {
-    navigator.clipboard?.writeText(code);
-    ping("Coupon copied ✓");
-  };
-
   const name = userDbData?.name || "Traveller";
   const isInfluencer = !!userDbData?.influencer;
-  const couponCode = "MKNT10";
 
   // localStorage-backed notification prefs (honest local preference, no fake backend)
   const [prefs, setPrefs] = useState(() => {
@@ -173,8 +167,7 @@ const UserProfile = () => {
                   <button className="nt-ghost" onClick={() => fileRef.current?.click()}>
                     {avatarPreview ? "Change photo" : "Upload photo"}
                   </button>
-                  <p className="nt-hint">JPG or PNG, up to ~5MB.</p>
-                  <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPickAvatar} />
+                  <input ref={fileRef} type="file" accept="image/jpeg,image/png" hidden onChange={onPickAvatar} />
                 </div>
               </div>
 
@@ -208,32 +201,6 @@ const UserProfile = () => {
               <button className="nt-cta" onClick={onSave} disabled={isLoading}>
                 {isLoading ? "Updating…" : "Update profile"}
               </button>
-            </>
-          )}
-
-          {tab === "coupon" && (
-            <>
-              <h2 className="nt-h2">Marketing Coupon</h2>
-              <p className="nt-sub">Share your code — travelers get a discount, you earn referral rewards.</p>
-              {isInfluencer ? (
-                <div className="nt-coupon-card">
-                  <div className="nt-coupon-row">
-                    <div>
-                      <div className="nt-coupon-name">{name} <span className="nt-pill-green">Active</span></div>
-                      <div className="nt-hint">Your personal referral code</div>
-                    </div>
-                    <button className="nt-cta nt-cta-sm" onClick={() => copyCoupon(couponCode)}>
-                      {couponCode} <span className="nt-copy">⧉ copy</span>
-                    </button>
-                  </div>
-                  <div className="nt-coupon-desc">
-                    <div className="nt-lbl">Coupon description</div>
-                    <p>Give travelers 10% off their first booked experience. You earn a referral reward each time your code is redeemed on a completed trip.</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="nt-empty">Marketing coupons are available for influencer hosts. Reach out to us to become one.</div>
-              )}
             </>
           )}
 
