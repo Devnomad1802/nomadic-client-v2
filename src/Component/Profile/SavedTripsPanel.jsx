@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useGetBookmarkedTripsMutation, useUpdateBookmarkMutation } from "../../services";
 import { extractRating } from "../../utils";
 
+const PER_PAGE = 6;
 const inr = (n) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 
 const SavedTripsPanel = () => {
@@ -14,6 +15,7 @@ const SavedTripsPanel = () => {
 
   const [state, setState] = useState({ loading: true, error: false, list: [] });
   const [removing, setRemoving] = useState({});
+  const [page, setPage] = useState(1);
 
   const load = useCallback(async () => {
     if (!userDbData?._id) { setState({ loading: false, error: false, list: [] }); return; }
@@ -55,9 +57,14 @@ const SavedTripsPanel = () => {
     </div>
   );
 
+  const pageCount = Math.max(1, Math.ceil(state.list.length / PER_PAGE));
+  const safePage = Math.min(page, pageCount);
+  const pageItems = state.list.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
   return (
+    <>
     <div className="nt-saved">
-      {state.list.map((t) => (
+      {pageItems.map((t) => (
         <div className="nt-card" key={t._id}>
           <div className="nt-card-img" onClick={() => navigate(`/trips/${t.seoSlug || t._id}`)}>
             {t.cardImage ? <img src={t.cardImage} alt={t.title} loading="lazy" /> : <div className="nt-card-ph" />}
@@ -83,6 +90,16 @@ const SavedTripsPanel = () => {
         </div>
       ))}
     </div>
+    {pageCount > 1 && (
+      <div className="nt-pager">
+        <button className="nt-pg-btn" disabled={safePage === 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>‹ Prev</button>
+        {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+          <button key={n} className={`nt-pg-num ${n === safePage ? "on" : ""}`} onClick={() => setPage(n)}>{n}</button>
+        ))}
+        <button className="nt-pg-btn" disabled={safePage === pageCount} onClick={() => setPage((p) => Math.min(pageCount, p + 1))}>Next ›</button>
+      </div>
+    )}
+    </>
   );
 };
 
