@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Container } from "@mui/material";
 import { setUserDbData, setAuthenticated } from "../../slices";
 import { useEditUserProfileMutation } from "../../services";
-import TravelHistory from "../../SmallComponents/Tabs/ProfileTabs/TravelHistory";
-import Savedtrips from "../../SmallComponents/Tabs/ProfileTabs/Savedtrips";
+import MyTripsPanel from "./MyTripsPanel";
+import SavedTripsPanel from "./SavedTripsPanel";
 
 const TABS = [
   { key: "account", icon: "◍", label: "My Account" },
@@ -241,7 +241,7 @@ const UserProfile = () => {
             <>
               <h2 className="nt-h2">My Trips</h2>
               <p className="nt-sub">Your bookings and balances. Open a trip to see details and pay any remaining amount.</p>
-              <div className="nt-embed"><TravelHistory /></div>
+              <div className="nt-embed"><MyTripsPanel /></div>
             </>
           )}
 
@@ -249,7 +249,7 @@ const UserProfile = () => {
             <>
               <h2 className="nt-h2">Saved Trips</h2>
               <p className="nt-sub">Experiences you&apos;ve bookmarked for later.</p>
-              <div className="nt-embed"><Savedtrips /></div>
+              <div className="nt-embed"><SavedTripsPanel /></div>
             </>
           )}
 
@@ -368,11 +368,66 @@ const css = `
 .nt-logout{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:460px;gap:6px}
 .nt-logout-ic{width:64px;height:64px;border-radius:50%;background:var(--badge);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:6px}
 .nt-logout-actions{display:flex;gap:12px;margin-top:22px}
+/* states */
+.nt-state{margin-top:24px;font-size:15px;color:var(--muted)}
+.nt-state-err{color:#A23A26}
+.nt-link{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;text-decoration:underline}
+.nt-empty-box{margin-top:24px;border:1px dashed var(--line);border-radius:16px;padding:40px 24px;text-align:center;color:var(--muted)}
+.nt-empty-ic{font-size:34px;color:var(--accent)}
+.nt-empty-t{margin-top:8px;font-weight:700;font-size:17px;color:var(--ink)}
+.nt-empty-box p{margin:6px 0 16px;font-size:14px}
+/* My Trips accordion */
+.nt-bookings{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+.nt-bk{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.nt-bk-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;background:transparent;border:none;cursor:pointer;text-align:left}
+.nt-bk-ttl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.nt-bk-name{font-weight:700;font-size:16px;color:var(--ink)}
+.nt-bk-sub{font-size:12.5px;color:var(--muted)}
+.nt-bk-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.nt-stat{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:99px;text-transform:uppercase;letter-spacing:.03em}
+.nt-stat.ok{background:#E4F4EA;color:#1f7a45}
+.nt-stat.warn{background:#FBEBD9;color:#9C5A12}
+.nt-stat.muted{background:#EFE7DA;color:var(--muted)}
+.nt-caret{color:var(--muted);font-size:13px;transition:transform .2s}
+.nt-bk[data-open="true"] .nt-caret{transform:rotate(180deg)}
+.nt-bk-body{padding:0 20px 20px;border-top:1px solid var(--line-soft)}
+.nt-bk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;padding:18px 0}
+.nt-bk-cell{display:flex;flex-direction:column;gap:4px}
+.nt-k{font-size:12px;color:var(--muted)}
+.nt-v{font-size:14px;font-weight:600;color:var(--ink)}
+.nt-li{border-top:1px solid var(--line-soft);padding-top:12px}
+.nt-li-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:6px 0;font-size:13.5px;color:var(--ink)}
+.nt-li-qty{color:var(--muted)}
+.nt-green{color:#1f7a45;font-weight:600}
+.nt-pay{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;padding:14px 16px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+.nt-pay-cell{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted)}
+.nt-pay-cell strong{font-size:17px;color:var(--ink)}
+.nt-balance{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 16px;background:#FFF7EE;border:1px solid #F0DEC6;border-radius:12px;font-size:13px;color:#7a5a2e}
+/* Saved Trips grid */
+.nt-saved{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.nt-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.nt-card-img{position:relative;aspect-ratio:16/10;overflow:hidden;cursor:pointer;background:var(--line-soft)}
+.nt-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.nt-card-ph{width:100%;height:100%;background:linear-gradient(135deg,#E9DFCF,#D8CFC0)}
+.nt-heart{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,253,249,.92);color:var(--accent);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.nt-heart:hover{background:#fff}
+.nt-heart:disabled{opacity:.5}
+.nt-rate{position:absolute;left:10px;bottom:10px;background:rgba(34,28,23,.85);color:#FFE9B0;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px}
+.nt-card-body{padding:14px 16px;display:flex;flex-direction:column;gap:7px;flex:1}
+.nt-card-ttl{font-weight:700;font-size:15.5px;color:var(--ink);cursor:pointer;line-height:1.3}
+.nt-card-loc{font-size:13px;color:var(--muted)}
+.nt-card-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
+.nt-card-price{font-weight:700;font-size:15px;color:var(--ink)}
+.nt-per{font-weight:400;font-size:12px;color:var(--muted)}
+.nt-card-dur{font-size:12.5px;color:var(--muted)}
+.nt-card-cta{margin-top:8px;padding:10px;font-size:13.5px;font-weight:700;color:var(--accent);background:transparent;border:1.5px solid var(--accent);border-radius:10px;cursor:pointer}
+.nt-card-cta:hover{background:var(--accent);color:#fff}
 @media(max-width:860px){
   .nt-grid{grid-template-columns:1fr}
   .nt-side{position:static}
   .nt-tabs{flex-direction:row;flex-wrap:wrap;gap:8px}
   .nt-tab{width:auto;flex:1 1 auto;justify-content:center}
+  .nt-pay{grid-template-columns:1fr}
 }
 `;
 
