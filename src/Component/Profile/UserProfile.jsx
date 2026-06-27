@@ -123,11 +123,6 @@ const UserProfile = () => {
 
       {toast && <div className="nt-toast">{toast}</div>}
 
-      <div className="nt-head">
-        <div className="nt-brand"><span className="o">nomadic</span> townies</div>
-        <div className="nt-crumb">My Profile</div>
-      </div>
-
       <div className="nt-grid">
         {/* SIDEBAR */}
         <aside className="nt-side">
