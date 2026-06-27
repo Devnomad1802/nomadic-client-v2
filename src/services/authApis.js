@@ -20,6 +20,17 @@ const authApis = api.injectEndpoints({
       }),
     }),
 
+    // Profile edit with optional avatar upload — sends multipart FormData
+    // (userId + name/email/phone/gender + profileImage file). Backend
+    // /auth/editUser reads req.body.userId and req.uploadedFiles.profileImage.
+    editUserProfile: builder.mutation({
+      query: (formData) => ({
+        url: "/auth/editUser",
+        method: "POST",
+        body: formData,
+      }),
+    }),
+
     sendSmsCode: builder.mutation({
       query: ({ number }) => ({
         url: "/auth/sendSmsCode",
@@ -106,6 +117,7 @@ export const {
   useSendSmsCodeMutation,
   usePhoneLoginMutation,
   useEditUserMutation,
+  useEditUserProfileMutation,
   useSendEmailOtpMutation,
   useVerifyEmailOtpMutation,
 } = authApis;
