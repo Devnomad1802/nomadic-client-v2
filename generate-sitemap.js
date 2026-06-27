@@ -15,7 +15,8 @@ const OUTPUT_PATH = "./dist/sitemap.xml";
 const staticRoutes = [
   { url: "/", priority: "1.0", changefreq: "daily" },
   { url: "/all-packages", priority: "0.9", changefreq: "daily" },
-  { url: "/blogs", priority: "0.8", changefreq: "weekly" },
+  { url: "/hosts", priority: "0.8", changefreq: "weekly" },
+  { url: "/blogs", priority: "0.7", changefreq: "weekly" },
   { url: "/about-us", priority: "0.6", changefreq: "monthly" },
   { url: "/contact-us", priority: "0.6", changefreq: "monthly" },
   { url: "/careers", priority: "0.4", changefreq: "monthly" },
