@@ -100,7 +100,7 @@ const Navbar = () => {
   const dropdownItemSx = {
     px: 2,
     py: 1.2,
-    fontSize: "13px",
+    fontSize: "12px",
     color: TEXT,
     cursor: "pointer",
     textAlign: "left",
@@ -137,7 +137,7 @@ const Navbar = () => {
       >
         {item.isBlog ? (
           recentBlogs.length === 0 ? (
-            <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "13px" }}>
+            <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "12px" }}>
               No blogs available
             </Typography>
           ) : (
@@ -162,7 +162,7 @@ const Navbar = () => {
             </>
           )
         ) : item.comingSoon ? (
-          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "13px" }}>
+          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "12px" }}>
             Coming soon
           </Typography>
         ) : loadingCategory === item.category ? (
@@ -170,7 +170,7 @@ const Navbar = () => {
             <CircularProgress size={20} sx={{ color: ORANGE }} />
           </Box>
         ) : (dropdownTrips[item.category] || []).length === 0 ? (
-          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "13px" }}>
+          <Typography sx={{ px: 2, py: 1.5, color: "#9CA3AF", fontSize: "12px" }}>
             No trips available
           </Typography>
         ) : (
@@ -240,7 +240,7 @@ const Navbar = () => {
                       gap: "2px",
                       padding: "10px 8px",
                       cursor: "pointer",
-                      fontSize: "15px",
+                      fontSize: "13px",
                       fontFamily: "Inter",
                       color: activeMenu === item.name ? ORANGE : TEXT,
                       fontWeight: 400,
@@ -259,7 +259,7 @@ const Navbar = () => {
                   whiteSpace: "nowrap",
                   padding: "10px 8px",
                   cursor: "pointer",
-                  fontSize: "15px",
+                  fontSize: "13px",
                   fontFamily: "Inter",
                   color: TEXT,
                   fontWeight: 400,
