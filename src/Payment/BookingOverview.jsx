@@ -34,7 +34,7 @@ const TICKET_CSS = `
   .nt-back { transition: background .16s ease; }
   .nt-back:hover { background: #F1EADD; }
 
-  .nt-shell { min-height: 100vh; display: flex; flex-direction: column; }
+  .nt-shell { min-height: 100vh; display: flex; flex-direction: column; text-align: left; }
   .nt-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: clamp(20px,3.5vw,48px); }
   .nt-ticket { width: 100%; max-width: 1060px; display: flex; border-radius: 26px; overflow: hidden; background: #FFFFFF; box-shadow: 0 30px 64px -28px rgba(60,42,28,.34); border: 1px solid #F1EADD; }
   .nt-left { flex: 0 0 42%; position: relative; background: linear-gradient(155deg,#54514c,#33312e); padding: clamp(32px,3.5vw,46px); overflow: hidden; }
@@ -570,7 +570,7 @@ const BookingOverview = () => {
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px", marginTop: "16px", padding: "18px 20px", background: "linear-gradient(135deg,#F3F3F3,#EDEDED)", border: "1px solid #E2E2E2", borderRadius: "14px" }}>
                 <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(17px,2vw,20px)", color: "#3C3228" }}>Total Trip Amount</span>
-                <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(19px,2.4vw,24px)", color: "#221C17" }}>₹ {inr(Total)}</span>
+                <span style={{ fontFamily: BODY_FONT, fontWeight: 800, fontSize: "clamp(19px,2.4vw,24px)", color: "#221C17" }}>₹ {inr(Total)}</span>
               </div>
 
               {partialAvailable && (
@@ -581,7 +581,7 @@ const BookingOverview = () => {
                       ₹ {inr(balance)} due by <strong style={{ color: "#5A5247" }}>{balanceBy}</strong>
                     </div>
                   </div>
-                  <div style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(18px,2vw,22px)", color: "#2E7D4F", whiteSpace: "nowrap" }}>₹ {inr(firstPay)}</div>
+                  <div style={{ fontFamily: BODY_FONT, fontWeight: 800, fontSize: "clamp(18px,2vw,22px)", color: "#2E7D4F", whiteSpace: "nowrap" }}>₹ {inr(firstPay)}</div>
                 </div>
               )}
 
@@ -595,7 +595,7 @@ const BookingOverview = () => {
                     <span style={{ font: `600 12px/1 ${BODY_FONT}`, letterSpacing: ".04em", textTransform: "uppercase", color: "#8A8073" }}>Full payment</span>
                     <span style={dotStyle(!partial)}><span style={{ width: 8, height: 8, borderRadius: "50%", background: !partial ? "#fff" : "transparent" }} /></span>
                   </span>
-                  <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "21px", color: "#221C17" }}>₹ {inr(Total)}</span>
+                  <span style={{ fontFamily: BODY_FONT, fontWeight: 800, fontSize: "21px", color: "#221C17" }}>₹ {inr(Total)}</span>
                   <span style={{ font: `400 12px/1.4 ${BODY_FONT}`, color: "#9A9080" }}>Pay the whole amount today</span>
                 </button>
 
@@ -605,7 +605,7 @@ const BookingOverview = () => {
                       <span style={{ font: `600 12px/1 ${BODY_FONT}`, letterSpacing: ".04em", textTransform: "uppercase", color: "#8A8073" }}>Partial</span>
                       <span style={dotStyle(partial)}><span style={{ width: 8, height: 8, borderRadius: "50%", background: partial ? "#fff" : "transparent" }} /></span>
                     </span>
-                    <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "21px", color: "#221C17" }}>₹ {inr(firstPay)}</span>
+                    <span style={{ fontFamily: BODY_FONT, fontWeight: 800, fontSize: "21px", color: "#221C17" }}>₹ {inr(firstPay)}</span>
                     <span style={{ font: `400 12px/1.4 ${BODY_FONT}`, color: "#9A9080" }}>₹ {inr(balance)} payable later</span>
                   </button>
                 )}
