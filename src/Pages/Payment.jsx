@@ -165,10 +165,27 @@ const Payment = () => {
     });
   };
 
+  // Flatten trip.discount the same way the server does: entries may be plain
+  // strings OR JSON-array-strings like '["CODE"]'. Mismatch here silently broke
+  // valid coupons. Mirrors couponCodes() in server controllers/Order.js.
+  const couponCodes = (() => {
+    const out = [];
+    (Array.isArray(discount) ? discount : []).forEach((d) => {
+      try {
+        const p = JSON.parse(d);
+        if (Array.isArray(p)) out.push(...p);
+        else out.push(d);
+      } catch {
+        out.push(d);
+      }
+    });
+    return out.map((c) => `${c}`.trim().toLowerCase()).filter(Boolean);
+  })();
+
   const isValidCoupon = (code) => {
-    const normalized = code?.trim();
+    const normalized = code?.trim().toLowerCase();
     if (!normalized) return false;
-    return discount.some((item) => item?.toLowerCase?.() === normalized.toLowerCase());
+    return couponCodes.includes(normalized);
   };
 
   const handleCouponApply = () => {
@@ -193,6 +210,16 @@ const Payment = () => {
     const d = date instanceof Date ? date : new Date(date);
     if (Number.isNaN(d.getTime())) return "";
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  // Batch card range, e.g. "Jul 10 - Jul 16, 2026" (no duration).
+  const formatBatchRange = (start, end) => {
+    const s = formatDate(start);
+    const e = formatDate(end);
+    const yd = end instanceof Date ? end : new Date(end);
+    const year = Number.isNaN(yd.getTime()) ? "" : `, ${yd.getFullYear()}`;
+    if (!s && !e) return "";
+    return `${s} - ${e}${year}`;
   };
 
   const selectedBatchObj =
@@ -298,7 +325,7 @@ const Payment = () => {
                         <span style={{ width: 9, height: 9, borderRadius: "50%", background: sel ? "#ffffff" : "transparent" }} />
                       </span>
                       <span style={{ flex: 1, font: `600 16px/1.25 ${BODY_FONT}`, color: "#221C17" }}>
-                        {formatDate(b.startDate)} - {formatDate(b.endDate)}{b.days ? ` · ${b.days}D` : ""}
+                        {formatBatchRange(b.startDate, b.endDate)}
                       </span>
                       <span style={{ font: `700 13px/1 ${BODY_FONT}`, color: lowSeats ? "#C0392B" : ACCENT, whiteSpace: "nowrap" }}>
                         {b.seatsLeft} Seats Left / {b.totalSeats}
