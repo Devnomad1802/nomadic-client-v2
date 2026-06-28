@@ -24,6 +24,97 @@ const inr = (n) =>
     maximumFractionDigits: 0,
   });
 
+// Layout, responsive seam, amount-card transitions and the walking stickman
+// companion. Class names are namespaced (nt-/sm-) to avoid global collisions.
+const TICKET_CSS = `
+  .nt-cta { transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+  .nt-cta:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(205,72,42,.36); background: #B83E21; }
+  .nt-amt { transition: border-color .16s ease, background .16s ease, box-shadow .16s ease; }
+  .nt-amt:hover { border-color: ${ACCENT}; }
+  .nt-back { transition: background .16s ease; }
+  .nt-back:hover { background: #F1EADD; }
+
+  .nt-shell { min-height: 100vh; display: flex; flex-direction: column; }
+  .nt-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: clamp(20px,3.5vw,48px); }
+  .nt-ticket { width: 100%; max-width: 1060px; display: flex; border-radius: 26px; overflow: hidden; background: #FFFFFF; box-shadow: 0 30px 64px -28px rgba(60,42,28,.34); border: 1px solid #F1EADD; }
+  .nt-left { flex: 0 0 42%; position: relative; background: linear-gradient(155deg,#54514c,#33312e); padding: clamp(32px,3.5vw,46px); overflow: hidden; }
+  .nt-right { flex: 1; padding: clamp(28px,3vw,44px); }
+  .nt-seam { position: relative; width: 30px; flex: none; }
+  .nt-seam-notch { position: absolute; left: 50%; transform: translateX(-50%); width: 30px; height: 30px; border-radius: 50%; background: #FFFDF9; }
+  .nt-seam-line { position: absolute; left: 50%; transform: translateX(-50%); top: 22px; bottom: 22px; border-left: 2px dashed #E0D7C8; }
+
+  @media (max-width: 820px) {
+    .nt-ticket { flex-direction: column; max-width: 520px; }
+    .nt-left { flex: none; }
+    .nt-seam { width: 100%; height: 30px; }
+    .nt-seam-notch { left: auto; top: 50%; transform: translateY(-50%); }
+    .nt-seam-notch.a { left: -15px; }
+    .nt-seam-notch.b { right: -15px; left: auto; }
+    .nt-seam-line { left: 22px; right: 22px; top: 50%; bottom: auto; transform: translateY(-50%); border-left: none; border-top: 2px dashed #E0D7C8; width: auto; }
+  }
+
+  /* ===== Stickman travel companion ===== */
+  .sm-stage { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 150px; pointer-events: none; z-index: 1; }
+  .sm-travel { animation: smTravel 18s ease-in-out infinite; }
+  .sm-bob { animation: smBob 18s ease-in-out infinite; }
+  .sm-breathe { animation: smBreathe 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .sm-leg-l { animation: smLegL 18s ease-in-out infinite; transform-box: fill-box; transform-origin: right top; }
+  .sm-leg-r { animation: smLegR 18s ease-in-out infinite; transform-box: fill-box; transform-origin: left top; }
+  .sm-head { animation: smHead 18s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+  .sm-arm-reach { animation: smArmReach 18s ease-in-out infinite; transform-box: fill-box; transform-origin: left center; transform: rotate(12deg); }
+  .sm-arm-near { animation: smArmNear 18s ease-in-out infinite; transform-box: fill-box; transform-origin: left center; transform: rotate(20deg); }
+  .sm-face-side { opacity: 1; animation: smFaceSide 18s ease-in-out infinite; }
+  .sm-face-front { opacity: 0; animation: smFaceFront 18s ease-in-out infinite; }
+  .nt-cta-glow { animation: smCtaGlow 18s ease-in-out infinite; }
+
+  @keyframes smTravel { 0%,7% { transform: translateX(0); } 38%,86% { transform: translateX(250px); } 100% { transform: translateX(0); } }
+  @keyframes smBob {
+    0%,7% { transform: translateY(0); } 12% { transform: translateY(-2px); } 17% { transform: translateY(0); } 22% { transform: translateY(-2px); }
+    27% { transform: translateY(0); } 32% { transform: translateY(-2px); } 37%,86% { transform: translateY(0); }
+    90% { transform: translateY(-2px); } 94% { transform: translateY(0); } 98% { transform: translateY(-2px); } 100% { transform: translateY(0); }
+  }
+  @keyframes smBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+  @keyframes smLegL {
+    0%,7% { transform: rotate(0); } 12% { transform: rotate(15deg); } 17% { transform: rotate(-15deg); } 22% { transform: rotate(15deg); }
+    27% { transform: rotate(-15deg); } 32% { transform: rotate(15deg); } 37%,86% { transform: rotate(0); }
+    90% { transform: rotate(-15deg); } 94% { transform: rotate(15deg); } 98% { transform: rotate(-8deg); } 100% { transform: rotate(0); }
+  }
+  @keyframes smLegR {
+    0%,7% { transform: rotate(0); } 12% { transform: rotate(-15deg); } 17% { transform: rotate(15deg); } 22% { transform: rotate(-15deg); }
+    27% { transform: rotate(15deg); } 32% { transform: rotate(-15deg); } 37%,86% { transform: rotate(0); }
+    90% { transform: rotate(15deg); } 94% { transform: rotate(-15deg); } 98% { transform: rotate(8deg); } 100% { transform: rotate(0); }
+  }
+  @keyframes smHead { 0%,44% { transform: rotate(0); } 49%,84% { transform: rotate(6deg); } 88%,100% { transform: rotate(0); } }
+  @keyframes smArmReach {
+    0%,42% { transform: rotate(12deg) scaleX(1); }
+    47% { transform: rotate(-3deg) scaleX(1.5); }
+    50%,72% { transform: rotate(-2deg) scaleX(1.5); }
+    75% { transform: rotate(-2deg) scaleX(1.62); }
+    78% { transform: rotate(-2deg) scaleX(1.5); }
+    81% { transform: rotate(-2deg) scaleX(1.62); }
+    84% { transform: rotate(-2deg) scaleX(1.5); }
+    88% { transform: rotate(12deg) scaleX(1); }
+    100% { transform: rotate(12deg) scaleX(1); }
+  }
+  @keyframes smArmNear { 0%,42% { transform: rotate(20deg); } 50%,84% { transform: rotate(28deg); } 90%,100% { transform: rotate(20deg); } }
+  @keyframes smFaceSide { 0%,46% { opacity: 1; } 50%,84% { opacity: 0; } 88%,100% { opacity: 1; } }
+  @keyframes smFaceFront { 0%,46% { opacity: 0; } 50%,84% { opacity: 1; } 88%,100% { opacity: 0; } }
+  @keyframes smCtaGlow {
+    0%,45% { transform: translateY(0); filter: none; }
+    50%,72% { transform: translateY(-2px); filter: drop-shadow(0 6px 14px rgba(224,113,47,.4)); }
+    75% { transform: translateY(-3px); filter: drop-shadow(0 8px 18px rgba(224,113,47,.5)); }
+    78% { transform: translateY(-2px); filter: drop-shadow(0 6px 14px rgba(224,113,47,.4)); }
+    81% { transform: translateY(-3px); filter: drop-shadow(0 8px 18px rgba(224,113,47,.5)); }
+    84% { transform: translateY(-2px); filter: drop-shadow(0 6px 14px rgba(224,113,47,.4)); }
+    88%,100% { transform: translateY(0); filter: none; }
+  }
+
+  @media (max-width: 820px) { .sm-stage { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .sm-travel,.sm-bob,.sm-breathe,.sm-leg-l,.sm-leg-r,.sm-head,.sm-arm-reach,.sm-arm-near,.sm-face-side,.sm-face-front,.nt-cta-glow { animation: none !important; }
+  }
+`;
+
 const BookingOverview = () => {
   const [openL, setOpenL] = useState(false);
   const toggelModelL = () => setOpenL(!openL);
@@ -269,23 +360,22 @@ const BookingOverview = () => {
       })
     : "—";
 
-  // Selected-card styling helpers
-  const cardSx = (active) => ({
+  // Selected amount-card styling helpers (plain style objects)
+  const cardStyle = (active) => ({
     display: "flex",
     flexDirection: "column",
     gap: "8px",
-    p: "18px",
+    padding: "16px",
     textAlign: "left",
     cursor: "pointer",
     borderRadius: "14px",
     background: active ? "#FDF1EC" : "#FFFDF9",
     border: active ? `1.5px solid ${ACCENT}` : "1px solid #E6DDCF",
     boxShadow: active ? "0 6px 16px rgba(205,72,42,.16)" : "none",
-    transition: "border-color .16s ease, background .16s ease, box-shadow .16s ease",
-    "&:hover": { borderColor: ACCENT },
+    fontFamily: BODY_FONT,
   });
 
-  const dotSx = (active) => ({
+  const dotStyle = (active) => ({
     width: 19,
     height: 19,
     borderRadius: "50%",
@@ -294,13 +384,6 @@ const BookingOverview = () => {
     alignItems: "center",
     justifyContent: "center",
     flex: "none",
-    transition: "border-color .16s ease",
-    "& > span": {
-      width: 8,
-      height: 8,
-      borderRadius: "50%",
-      background: active ? "#fff" : "transparent",
-    },
   });
 
   return (
@@ -308,348 +391,254 @@ const BookingOverview = () => {
       <Loading isLoading={loading} />
       <Toastify setAlertState={setAlertState} alertState={alertState} />
       <LoginModal openL={openL} setOpenL={setOpenL} toggelModelL={toggelModelL} />
+      <style>{TICKET_CSS}</style>
 
-      <Box
-        sx={{
-          minHeight: "100vh",
-          px: "clamp(14px,4vw,40px)",
-          py: "clamp(20px,4vw,52px)",
-          fontFamily: BODY_FONT,
-        }}
-      >
-        <Box sx={{ maxWidth: 740, mx: "auto" }}>
-          {/* ---------- Top bar ---------- */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: "14px", mb: "clamp(22px,3vw,30px)" }}>
-            <Box
-              component="button"
-              type="button"
-              onClick={() => navigate(-1)}
-              aria-label="Go back"
-              sx={{
-                width: 42,
-                height: 42,
-                flex: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "1px solid #D8CDBC",
-                background: "#F4EEE4",
-                borderRadius: "12px",
-                cursor: "pointer",
-                fontSize: "19px",
-                color: "#221C17",
-                transition: "background .16s ease",
-                "&:hover": { background: "#DCD2C2" },
-              }}
-            >
-              ←
-            </Box>
-            <Box
-              component="span"
-              sx={{
-                fontFamily: BODY_FONT,
-                fontWeight: 600,
-                fontSize: "15px",
-                color: "#5A5247",
-              }}
-            >
-              Back to trip details
-            </Box>
-          </Box>
+      <div className="nt-shell">
+        {/* ===================== FULL-WIDTH HEADER ===================== */}
+        <header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            padding: "clamp(16px,2.2vw,22px) clamp(18px,4vw,48px)",
+            borderBottom: "1px solid #F1EADD",
+            background: "#FFFDF9",
+          }}
+        >
+          <button
+            type="button"
+            className="nt-back"
+            aria-label="Go back"
+            onClick={() => navigate(-1)}
+            style={{
+              width: 42,
+              height: 42,
+              flex: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid #E6DDCF",
+              background: "#FFFFFF",
+              borderRadius: "12px",
+              cursor: "pointer",
+              fontSize: "19px",
+              color: "#221C17",
+            }}
+          >
+            ←
+          </button>
+          <div
+            style={{
+              fontFamily: DISPLAY_FONT,
+              fontWeight: 700,
+              fontSize: "clamp(18px,2vw,22px)",
+              letterSpacing: "-.01em",
+              color: "#221C17",
+            }}
+          >
+            Booking Overview
+          </div>
+        </header>
 
-          {/* ===================== TICKET ===================== */}
-          <Box sx={{ position: "relative", filter: "drop-shadow(0 24px 48px rgba(60,42,28,.22))" }}>
-            {/* TOP STUB · grey trip header */}
-            <Box
-              sx={{
-                position: "relative",
-                background: "linear-gradient(150deg,#54514c,#33312e)",
-                borderRadius: "24px 24px 0 0",
-                p: "clamp(28px,4vw,40px) clamp(26px,4vw,42px) clamp(34px,4.5vw,44px)",
-                overflow: "hidden",
-              }}
-            >
-              <Box
-                sx={{
+        {/* ===================== MAIN · CENTERED TICKET ===================== */}
+        <main className="nt-main">
+          <div className="nt-ticket">
+            {/* LEFT · trip header */}
+            <div className="nt-left">
+              <div
+                style={{
                   position: "absolute",
-                  right: "-40px",
+                  right: "-50px",
                   top: "-50px",
-                  width: 200,
-                  height: 200,
+                  width: 220,
+                  height: 220,
                   borderRadius: "50%",
                   background: "radial-gradient(circle,rgba(233,98,47,.32),transparent 66%)",
                 }}
               />
-              <Box sx={{ position: "relative" }}>
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px" }}>
-                  <Box
-                    component="span"
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: "12px",
-                      lineHeight: 1,
-                      letterSpacing: ".2em",
-                      textTransform: "uppercase",
-                      color: "#F0B49C",
-                    }}
-                  >
-                    Booking overview
-                  </Box>
-                  <Box
-                    component="span"
-                    sx={{
+              <div style={{ position: "relative" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+                  <span style={{ font: `700 12px/1 ${BODY_FONT}`, letterSpacing: ".2em", textTransform: "uppercase", color: "#F0B49C" }}>
+                    Your trip
+                  </span>
+                  <span
+                    style={{
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "7px",
-                      p: "6px 13px",
+                      padding: "6px 13px",
                       borderRadius: "99px",
                       background: "rgba(244,238,228,.12)",
                       border: "1px solid rgba(244,238,228,.22)",
-                      fontWeight: 600,
-                      fontSize: "11px",
-                      lineHeight: 1,
+                      font: `600 11px/1 ${BODY_FONT}`,
                       letterSpacing: ".05em",
                       textTransform: "uppercase",
                       color: "#F4EEE4",
-                      whiteSpace: "nowrap",
                     }}
                   >
-                    <Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", background: "#5BBF7A" }} />
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#5BBF7A" }} />
                     Ready to book
-                  </Box>
-                </Box>
+                  </span>
+                </div>
 
-                <Box
-                  component="h1"
-                  sx={{
-                    m: "16px 0 0",
+                <h1
+                  style={{
+                    margin: "18px 0 0",
                     fontFamily: DISPLAY_FONT,
                     fontWeight: 700,
-                    fontSize: "clamp(28px,4vw,40px)",
-                    lineHeight: 1.04,
+                    fontSize: "clamp(28px,3.4vw,40px)",
+                    lineHeight: 1.05,
                     letterSpacing: "-.02em",
                     color: "#F8F4ED",
                     textWrap: "balance",
                   }}
                 >
                   {paymentDetail?.title || "Your trip"}
-                </Box>
+                </h1>
 
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))",
-                    gap: "20px 16px",
-                    mt: "28px",
-                  }}
-                >
+                <div style={{ height: 1, background: "rgba(244,238,228,.16)", margin: "26px 0" }} />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px 18px" }}>
                   {details.map((d, i) => (
-                    <Box key={i} sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <Box
-                        component="span"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "7px",
-                          fontWeight: 600,
-                          fontSize: "11px",
-                          lineHeight: 1,
-                          letterSpacing: ".08em",
-                          textTransform: "uppercase",
-                          color: "#9C9388",
-                        }}
-                      >
+                    <div key={i} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: "7px", font: `600 11px/1 ${BODY_FONT}`, letterSpacing: ".08em", textTransform: "uppercase", color: "#9C9388" }}>
                         {d.icon}
                         {d.label}
-                      </Box>
-                      <Box component="span" sx={{ fontWeight: 600, fontSize: "16px", lineHeight: 1.2, color: "#F4EEE4" }}>
-                        {d.value}
-                      </Box>
-                    </Box>
+                      </span>
+                      <span style={{ font: `600 16px/1.2 ${BODY_FONT}`, color: "#F4EEE4" }}>{d.value}</span>
+                    </div>
                   ))}
-                </Box>
-              </Box>
-            </Box>
+                </div>
+              </div>
 
-            {/* PERFORATED SEAM */}
-            <Box sx={{ position: "relative", height: 30, background: "#33312e" }}>
-              <Box sx={{ position: "absolute", left: "-15px", top: 0, width: 30, height: 30, borderRadius: "50%", background: "#FFFDF9" }} />
-              <Box sx={{ position: "absolute", right: "-15px", top: 0, width: 30, height: 30, borderRadius: "50%", background: "#FFFDF9" }} />
-              <Box sx={{ position: "absolute", left: "24px", right: "24px", top: "50%", transform: "translateY(-50%)", borderTop: "2px dashed rgba(244,238,228,.30)" }} />
-            </Box>
+              {/* stickman travel companion */}
+              <svg className="sm-stage" viewBox="0 0 360 150" preserveAspectRatio="xMidYMax meet" fill="none" stroke="#F8F4ED" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="20" y1="121" x2="340" y2="121" stroke="rgba(248,244,237,.18)" strokeWidth="1.5" strokeDasharray="2 7" />
+                <g className="sm-travel">
+                  <g className="sm-bob">
+                    <g transform="translate(60,118)">
+                      <path className="sm-leg-l" d="M0,-29 L-8,0" vectorEffect="non-scaling-stroke" />
+                      <path className="sm-leg-r" d="M0,-29 L8,0" vectorEffect="non-scaling-stroke" />
+                      <g className="sm-breathe">
+                        <path d="M-3,-55 C-16,-52 -16,-33 -4,-30" stroke="#E0712F" vectorEffect="non-scaling-stroke" />
+                        <path d="M-13,-44 L-4,-44" stroke="#E0712F" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                        <circle cx="-9" cy="-44" r="1.4" fill="#F8F4ED" stroke="none" />
+                        <path d="M0,-29 L0,-56" vectorEffect="non-scaling-stroke" />
+                        <g className="sm-arm-reach"><path d="M0,-52 L22,-52" vectorEffect="non-scaling-stroke" /><path d="M22,-52 l4,-2.5 M22,-52 l4,2.5" vectorEffect="non-scaling-stroke" /></g>
+                        <g className="sm-arm-near"><path d="M0,-52 L13,-45" vectorEffect="non-scaling-stroke" /></g>
+                        <g className="sm-head">
+                          <path d="M0,-56 L0,-61" vectorEffect="non-scaling-stroke" />
+                          <circle cx="0" cy="-70.5" r="9.5" vectorEffect="non-scaling-stroke" />
+                          <g className="sm-face-side">
+                            <circle cx="3.6" cy="-72" r="0.95" fill="#F8F4ED" stroke="none" />
+                            <circle cx="6.8" cy="-72" r="0.95" fill="#F8F4ED" stroke="none" />
+                            <path d="M3,-66.4 Q6,-63.8 9,-66.4" vectorEffect="non-scaling-stroke" />
+                          </g>
+                          <g className="sm-face-front">
+                            <circle cx="-3.2" cy="-72" r="0.95" fill="#F8F4ED" stroke="none" />
+                            <circle cx="3.2" cy="-72" r="0.95" fill="#F8F4ED" stroke="none" />
+                            <path d="M-4,-66.4 Q0,-63 4,-66.4" vectorEffect="non-scaling-stroke" />
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </svg>
+            </div>
 
-            {/* BOTTOM STUB · payment */}
-            <Box
-              sx={{
-                background: "#FFFDF9",
-                borderRadius: "0 0 24px 24px",
-                p: "clamp(26px,4vw,38px) clamp(26px,4vw,42px) clamp(28px,4vw,38px)",
-              }}
-            >
-              <Box sx={{ fontWeight: 700, fontSize: "12px", lineHeight: 1, letterSpacing: ".14em", textTransform: "uppercase", color: "#A89C8A", mb: "6px" }}>
+            {/* SEAM */}
+            <div className="nt-seam">
+              <div className="nt-seam-notch a" style={{ top: "-15px" }} />
+              <div className="nt-seam-notch b" style={{ bottom: "-15px" }} />
+              <div className="nt-seam-line" />
+            </div>
+
+            {/* RIGHT · payment */}
+            <div className="nt-right">
+              <div style={{ font: `700 12px/1 ${BODY_FONT}`, letterSpacing: ".14em", textTransform: "uppercase", color: "#A89C8A", marginBottom: "6px" }}>
                 Payment summary
-              </Box>
+              </div>
 
               {lineItems.map((li, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "14px",
-                    py: "15px",
-                    borderBottom: "1px solid #EFE7DA",
-                  }}
-                >
-                  <Box component="span" sx={{ flex: 1, fontWeight: 600, fontSize: "16px", lineHeight: 1.3, color: "#3C3228" }}>
-                    {li.label}
-                  </Box>
-                  <Box component="span" sx={{ fontWeight: 400, fontSize: "14px", lineHeight: 1.3, color: "#A89C8A", whiteSpace: "nowrap" }}>
-                    {li.qty}
-                  </Box>
-                  <Box component="span" sx={{ minWidth: 104, fontWeight: 600, fontSize: "16px", lineHeight: 1.3, color: li.color, textAlign: "right", whiteSpace: "nowrap" }}>
-                    {li.amount}
-                  </Box>
-                </Box>
+                <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px", padding: "14px 0", borderBottom: "1px solid #EFE7DA" }}>
+                  <span style={{ flex: 1, font: `600 15px/1.3 ${BODY_FONT}`, color: "#3C3228" }}>{li.label}</span>
+                  <span style={{ font: `400 14px/1.3 ${BODY_FONT}`, color: "#A89C8A", whiteSpace: "nowrap" }}>{li.qty}</span>
+                  <span style={{ minWidth: 100, font: `600 15px/1.3 ${BODY_FONT}`, color: li.color, textAlign: "right", whiteSpace: "nowrap" }}>{li.amount}</span>
+                </div>
               ))}
 
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "14px",
-                  mt: "18px",
-                  p: "20px 22px",
-                  background: "linear-gradient(135deg,#F3F3F3,#EDEDED)",
-                  border: "1px solid #E2E2E2",
-                  borderRadius: "14px",
-                }}
-              >
-                <Box component="span" sx={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(17px,2.2vw,20px)", color: "#3C3228" }}>
-                  Total Trip Amount
-                </Box>
-                <Box component="span" sx={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(20px,2.6vw,26px)", color: "#221C17" }}>
-                  ₹ {inr(Total)}
-                </Box>
-              </Box>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px", marginTop: "16px", padding: "18px 20px", background: "linear-gradient(135deg,#F3F3F3,#EDEDED)", border: "1px solid #E2E2E2", borderRadius: "14px" }}>
+                <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(17px,2vw,20px)", color: "#3C3228" }}>Total Trip Amount</span>
+                <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(19px,2.4vw,24px)", color: "#221C17" }}>₹ {inr(Total)}</span>
+              </div>
 
-              {/* partial note */}
               {partialAvailable && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "12px",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    mt: "16px",
-                    p: "16px 20px",
-                    background: "#FBF6EE",
-                    border: "1px dashed #E0CFBE",
-                    borderRadius: "14px",
-                  }}
-                >
-                  <Box sx={{ minWidth: 0 }}>
-                    <Box sx={{ fontWeight: 600, fontSize: "15px", lineHeight: 1.3, color: "#3C3228" }}>
-                      Book now, pay the rest later
-                    </Box>
-                    <Box sx={{ mt: "5px", fontWeight: 400, fontSize: "13px", lineHeight: 1.45, color: "#9A9080" }}>
-                      ₹ {inr(balance)} due by <Box component="strong" sx={{ color: "#5A5247" }}>{balanceBy}</Box>
-                    </Box>
-                  </Box>
-                  <Box sx={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(18px,2.2vw,22px)", color: "#2E7D4F", whiteSpace: "nowrap" }}>
-                    ₹ {inr(firstPay)}
-                  </Box>
-                </Box>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", justifyContent: "space-between", marginTop: "14px", padding: "15px 18px", background: "#FBF6EE", border: "1px dashed #E0CFBE", borderRadius: "14px" }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ font: `600 15px/1.3 ${BODY_FONT}`, color: "#3C3228" }}>Book now, pay the rest later</div>
+                    <div style={{ marginTop: "5px", font: `400 13px/1.45 ${BODY_FONT}`, color: "#9A9080" }}>
+                      ₹ {inr(balance)} due by <strong style={{ color: "#5A5247" }}>{balanceBy}</strong>
+                    </div>
+                  </div>
+                  <div style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "clamp(18px,2vw,22px)", color: "#2E7D4F", whiteSpace: "nowrap" }}>₹ {inr(firstPay)}</div>
+                </div>
               )}
 
-              {/* select amount */}
-              <Box sx={{ fontWeight: 700, fontSize: "12px", lineHeight: 1, letterSpacing: ".14em", textTransform: "uppercase", color: "#A89C8A", m: "26px 0 12px" }}>
+              <div style={{ font: `700 12px/1 ${BODY_FONT}`, letterSpacing: ".14em", textTransform: "uppercase", color: "#A89C8A", margin: "22px 0 12px" }}>
                 Select amount
-              </Box>
+              </div>
 
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: partialAvailable ? { xs: "1fr", sm: "1fr 1fr" } : "1fr",
-                  gap: "12px",
-                }}
-              >
-                <Box component="button" type="button" onClick={pickFull} sx={cardSx(!partial)}>
-                  <Box component="span" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Box component="span" sx={{ fontWeight: 600, fontSize: "12px", lineHeight: 1, letterSpacing: ".04em", textTransform: "uppercase", color: "#8A8073" }}>
-                      Full payment
-                    </Box>
-                    <Box component="span" sx={dotSx(!partial)}>
-                      <span />
-                    </Box>
-                  </Box>
-                  <Box component="span" sx={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "22px", color: "#221C17" }}>
-                    ₹ {inr(Total)}
-                  </Box>
-                  <Box component="span" sx={{ fontWeight: 400, fontSize: "12px", lineHeight: 1.4, color: "#9A9080" }}>
-                    Pay the whole amount today
-                  </Box>
-                </Box>
+              <div style={{ display: "grid", gridTemplateColumns: partialAvailable ? "1fr 1fr" : "1fr", gap: "12px" }}>
+                <button type="button" onClick={pickFull} className="nt-amt" style={cardStyle(!partial)}>
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ font: `600 12px/1 ${BODY_FONT}`, letterSpacing: ".04em", textTransform: "uppercase", color: "#8A8073" }}>Full payment</span>
+                    <span style={dotStyle(!partial)}><span style={{ width: 8, height: 8, borderRadius: "50%", background: !partial ? "#fff" : "transparent" }} /></span>
+                  </span>
+                  <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "21px", color: "#221C17" }}>₹ {inr(Total)}</span>
+                  <span style={{ font: `400 12px/1.4 ${BODY_FONT}`, color: "#9A9080" }}>Pay the whole amount today</span>
+                </button>
 
                 {partialAvailable && (
-                  <Box component="button" type="button" onClick={pickPartial} sx={cardSx(partial)}>
-                    <Box component="span" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <Box component="span" sx={{ fontWeight: 600, fontSize: "12px", lineHeight: 1, letterSpacing: ".04em", textTransform: "uppercase", color: "#8A8073" }}>
-                        Partial
-                      </Box>
-                      <Box component="span" sx={dotSx(partial)}>
-                        <span />
-                      </Box>
-                    </Box>
-                    <Box component="span" sx={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "22px", color: "#221C17" }}>
-                      ₹ {inr(firstPay)}
-                    </Box>
-                    <Box component="span" sx={{ fontWeight: 400, fontSize: "12px", lineHeight: 1.4, color: "#9A9080" }}>
-                      ₹ {inr(balance)} payable later
-                    </Box>
-                  </Box>
+                  <button type="button" onClick={pickPartial} className="nt-amt" style={cardStyle(partial)}>
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ font: `600 12px/1 ${BODY_FONT}`, letterSpacing: ".04em", textTransform: "uppercase", color: "#8A8073" }}>Partial</span>
+                      <span style={dotStyle(partial)}><span style={{ width: 8, height: 8, borderRadius: "50%", background: partial ? "#fff" : "transparent" }} /></span>
+                    </span>
+                    <span style={{ fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: "21px", color: "#221C17" }}>₹ {inr(firstPay)}</span>
+                    <span style={{ font: `400 12px/1.4 ${BODY_FONT}`, color: "#9A9080" }}>₹ {inr(balance)} payable later</span>
+                  </button>
                 )}
-              </Box>
+              </div>
 
-              <Box
-                component="button"
-                type="button"
-                onClick={handleOrder}
-                sx={{
-                  width: "100%",
-                  mt: "22px",
-                  p: "17px",
-                  fontFamily: BODY_FONT,
-                  fontWeight: 700,
-                  fontSize: "16px",
-                  lineHeight: 1,
-                  letterSpacing: ".01em",
-                  color: "#fff",
-                  background: ACCENT,
-                  border: "none",
-                  borderRadius: "13px",
-                  cursor: "pointer",
-                  boxShadow: "0 8px 20px rgba(205,72,42,.28)",
-                  transition: "transform .18s ease, box-shadow .18s ease, background .18s ease",
-                  "&:hover": {
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 16px 32px rgba(205,72,42,.36)",
-                    background: "#B83E21",
-                  },
-                }}
-              >
-                Proceed to Pay ₹ {inr(selectedValue)}
-              </Box>
-              <Box component="p" sx={{ m: "13px 0 0", textAlign: "center", fontWeight: 400, fontSize: "12px", lineHeight: 1.4, color: "#9A9080" }}>
+              <div className="nt-cta-glow" style={{ marginTop: "20px" }}>
+                <button
+                  type="button"
+                  className="nt-cta"
+                  onClick={handleOrder}
+                  style={{
+                    width: "100%",
+                    padding: "16px",
+                    font: `700 16px/1 ${BODY_FONT}`,
+                    letterSpacing: ".01em",
+                    color: "#fff",
+                    background: ACCENT,
+                    border: "none",
+                    borderRadius: "13px",
+                    cursor: "pointer",
+                    boxShadow: "0 8px 20px rgba(205,72,42,.28)",
+                  }}
+                >
+                  Proceed to Pay ₹ {inr(selectedValue)}
+                </button>
+              </div>
+              <p style={{ margin: "12px 0 0", textAlign: "center", font: `400 12px/1.4 ${BODY_FONT}`, color: "#9A9080" }}>
                 🔒 You&apos;ll be redirected to the secure payment gateway
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
     </Box>
   );
 };
