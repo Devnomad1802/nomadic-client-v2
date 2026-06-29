@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./hostPage.css";
@@ -62,12 +62,6 @@ const IcBox = () => (
 const IcLock = ({ c = "#CF4A2C", s = 16 }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "none", marginTop: 1 }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
 );
-const IcSend = () => (
-  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
-);
-const IcAlert = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C0392B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "none", marginTop: 1 }}><path d="M10.3 3.5 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.5a2 2 0 0 0-3.4 0Z" /><path d="M12 9v4M12 17h.01" /></svg>
-);
 
 const FAQS = [
   { q: "Is this suitable for beginners?", a: "Most trips welcome beginners — each listing notes the difficulty. If you're new, the host suggests gentler routes and helps you prepare." },
@@ -77,17 +71,6 @@ const FAQS = [
 ];
 
 const GAL_LAYOUT = ["tall", "", "", "wide", "", ""];
-
-/* moderation: block phone / email / url / social handle sharing */
-const detectContact = (text) => {
-  const t = text.toLowerCase().replace(/\s+/g, " ");
-  const digits = (text.match(/\d/g) || []).length;
-  if (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(text)) return "email";
-  if (/(https?:\/\/|www\.|\.com|instagram|whatsapp|telegram|t\.me|fb\.com|facebook)/i.test(t)) return "link";
-  if (digits >= 8) return "phone";
-  if (/\b(my\s+)?(number|whatsapp|insta|email|gmail|call me|dm me)\b/i.test(t)) return "handle";
-  return null;
-};
 
 const HostPage = () => {
   const { id } = useParams();
@@ -132,6 +115,16 @@ const HostPage = () => {
   const specialties = Array.isArray(host?.specialties) ? host.specialties.filter(Boolean) : [];
   const languages = Array.isArray(host?.languages) ? host.languages.filter(Boolean) : [];
   const gallery = Array.isArray(host?.gallery) ? host.gallery.filter(Boolean) : [];
+
+  // Ask the host: prefer admin-managed FAQs, fall back to generic defaults
+  const faqs = useMemo(() => {
+    const fromHost = Array.isArray(host?.faqs)
+      ? host.faqs
+          .filter((f) => f && (f.question || f.q))
+          .map((f) => ({ q: f.question || f.q, a: f.answer || f.a }))
+      : [];
+    return fromHost.length ? fromHost : FAQS;
+  }, [host?.faqs]);
 
   // regions: prefer explicit field, fall back to unique hosted-trip locations
   const regions = useMemo(() => {
@@ -201,49 +194,28 @@ const HostPage = () => {
     }
   };
 
-  /* ---- chat drawer (on-platform messaging) ---- */
+  /* ---- chat drawer (placeholder — real messaging built later) ---- */
   const [chatOpen, setChatOpen] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [violations, setViolations] = useState(0);
-  const [warning, setWarning] = useState("");
-  const msgsRef = useRef(null);
-  const inputRef = useRef(null);
-
-  const scrollSoon = () => setTimeout(() => { if (msgsRef.current) msgsRef.current.scrollTop = msgsRef.current.scrollHeight; }, 60);
-  const openChat = () => { setChatOpen(true); setTimeout(() => inputRef.current?.focus(), 320); };
+  const openChat = () => setChatOpen(true);
   const closeChat = () => setChatOpen(false);
 
-  const sendMessage = (raw) => {
-    const text = (raw ?? draft).trim();
-    if (!text) return;
-    if (detectContact(text)) {
-      const v = violations + 1;
-      let warn;
-      if (v === 1) warn = "Let's keep contact details off chat — please don't share phone numbers, emails or social handles. Nomadic Townies keeps your booking protected.";
-      else if (v === 2) warn = "Second reminder: sharing personal contact info isn't allowed. Continued attempts may temporarily restrict your chat.";
-      else warn = "Your message was hidden and this conversation has been flagged for review. Repeated sharing of contact details can restrict messaging.";
-      setDraft("");
-      setWarning(warn);
-      setViolations(v);
-      scrollSoon();
-      return;
-    }
-    setMessages((m) => [...m, { text, mine: true }]);
-    setDraft("");
-    setWarning("");
-    scrollSoon();
-    setTimeout(() => {
-      setMessages((m) => [...m, { text: "Great — I'll check availability and send you a couple of options right here. 👍", mine: false }]);
-      scrollSoon();
-    }, 1100);
-  };
+  /* ---- gallery lightbox ---- */
+  const [lightbox, setLightbox] = useState(null); // index or null
+  const galleryView = gallery.slice(0, 6);
+  const showPrev = () => setLightbox((i) => (i === null ? i : (i - 1 + gallery.length) % gallery.length));
+  const showNext = () => setLightbox((i) => (i === null ? i : (i + 1) % gallery.length));
 
   useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") setChatOpen(false); };
+    const onKey = (e) => {
+      if (e.key === "Escape") { setChatOpen(false); setLightbox(null); }
+      if (lightbox !== null) {
+        if (e.key === "ArrowLeft") setLightbox((i) => (i - 1 + gallery.length) % gallery.length);
+        if (e.key === "ArrowRight") setLightbox((i) => (i + 1) % gallery.length);
+      }
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [lightbox, gallery.length]);
 
   const seoTitle = `${name} | Travel Host | Nomadic Townies`;
   const seoDesc = host?.tagline
@@ -253,8 +225,6 @@ const HostPage = () => {
   if (!id || isLoading) {
     return <div className="hd-page"><div className="hd-loading">Loading host…</div></div>;
   }
-
-  const quickReplies = ["What dates are available?", "Is it good for beginners?", "What's included?"];
 
   return (
     <div className="hd-page">
@@ -485,10 +455,19 @@ const HostPage = () => {
               <h2>From {firstName}&apos;s trips</h2>
               <p className="hd-about-p" style={{ margin: "4px 0 0", fontSize: 14, color: "#8A8073" }}>Real moments from past experiences.</p>
               <div className="hd-gallery">
-                {gallery.slice(0, 6).map((src, i) => (
-                  <div key={i} className={`hd-gal ${GAL_LAYOUT[i] || ""}`}>
+                {galleryView.map((src, i) => (
+                  <button
+                    type="button"
+                    key={i}
+                    className={`hd-gal ${GAL_LAYOUT[i] || ""}`}
+                    onClick={() => setLightbox(i)}
+                    aria-label={`View image ${i + 1} of ${gallery.length}`}
+                  >
                     <img src={src} alt={`${firstName} trip ${i + 1}`} loading="lazy" />
-                  </div>
+                    {i === galleryView.length - 1 && gallery.length > galleryView.length && (
+                      <span className="hd-gal-more">+{gallery.length - galleryView.length}</span>
+                    )}
+                  </button>
                 ))}
               </div>
             </section>
@@ -498,7 +477,7 @@ const HostPage = () => {
           <section className="hd-card">
             <h2>Ask the host</h2>
             <div className="hd-faq-list">
-              {FAQS.map((f, i) => (
+              {faqs.map((f, i) => (
                 <details className="hd-faq" key={i} open={i === 0}>
                   <summary>{f.q}<span className="hd-faq-ic">+</span></summary>
                   <div className="hd-faq-a">{f.a}</div>
@@ -571,9 +550,9 @@ const HostPage = () => {
         </aside>
       </div>
 
-      {/* ---------- chat drawer ---------- */}
+      {/* ---------- chat drawer (placeholder — messaging coming soon) ---------- */}
       {chatOpen && <div className="hd-overlay" onClick={closeChat} />}
-      <div className={`hd-drawer${chatOpen ? " open" : ""}`} role="dialog" aria-label={`Chat with ${name}`}>
+      <div className={`hd-drawer${chatOpen ? " open" : ""}`} role="dialog" aria-label={`Message ${name}`}>
         <div className="hd-drawer-head">
           <span className="hd-chat-av" style={{ width: 42, height: 42 }}>
             {host?.brandingLogo ? <img src={host.brandingLogo} alt={name} /> : initial}
@@ -581,44 +560,47 @@ const HostPage = () => {
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="hd-chat-name">{name}</div>
-            <div className="hd-chat-sub">● Online · via Nomadic Townies</div>
+            <div className="hd-chat-sub">● Replies {responseTime}</div>
           </div>
-          <button type="button" className="hd-drawer-x" onClick={closeChat} aria-label="Close chat">✕</button>
+          <button type="button" className="hd-drawer-x" onClick={closeChat} aria-label="Close">✕</button>
         </div>
 
         <div className="hd-drawer-safety">
           <IcLock c="#CF4A2C" s={15} />
-          <span>Keep it on-platform. Sharing phone, email or social handles is discouraged for your protection.</span>
+          <span>Keep it on-platform. For your safety we never share personal contact details.</span>
         </div>
 
-        <div className="hd-msgs" ref={msgsRef}>
-          <div className="hd-msg-day">Today</div>
-          <div className="hd-msg them">Namaste! 🙏 Thanks for reaching out. Happy to help you plan your trip — what dates are you thinking?</div>
-          {messages.map((m, i) => (
-            <div key={i} className={`hd-msg ${m.mine ? "me" : "them"}`}>{m.text}</div>
-          ))}
-          {warning && (
-            <div className="hd-warn"><IcAlert /><span>{warning}</span></div>
-          )}
-        </div>
-
-        <div className="hd-quick">
-          {quickReplies.map((q) => (
-            <button key={q} type="button" onClick={() => sendMessage(q)}>{q}</button>
-          ))}
-        </div>
-
-        <div className="hd-composer">
-          <input
-            ref={inputRef}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); sendMessage(); } }}
-            placeholder="Type a message…"
-          />
-          <button type="button" className="hd-send" onClick={() => sendMessage()} aria-label="Send"><IcSend /></button>
+        <div className="hd-soon">
+          <span className="hd-soon-ic"><IcChat /></span>
+          <h3>Messaging is coming soon</h3>
+          <p>
+            Secure, on-platform messaging with {firstName} is on the way. You&apos;ll
+            be able to ask questions and plan your trip here — with contact details
+            kept private on both sides. In the meantime, browse {firstName}&apos;s trips
+            to find your next experience.
+          </p>
+          <button type="button" className="hd-cta" onClick={() => { closeChat(); navigate("/all-packages"); }}>
+            <IcBox /> Browse trips
+          </button>
         </div>
       </div>
+
+      {/* ---------- gallery lightbox ---------- */}
+      {lightbox !== null && gallery[lightbox] && (
+        <div className="hd-lb" role="dialog" aria-label="Image viewer" onClick={() => setLightbox(null)}>
+          <button type="button" className="hd-lb-x" onClick={() => setLightbox(null)} aria-label="Close">✕</button>
+          {gallery.length > 1 && (
+            <button type="button" className="hd-lb-nav prev" onClick={(e) => { e.stopPropagation(); showPrev(); }} aria-label="Previous">‹</button>
+          )}
+          <figure className="hd-lb-fig" onClick={(e) => e.stopPropagation()}>
+            <img src={gallery[lightbox]} alt={`${firstName} trip ${lightbox + 1}`} />
+            <figcaption>{lightbox + 1} / {gallery.length}</figcaption>
+          </figure>
+          {gallery.length > 1 && (
+            <button type="button" className="hd-lb-nav next" onClick={(e) => { e.stopPropagation(); showNext(); }} aria-label="Next">›</button>
+          )}
+        </div>
+      )}
 
       {/* ---------- mobile sticky cta ---------- */}
       <div className="hd-mobile-cta">
