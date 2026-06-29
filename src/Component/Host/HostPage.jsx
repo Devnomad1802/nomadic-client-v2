@@ -63,6 +63,38 @@ const IcLock = ({ c = "#CF4A2C", s = 16 }) => (
   <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "none", marginTop: 1 }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
 );
 
+/* ---- verification-badge icons (keyword → meaning-matched glyph) ---- */
+const BADGE_PATHS = {
+  verified: <><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z" /><path d="m9 12 2 2 4-4" /></>,
+  shield: <><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z" /></>,
+  certificate: <><circle cx="12" cy="9" r="5" /><path d="M9 13.5 7.5 22l4.5-2.6L16.5 22 15 13.5" /></>,
+  award: <><circle cx="12" cy="8" r="5" /><path d="M8.5 12 7 22l5-3 5 3-1.5-10" /></>,
+  trophy: <><path d="M6 9V3h12v6a6 6 0 0 1-12 0Z" /><path d="M6 5H3v2a3 3 0 0 0 3 3M18 5h3v2a3 3 0 0 1-3 3M9 18h6M10 22h4M12 15v3" /></>,
+  star: <><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.1l5.9-.9L12 3Z" /></>,
+  firstaid: <><rect x="3" y="6" width="18" height="14" rx="2" /><path d="M9 6V4h6v2M12 11v4M10 13h4" /></>,
+  mountain: <><path d="M3 20h18L14 7l-3.5 6L8 9l-5 11Z" /></>,
+  camera: <><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7l1.5-3h5L16 7" /><circle cx="12" cy="13.5" r="3.5" /></>,
+  leaf: <><path d="M4 20c0-9 7-15 16-15 0 9-6 15-15 15H4Z" /><path d="M4 20c4-6 8-9 13-11" /></>,
+  language: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18Z" /></>,
+  clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
+};
+const BADGE_TONES = {
+  green: { bg: "#E0EFE4", color: "#2E7D4F" },
+  terracotta: { bg: "#F6E4DC", color: "#CF4A2C" },
+  gold: { bg: "#FBEFD6", color: "#C8941E" },
+};
+const toneForBadge = (icon) =>
+  icon === "verified" || icon === "shield" || icon === "leaf"
+    ? "green"
+    : icon === "award" || icon === "trophy" || icon === "star"
+    ? "gold"
+    : "terracotta";
+const BadgeIcon = ({ name }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {BADGE_PATHS[name] || BADGE_PATHS.certificate}
+  </svg>
+);
+
 const FAQS = [
   { q: "Is this suitable for beginners?", a: "Most trips welcome beginners — each listing notes the difficulty. If you're new, the host suggests gentler routes and helps you prepare." },
   { q: "Can solo travellers join?", a: "Absolutely. Many travellers come solo and leave with a whole group of friends — the small group size makes it easy to connect." },
@@ -142,15 +174,21 @@ const HostPage = () => {
   const memberSince = host?.foundedYear || (host?.createdAt ? new Date(host.createdAt).getFullYear() : "");
   const rankLabel = successRate >= 95 || verified ? "Top-rated host" : "Trusted host";
 
-  // verification badges derived from existing data
+  // verification badges: prefer admin-managed list, else derive from existing data
   const badges = useMemo(() => {
+    const custom = Array.isArray(host?.verificationBadges)
+      ? host.verificationBadges
+          .filter((b) => b && (b.title || b.label))
+          .map((b) => ({ title: b.title || b.label, sub: b.subtitle || b.sub || "", icon: b.icon || "verified" }))
+      : [];
+    if (custom.length) return custom;
     const certifications = Array.isArray(host?.achievements) ? host.achievements.filter(Boolean) : [];
     const out = [];
-    if (verified) out.push({ icon: "✓", bg: "#E0EFE4", color: "#2E7D4F", title: "ID verified", sub: "Confirmed by Nomadic Townies" });
-    certifications.slice(0, 3).forEach((c) => out.push({ icon: "★", bg: "#F6E4DC", color: "#CF4A2C", title: c, sub: "Certified" }));
-    if (successRate >= 95) out.push({ icon: "★", bg: "#FBEFD6", color: "#C8941E", title: "Top-rated host", sub: "Top 5% of hosts" });
+    if (verified) out.push({ icon: "verified", title: "ID verified", sub: "Confirmed by Nomadic Townies" });
+    certifications.slice(0, 3).forEach((c) => out.push({ icon: "certificate", title: c, sub: "Certified" }));
+    if (successRate >= 95) out.push({ icon: "award", title: "Top-rated host", sub: "Top 5% of hosts" });
     return out;
-  }, [verified, host?.achievements, successRate]);
+  }, [host?.verificationBadges, verified, host?.achievements, successRate]);
 
   // rating distribution bars
   const ratingBars = useMemo(() => {
@@ -249,10 +287,16 @@ const HostPage = () => {
       </header>
 
       {/* ---------- hero banner ---------- */}
-      <section className="hd-hero">
-        {host?.coverImage && <img className="hd-hero-img" src={host.coverImage} alt={`${name} cover`} />}
-        <div className="hd-hero-stripe" />
-        <div className="hd-hero-glow" />
+      <section className={`hd-hero${host?.coverImage ? " has-cover" : ""}`}>
+        {host?.coverImage ? (
+          <img className="hd-hero-img" src={host.coverImage} alt={`${name} cover`} />
+        ) : (
+          <>
+            <div className="hd-hero-stripe" />
+            <div className="hd-hero-glow" />
+          </>
+        )}
+        <div className="hd-hero-scrim" />
         <div className="hd-hero-inner">
           <div className="hd-avatar">
             <div className="hd-avatar-inner">
@@ -320,15 +364,20 @@ const HostPage = () => {
             <section className="hd-card">
               <h2>Verification &amp; badges</h2>
               <div className="hd-badges">
-                {badges.map((b, i) => (
-                  <div className="hd-badge" key={i}>
-                    <span className="hd-badge-ic" style={{ background: b.bg, color: b.color }}>{b.icon}</span>
-                    <span style={{ minWidth: 0 }}>
-                      <div className="hd-badge-tt">{b.title}</div>
-                      <div className="hd-badge-sub">{b.sub}</div>
-                    </span>
-                  </div>
-                ))}
+                {badges.map((b, i) => {
+                  const tone = BADGE_TONES[toneForBadge(b.icon)];
+                  return (
+                    <div className="hd-badge" key={i}>
+                      <span className="hd-badge-ic" style={{ background: tone.bg, color: tone.color }}>
+                        <BadgeIcon name={b.icon} />
+                      </span>
+                      <span className="hd-badge-txt">
+                        <span className="hd-badge-tt">{b.title}</span>
+                        {b.sub && <span className="hd-badge-sub">{b.sub}</span>}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}
