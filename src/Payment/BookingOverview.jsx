@@ -635,6 +635,13 @@ const BookingOverview = () => {
               <p style={{ margin: "12px 0 0", textAlign: "center", font: `400 12px/1.4 ${BODY_FONT}`, color: "#9A9080" }}>
                 🔒 You&apos;ll be redirected to the secure payment gateway
               </p>
+              <p style={{ margin: "8px 0 0", textAlign: "center", font: `400 12px/1.5 ${BODY_FONT}`, color: "#9A9080" }}>
+                By proceeding, you agree to our{" "}
+                <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, fontWeight: 600, textDecoration: "none" }}>
+                  Terms &amp; Conditions
+                </a>
+                .
+              </p>
             </div>
           </div>
         </main>
