@@ -39,10 +39,10 @@ const trustBadges = [
 ];
 
 const heroTrust = [
-  { num: "Verified", label: "Local Hosts" },
+  { num: "Verified", label: "Hosts" },
   { num: "Curated", label: "Experiences" },
   { num: "Secure", label: "Payments" },
-  { num: "24/7", label: "Support" },
+  { num: "Trusted", label: "Community" },
 ];
 
 const whyCards = [
@@ -111,19 +111,19 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
             <p className="hero-sub">
               Discover experiences that matter.<br /><br />
               Explore community trips, backpacking adventures, wellness retreats, workshops, and
-              cultural immersions hosted by passionate communities around the world.<br /><br />
+              cultural immersions hosted by trusted local hosts and passionate communities around the world.<br /><br />
               A curated marketplace for transformative travel experiences.
             </p>
             <div className="hero-ctas">
-              <button className="btn btn-orange btn-xl" onClick={() => setOpene(true)}>
-                Enquire Now <ArrowForwardIcon sx={{ fontSize: 18 }} />
+              <button className="btn btn-orange btn-xl" onClick={() => navigate("/all-packages")}>
+                Explore Experiences <ArrowForwardIcon sx={{ fontSize: 18 }} />
               </button>
               <button
                 className="btn btn-lg"
                 style={{ background: "rgba(255,255,255,.12)", color: "#fff", border: "1.5px solid rgba(255,255,255,.3)", backdropFilter: "blur(6px)" }}
-                onClick={() => navigate("/all-packages")}
+                onClick={() => navigate("/hosts")}
               >
-                Explore All Packages
+                Meet Our Hosts
               </button>
             </div>
             <div className="hero-trust">
