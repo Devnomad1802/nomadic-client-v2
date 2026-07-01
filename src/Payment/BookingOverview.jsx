@@ -640,9 +640,13 @@ const BookingOverview = () => {
                 <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, fontWeight: 600, textDecoration: "none" }}>
                   Terms &amp; Conditions
                 </a>{" "}
-                and{" "}
+                ,{" "}
                 <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, fontWeight: 600, textDecoration: "none" }}>
                   Privacy Policy
+                </a>{" "}
+                and{" "}
+                <a href="/cancellation-and-refund" target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, fontWeight: 600, textDecoration: "none" }}>
+                  Cancellation &amp; Refund Policy
                 </a>
                 .
               </p>

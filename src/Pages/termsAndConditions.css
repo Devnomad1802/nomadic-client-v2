@@ -214,6 +214,17 @@
 .tc-sec-body { margin-top: 16px; }
 .tc-sec-body .blk + .blk { margin-top: 14px; }
 .tc-p { margin: 0; font: 400 15.5px/1.7 var(--body); color: var(--sub); }
+/* subheading block (e.g. cancellation time-tiers) */
+.tc-sub {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font: 700 14px/1.3 var(--head), sans-serif;
+  color: var(--ink);
+}
+.tc-sub::before { content: ""; flex: none; width: 4px; height: 15px; border-radius: 2px; background: var(--accent); }
+.tc-sec-body .blk.sub-blk + .blk { margin-top: 10px; }
 .tc-callout {
   display: flex;
   align-items: flex-start;
