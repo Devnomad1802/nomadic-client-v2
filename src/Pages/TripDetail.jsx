@@ -398,17 +398,15 @@ export default function TripDetail() {
             {fullItinerary.length > 0 && (
               <section id="td-itinerary" className="td-sec" style={{ marginTop: "40px" }}>
                 <h2 style={{ ...sectionH2, marginBottom: "18px" }}>Day-by-day itinerary</h2>
-                <div style={{ display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                   {itinerary.map((d, i) => (
-                    <div key={i} style={{ display: "flex", gap: "16px", position: "relative", paddingBottom: "22px" }}>
-                      <div style={{ position: "relative", flex: "none", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <span style={{ width: 46, height: 46, borderRadius: "50%", background: "#FBF6EE", border: "1.5px solid #EAD9C9", color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: DISPLAY, fontWeight: 700, fontSize: "14px", zIndex: 2 }}>{d.num}</span>
-                        <span style={{ flex: 1, width: "1.5px", background: "#E6DDCF", marginTop: "4px" }} />
-                      </div>
-                      <div style={{ paddingTop: "5px", minWidth: 0 }}>
-                        <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "17px", color: "#221C17" }}>{d.title}</div>
-                        {d.desc && <p style={{ margin: "6px 0 0", font: `400 14.5px/1.7 ${BODY}`, color: "#726A5E", whiteSpace: "pre-line", maxWidth: "66ch" }}>{d.desc}</p>}
-                        {d.tags.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>{d.tags.map((t, j) => <span key={j} style={{ padding: "4px 10px", borderRadius: "99px", background: "#FFFDF9", border: "1px solid #E6DDCF", font: `600 11px/1 ${BODY}`, color: "#8A8073" }}>{typeof t === "string" ? t : t.label}</span>)}</div>}
+                    <div key={i} style={{ display: "flex", gap: "16px", background: "#FFFDF9", border: "1px solid #E6DDCF", borderRadius: "16px", padding: "20px 22px", boxShadow: "0 1px 2px rgba(60,42,28,.04)" }}>
+                      <span style={{ flex: "none", width: 44, height: 44, borderRadius: "12px", background: "#F6E4DC", color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: DISPLAY, fontWeight: 700, fontSize: "16px" }}>{d.num}</span>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ font: `700 10.5px/1 ${BODY}`, letterSpacing: ".1em", textTransform: "uppercase", color: "#A89C8A", marginBottom: "5px" }}>Day {Number(d.num)}</div>
+                        <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "18px", lineHeight: 1.25, color: "#221C17" }}>{d.title}</div>
+                        {d.desc && <p style={{ margin: "8px 0 0", font: `400 14.5px/1.7 ${BODY}`, color: "#5A5247", whiteSpace: "pre-line" }}>{d.desc}</p>}
+                        {d.tags.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "12px" }}>{d.tags.map((t, j) => <span key={j} style={{ padding: "4px 10px", borderRadius: "99px", background: "#F3EDE3", border: "1px solid #E6DDCF", font: `600 11px/1 ${BODY}`, color: "#8A8073" }}>{typeof t === "string" ? t : t.label}</span>)}</div>}
                       </div>
                     </div>
                   ))}
