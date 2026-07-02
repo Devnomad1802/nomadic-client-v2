@@ -20,6 +20,7 @@ const AvatarFallback = () => (
 
 const StarSvg = () => (<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17.8 6.6 20l1-6.1L3.2 9.5l6.1-.9L12 3Z" /></svg>);
 const PinSvg = () => (<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" /><circle cx="12" cy="10" r="2.6" /></svg>);
+const TickSvg = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>);
 
 const MeetHosts = () => {
   const navigate = useNavigate();
@@ -46,9 +47,12 @@ const MeetHosts = () => {
     image: h?.coverImage || h?.brandingLogo || DEFAULT_COVER,
     logo: h?.brandingLogo || "",
     rating: Number(h?.rating) || 4.9,
+    // Real review count only — never fabricate. Hidden when the backend has none.
+    reviews: Number(h?.reviewsCount ?? h?.totalReviews) || 0,
     experiences: h?.tripsHosted ?? 0,
     verified: h?.isVerified || h?.status === "approved",
     specialties: Array.isArray(h?.specialties) ? h.specialties : [],
+    regions: Array.isArray(h?.regionsHosted) ? h.regionsHosted.filter(Boolean) : [],
     raw: h,
   });
 
@@ -64,7 +68,7 @@ const MeetHosts = () => {
       if (loc !== "All" && c.location !== loc) return false;
       if (spec !== "All" && !c.specialties.includes(spec)) return false;
       if (q) {
-        const hay = [c.name, c.location, c.bio, ...c.specialties].filter(Boolean).join(" ").toLowerCase();
+        const hay = [c.name, c.location, c.bio, ...c.specialties, ...c.regions].filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -74,11 +78,11 @@ const MeetHosts = () => {
   return (
     <div className="mhpg">
       <Helmet>
-        <title>Meet Our Hosts | Verified Travel Hosts | Nomadic Townies</title>
-        <meta name="description" content="Discover verified Nomadic Townies hosts — local experts, retreat leaders and community guides curating meaningful travel experiences across India and beyond." />
+        <title>Meet Our Hosts | Verified Experience Hosts | Nomadic Townies</title>
+        <meta name="description" content="Browse verified local hosts, community hosts and experience hosts on Nomadic Townies — a curated marketplace of host-led experiences. Every trip is hosted by a real, verified person or community." />
         <link rel="canonical" href="https://nomadictownies.com/hosts" />
-        <meta property="og:title" content="Meet Our Hosts | Nomadic Townies" />
-        <meta property="og:description" content="Discover verified hosts curating meaningful travel experiences." />
+        <meta property="og:title" content="Meet Our Hosts | Verified Experience Hosts | Nomadic Townies" />
+        <meta property="og:description" content="Discover real, verified hosts — adventure, wellness, backpacking and cultural experience hosts leading host-led experiences." />
       </Helmet>
 
       {/* HERO */}
@@ -86,9 +90,9 @@ const MeetHosts = () => {
         <img src={HERO_IMG} alt="Travellers and hosts in the mountains" />
         <div className="hero-inner">
           <div className="wrap">
-            <div className="hero-eyebrow">The people behind the journeys</div>
-            <h1>Meet the hosts behind the experiences</h1>
-            <p className="sub">Discover verified hosts, creators, retreat leaders, local experts, and communities curating meaningful travel experiences.</p>
+            <div className="hero-eyebrow">A curated marketplace of hosts</div>
+            <h1>Meet the verified hosts behind every experience</h1>
+            <p className="sub">Every trip on Nomadic Townies is host-led. Browse real, verified local hosts, community hosts and experience hosts — from adventure and wellness to backpacking and cultural experiences — and book directly with the person leading it.</p>
           </div>
         </div>
       </section>
@@ -101,7 +105,7 @@ const MeetHosts = () => {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && setSearch(draft)}
-            placeholder="Search hosts by name, location or specialty…"
+            placeholder="Search by host, experience, destination, category or expertise…"
           />
           <button className="go" onClick={() => setSearch(draft)}>Search</button>
         </div>
@@ -117,12 +121,20 @@ const MeetHosts = () => {
           <span className={`filter-sel${spec !== "All" ? " active" : ""}`}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></svg>
             <select value={spec} onChange={(e) => setSpec(e.target.value)}>
-              {specialties.map((s) => <option key={s} value={s}>{s === "All" ? "Specialty" : s}</option>)}
+              {specialties.map((s) => <option key={s} value={s}>{s === "All" ? "Category" : s}</option>)}
             </select>
           </span>
           <div className={`filter-verified${verifiedOnly ? " on" : ""}`} onClick={() => setVerifiedOnly((v) => !v)} role="button" tabIndex={0}>
             <span className="toggle-sw" /> Verified only
           </div>
+        </div>
+
+        {/* TRUST STRIP */}
+        <div className="trust-strip" role="list">
+          <span role="listitem"><TickSvg /> Verified Hosts</span>
+          <span role="listitem"><TickSvg /> Curated Experiences</span>
+          <span role="listitem"><TickSvg /> Trusted Community</span>
+          <span role="listitem"><TickSvg /> Secure Bookings</span>
         </div>
 
         <div className="result-line"><b>{filtered.length}</b> host{filtered.length === 1 ? "" : "s"}{search || loc !== "All" || spec !== "All" || verifiedOnly ? " match your filters" : ""}</div>
@@ -133,29 +145,48 @@ const MeetHosts = () => {
         ) : filtered.length > 0 ? (
           <div className="host-grid">
             {filtered.map((c) => (
-              <a key={c.id} className="host-card" onClick={() => { navigate(`/hosts/${c.id}`); window.scrollTo(0, 0); }}>
+              <div key={c.id} className="host-card" role="link" tabIndex={0}
+                onClick={() => { navigate(`/hosts/${c.id}`); window.scrollTo(0, 0); }}
+                onKeyDown={(e) => { if (e.key === "Enter") { navigate(`/hosts/${c.id}`); window.scrollTo(0, 0); } }}>
                 <div className="host-cover">
-                  {c.image ? <img src={c.image} alt={c.name} loading="lazy" /> : null}
+                  {c.image ? <img src={c.image} alt={`${c.name} — verified host`} loading="lazy" /> : null}
                   <div className="host-badges">
-                    {c.verified && <span className="badge badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2Z" /></svg>Verified</span>}
+                    {c.verified && <span className="badge badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2Z" /></svg>Verified Host</span>}
                   </div>
                   <div className="host-avatar">{c.logo ? <img src={c.logo} alt={c.name} /> : <AvatarFallback />}</div>
-                  <span className="host-rating-pill"><StarSvg />{c.rating.toFixed(1)}</span>
+                  <span className="host-rating-pill"><StarSvg />{c.rating.toFixed(1)}{c.reviews > 0 && <em>({c.reviews})</em>}</span>
                 </div>
                 <div className="host-body">
                   <div className="host-name-row">
                     <span className="host-name">{c.name}</span>
-                    {c.verified && <span className="vrf"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2Z" /></svg></span>}
+                    {c.verified && <span className="vrf" title="Verified Host"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2Z" /></svg></span>}
                   </div>
                   {c.location && <div className="host-loc"><PinSvg />{c.location}</div>}
-                  {c.specialty && <span className="host-specialty">{c.specialty}</span>}
+                  {c.specialties.length > 0 && (
+                    <div className="host-cats">
+                      {c.specialties.slice(0, 3).map((s) => <span key={s} className="host-cat">{s}</span>)}
+                    </div>
+                  )}
                   {c.bio && <p className="host-bio">{c.bio}</p>}
+                  {c.regions.length > 0 && (
+                    <div className="host-regions"><PinSvg /> Hosts in {c.regions.slice(0, 3).join(", ")}{c.regions.length > 3 ? ` +${c.regions.length - 3}` : ""}</div>
+                  )}
                   <div className="host-foot">
-                    <span className="host-exp"><b>{c.experiences}</b> experience{c.experiences === 1 ? "" : "s"}</span>
-                    <span className="host-view">View Profile <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
+                    <span className="host-exp"><b>{c.experiences}</b> hosted experience{c.experiences === 1 ? "" : "s"}</span>
+                    {c.reviews > 0 && <span className="host-reviews">{c.reviews} review{c.reviews === 1 ? "" : "s"}</span>}
+                  </div>
+                  <div className="host-cta">
+                    <button type="button" className="host-cta-primary"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/hosts/${c.id}`); window.scrollTo(0, 0); }}>
+                      View Profile
+                    </button>
+                    <button type="button" className="host-cta-secondary"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/hosts/${c.id}?tab=experiences`); window.scrollTo(0, 0); }}>
+                      View Experiences
+                    </button>
                   </div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         ) : (
