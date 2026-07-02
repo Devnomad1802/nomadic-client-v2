@@ -1,44 +1,31 @@
 /**
- * TripDetail.jsx — final design, wired to live data.
- * Route: /trips/:slug   (Book Now -> /payment/:tripId)
- * Reuses existing APIs (useGetTripsQuery, useGetAllReviewsQuery). No backend changes.
+ * TripDetail.jsx — Trip Detail page (new "ticket/host-led" design).
+ * Route: /trips/:slug   (Book Now -> /payment  with { paymentDetail: raw })
+ * Reuses existing APIs (useGetTripsQuery, useGetAllReviewsQuery). Booking,
+ * auth and payment flow are unchanged. Optional trip fields (difficulty,
+ * bestSeason, groupSize, faqs, importantInfo, termsNotes) render only when set.
  */
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+/* eslint-disable react/prop-types */
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useSelector } from "react-redux";
-import { Box, Typography, Button, Avatar, Chip, IconButton, TextField, Menu, MenuItem, ListItemIcon, Snackbar } from "@mui/material";
-import {
-  LocationOn, AccessTime, Star, Verified, WhatsApp, Telegram, Email, Facebook, ContentCopy,
-  CheckCircle, Cancel, Favorite, FavoriteBorder, Share, ArrowForward, GridView, KeyboardArrowDown,
-} from "@mui/icons-material";
 import { useGetTripsQuery } from "../services/TripApis";
 import { useGetAllReviewsQuery } from "../services";
-import { useEnquirMutation } from "../services/EnquirApi";
 import LoginModal from "../Modals/LoginModal";
 import Footer from "../Component/Footer";
 
-// ─── Brand tokens ─────────────────────────────────────────────
-const ORANGE = "#CD482A";
-const ORANGE_HOVER = "#B53D1F";
-const ORANGE_TINT = "#FDF3EE";
-const CHARCOAL = "#393938";
-const TEXT_DARK = "#1F2937";
-const TEXT = "#4B5563";
-const TEXT_LIGHT = "#6B7280";
-const TEXT_LIGHTER = "#9CA3AF";
-const LINE = "#E5E7EB";
-const LINE_SOFT = "#F3F4F6";
-const BG_SOFT = "#F9FAFB";
-const GREEN = "#11875B";
-const GREEN_TINT = "#E7F4EE";
-const PLAYFAIR = `"Playfair", Georgia, serif`;
+// Brand tokens — consistent with the rest of the site.
+const ACCENT = "#CD482A";
+const DISPLAY = "'Playfair Display','Playfair',serif";
+const BODY = "'Inter',sans-serif";
 
-// ─── data mappers ─────────────────────────────────────────────
-const toNum = (v) => { const n = Number(v); return isNaN(n) ? 0 : n; };
+// ─── data helpers ─────────────────────────────────────────────
+const toNum = (v) => { const n = Number(v); return Number.isNaN(n) ? 0 : n; };
+const inr = (n) => Math.round(Number(n) || 0).toLocaleString("en-IN");
 const avg = (r) => {
-  if (Array.isArray(r) && r.length) { const n = r.map(Number).filter((x) => !isNaN(x)); return n.length ? n.reduce((a, b) => a + b, 0) / n.length : 4.9; }
-  const x = Number(r); return isNaN(x) || !x ? 4.9 : x;
+  if (Array.isArray(r) && r.length) { const n = r.map(Number).filter((x) => !Number.isNaN(x)); return n.length ? n.reduce((a, b) => a + b, 0) / n.length : 0; }
+  const x = Number(r); return Number.isNaN(x) ? 0 : x;
 };
 const splitList = (s) => {
   if (!s) return [];
@@ -48,371 +35,173 @@ const splitList = (s) => {
 const parseArr = (v) => { try { const p = typeof v === "string" ? JSON.parse(v) : v; return Array.isArray(p) ? p : []; } catch { return []; } };
 const parseCats = (c) => (Array.isArray(c) ? c : []).flatMap((x) => { try { const p = JSON.parse(x); return Array.isArray(p) ? p : [x]; } catch { return [x]; } });
 const parseItinerary = (item) => {
-  for (const k of ["addDays", "addsection", "itinerary"]) {
+  for (const k of ["addDays", "itinerary", "addsection"]) {
     const arr = parseArr(item?.[k]);
     if (arr.length && (arr[0]?.title || arr[0]?.heading || arr[0]?.day || arr[0]?.description)) {
       return arr.map((d, i) => ({
         title: d?.title || d?.heading || d?.day || `Day ${i + 1}`,
-        description: d?.description || d?.desc || d?.details || "",
-        tags: Array.isArray(d?.tags) ? d.tags : [],
+        desc: d?.description || d?.desc || d?.details || "",
+        tags: Array.isArray(d?.tags) ? d.tags.filter(Boolean) : [],
       }));
     }
   }
   return [];
 };
 
+const STAR_STR = (n) => { const f = Math.round(n); return "★★★★★".slice(0, f) + "☆☆☆☆☆".slice(0, 5 - f); };
+
 const mapTrip = (raw, allReviews) => {
   if (!raw) return null;
+  const host = raw.host && typeof raw.host === "object" ? raw.host : null;
+
+  // Reviews (reuses the existing global reviews API; trip-specific once a
+  // per-trip source exists). Empty -> "No reviews yet" state.
   const reviews = (Array.isArray(allReviews) ? allReviews : []).slice(0, 6).map((r) => ({
-    name: r?.Name || "Traveller", date: r?.Job || "", tripType: r?.Job ? "" : "Traveller",
-    rating: Math.round(avg(r?.rating)), text: r?.Review || "",
-  }));
-  const ratingNum = Number(avg(raw?.ratings).toFixed(1));
+    initial: (r?.Name || "T").trim().charAt(0).toUpperCase(),
+    name: r?.Name || "Traveller",
+    date: r?.Job || "",
+    stars: STAR_STR(avg(r?.rating) || 5),
+    text: r?.Review || "",
+  })).filter((r) => r.text);
   const reviewCount = (Array.isArray(raw?.reviews) ? raw.reviews.length : 0) || reviews.length;
-  const breakdown = {};
-  [5, 4, 3, 2, 1].forEach((s) => {
-    const c = reviews.filter((rv) => rv.rating === s).length;
-    breakdown[s] = reviews.length ? Math.round((c / reviews.length) * 100) : (s === 5 ? 88 : s === 4 ? 10 : s === 3 ? 2 : 0);
+  const ratingNum = Number((avg(raw?.ratings) || (reviews.length ? 5 : 0)).toFixed(1));
+
+  const ratingBars = [5, 4, 3, 2, 1].map((s) => {
+    const c = reviews.filter((rv) => rv.stars.startsWith("★★★★★".slice(0, s)) && rv.stars.charAt(s) !== "★").length;
+    const pct = reviews.length ? Math.round((c / reviews.length) * 100) : 0;
+    return { stars: s, pct: `${pct}%` };
   });
-  const itinerary = parseItinerary(raw);
+
+  const days = toNum(raw.days);
+  const nights = toNum(raw.nights);
+  const duration = nights && days ? `${nights}N · ${days}D` : days ? `${days}D` : "";
+
+  // Facts — only those with a value are shown.
+  const facts = [
+    raw.difficulty && { label: "Difficulty", value: raw.difficulty, key: "diff" },
+    raw.groupSize && { label: "Group size", value: raw.groupSize, key: "group" },
+    days && { label: "Duration", value: `${days} days`, key: "dur" },
+    raw.bestSeason && { label: "Best season", value: raw.bestSeason, key: "season" },
+  ].filter(Boolean);
+
+  // Good-to-know accordion groups — only non-empty groups render.
+  const thingsToCarry = splitList(raw.ThingsToCarry);
+  const cancellation = splitList(raw.Cancellation);
+  const faqs = (Array.isArray(raw.faqs) ? raw.faqs : []).filter((f) => f?.q && f?.a);
+  const infoGroups = [
+    thingsToCarry.length && { title: "Things to carry", kind: "list", items: thingsToCarry, open: true },
+    cancellation.length && { title: "Cancellation policy", kind: "list", items: cancellation },
+    raw.importantInfo && { title: "Important information", kind: "text", text: raw.importantInfo },
+    raw.termsNotes && { title: "Terms & notes", kind: "text", text: raw.termsNotes },
+    faqs.length && { title: "Frequently asked", kind: "faq", faqs },
+  ].filter(Boolean);
+
+  const images = (Array.isArray(raw.gallaryImages) && raw.gallaryImages.length
+    ? raw.gallaryImages
+    : [raw.bannerImage, raw.cardImage]).filter(Boolean);
+
+  const hostYears = host?.experience || (host?.foundedYear ? `${Math.max(1, new Date().getFullYear() - parseInt(host.foundedYear, 10))} yrs` : "");
+
   return {
-    _id: raw._id,
+    id: raw._id,
     slug: raw.seoSlug || raw._id,
-    title: raw.title,
-    location: raw.location,
-    nights: raw.nights, days: raw.days,
-    price: toNum(raw.price), strikePrice: toNum(raw.strikePrice), tripOff: raw.tripOff,
-    images: (Array.isArray(raw.gallaryImages) && raw.gallaryImages.length ? raw.gallaryImages : [raw.bannerImage, raw.cardImage]).filter(Boolean),
-    categories: parseCats(raw.categories),
-    rating: ratingNum, reviewCount, isTrending: !!raw.Trending,
-    host: raw.host && typeof raw.host === "object" ? raw.host : null,
-    overview: raw.overview,
-    // highlights are backend-driven (Trip.highlights[]); fall back to derived if none added yet
-    highlights: splitList(raw.highlights),
-    itinerary,
-    inclusions: splitList(raw.Inclusion),
-    exclusions: splitList(raw.Exclusion),
-    reviews, ratingBreakdown: breakdown,
+    title: raw.title || "Experience",
+    subTitle: raw.subTitle || "",
+    location: raw.location || "",
+    duration,
+    rating: ratingNum ? ratingNum.toFixed(1) : "",
+    reviewCount,
+    hasReviews: reviews.length > 0,
+    photoCount: images.length,
+    images,
+    trending: !!raw.Trending,
+    price: inr(raw.price),
+    strikePrice: inr(raw.strikePrice),
+    hasStrike: toNum(raw.strikePrice) > toNum(raw.price) && toNum(raw.strikePrice) > 0,
+    off: toNum(raw.tripOff),
+    hasOff: toNum(raw.tripOff) > 0,
+    overview: raw.overview || "",
+    categories: parseCats(raw.categories).map((label) => ({ label })),
+    highlights: splitList(raw.highlights).map((label) => ({ label })),
+    facts,
+    itinerary: parseItinerary(raw),
+    inclusions: splitList(raw.Inclusion).map((label) => ({ label })),
+    exclusions: splitList(raw.Exclusion).map((label) => ({ label })),
+    reviews,
+    ratingBars,
+    infoGroups,
+    host: host && {
+      id: host._id,
+      name: host.hostTitle || host.hostName || "Verified Host",
+      initial: (host.hostTitle || host.hostName || "H").trim().charAt(0).toUpperCase(),
+      bio: host.hostOverview || host.shortBio || "",
+      tripsHosted: host.tripsHosted ?? 0,
+      years: hostYears,
+      verified: !!host.isVerified,
+      languages: (Array.isArray(host.languages) ? host.languages : []).filter(Boolean).map((label) => ({ label })),
+      regions: (Array.isArray(host.regionsHosted) ? host.regionsHosted : []).filter(Boolean).map((label) => ({ label })),
+    },
   };
 };
 
-// ─── Sub-components (design, verbatim) ────────────────────────
-const Breadcrumb = ({ title }) => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: 13, color: TEXT_LIGHT, mb: 2 }}>
-    <Link to="/" style={{ color: TEXT_LIGHT, textDecoration: "none" }}>Home</Link>
-    <span>›</span>
-    <Link to="/experiences" style={{ color: TEXT_LIGHT, textDecoration: "none" }}>All Experiences</Link>
-    <span>›</span>
-    <Typography component="span" sx={{ color: TEXT_DARK, fontWeight: 500, fontSize: 13 }}>{title}</Typography>
-  </Box>
-);
+const TD_CSS = `
+  .td-page { font-family: ${BODY}; background: #F4EEE4; min-height: 100vh; text-align: left; }
+  .td-tab { transition: color .15s ease, border-color .15s ease; cursor: pointer; border: none; background: transparent; }
+  .td-cta { transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+  .td-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(205,72,42,.32); background: #B83E21; }
+  .td-ghost { transition: background .16s ease, border-color .16s ease; }
+  .td-ghost:hover { background: #FBF6EE; border-color: ${ACCENT}; }
+  .td-thumb { transition: transform .4s ease; }
+  .td-thumb:hover { transform: scale(1.05); }
+  details.td-acc > summary { list-style: none; cursor: pointer; }
+  details.td-acc > summary::-webkit-details-marker { display: none; }
+  details.td-acc[open] .td-acc-ic { transform: rotate(45deg); }
+  .td-sec { scroll-margin-top: 132px; }
+  .td-hero { display: grid; grid-template-columns: 1fr; grid-template-rows: auto; gap: 8px; height: auto; }
+  .td-grid { display: grid; grid-template-columns: 1fr; gap: clamp(24px,3.5vw,48px); align-items: start; }
+  .td-side { position: static; }
+  @media (min-width: 1040px) {
+    .td-grid { grid-template-columns: minmax(0,1fr) 388px; }
+    .td-hero { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr; height: 460px; }
+    .td-hero-a { grid-row: 1 / 3; }
+    .td-side { position: sticky; top: 80px; }
+    .td-mcta { display: none !important; }
+  }
+  @media (max-width: 1039px) { .td-hero-hide { display: none !important; } }
+`;
 
-const HeroGallery = ({ images = [] }) => {
-  const photos = images.length >= 5 ? images.slice(0, 5) : [...images, ...Array(5 - images.length).fill(null)];
-  return (
-    <Box sx={{
-      display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gridTemplateRows: "1fr 1fr",
-      gap: 1, height: { xs: 280, md: 460 }, borderRadius: "18px", overflow: "hidden", mb: 4, position: "relative",
-    }}>
-      {photos.map((src, i) => {
-        // Gradient always sits behind the photo, so a missing/slow/failed
-        // image degrades to a clean gradient instead of a broken-image icon.
-        const grad = `linear-gradient(135deg, ${["#1a5f3f", "#5c3a1a", "#1a3a5c", "#5c1a1a", "#3a2c1a"][i]}, ${["#3a9b6f", "#a8703a", "#3a6ca8", "#a83a3a", "#7a5c3a"][i]})`;
-        return (
-          <Box key={i} sx={{
-            gridRow: i === 0 ? "1/3" : "auto", position: "relative", overflow: "hidden", cursor: "pointer", background: grad,
-            "&:hover img": { transform: "scale(1.04)" },
-          }}>
-            {src ? (
-              <img
-                src={src}
-                alt=""
-                loading={i === 0 ? "eager" : "lazy"}
-                onError={(e) => { e.currentTarget.style.display = "none"; }}
-                style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .4s" }}
-              />
-            ) : null}
-          </Box>
-        );
-      })}
-      <Button startIcon={<GridView sx={{ fontSize: 14 }} />} sx={{
-        position: "absolute", bottom: 16, right: 16, bgcolor: "#fff", color: TEXT_DARK, fontSize: 13, fontWeight: 600,
-        textTransform: "none", border: `1px solid ${LINE}`, px: 2, py: 1.2,
-        "&:hover": { bgcolor: "#fff", boxShadow: "0 4px 14px rgba(0,0,0,.2)" },
-      }}>Show all {images.length || 5} photos</Button>
-    </Box>
-  );
+const Ic = ({ paths, w = 17, fill }) => (
+  <svg width={w} height={w} viewBox="0 0 24 24" fill={fill || "none"} stroke={fill ? "none" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {paths.map((d, i) => <path key={i} d={d} />)}
+  </svg>
+);
+const FACT_ICONS = {
+  diff: ["M3 20h18", "M5 20V10l4-3 4 4 6-5v14"],
+  group: ["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2", "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z", "M23 21v-2a4 4 0 0 0-3-3.87"],
+  dur: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z", "M12 7v5l3 2"],
+  season: ["M8 2v4M16 2v4M3 9h18", "M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"],
 };
+const HERO_GRADS = [
+  "linear-gradient(135deg,#5a4a3a,#33281d)", "linear-gradient(135deg,#6f6a63,#403c38)",
+  "linear-gradient(135deg,#5c3a1a,#a8703a)", "linear-gradient(135deg,#1a3a5c,#3a6ca8)",
+  "linear-gradient(135deg,#3a2c1a,#7a5c3a)",
+];
 
-const HostStrip = ({ host = {} }) => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1.8, p: 2, bgcolor: BG_SOFT, borderRadius: "14px", mb: 2.5 }}>
-    <Avatar sx={{ width: 48, height: 48, bgcolor: ORANGE_TINT, color: ORANGE, fontWeight: 800, fontSize: 18 }}>
-      {(host?.hostName || "H")[0].toUpperCase()}
-    </Avatar>
-    <Box sx={{ flex: 1, minWidth: 0 }}>
-      <Box sx={{ fontSize: 14, color: TEXT_LIGHT, fontWeight: 500 }}>
-        Hosted by <Box component="b" sx={{ color: TEXT_DARK, fontWeight: 700, mr: 0.8 }}>{host?.hostName || "Verified Host"}</Box>
-        {host?.isVerified && (
-          <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, color: GREEN, fontSize: 12, fontWeight: 600, ml: 1 }}>
-            <Verified sx={{ fontSize: 13 }} /> Verified Host
-          </Box>
-        )}
-      </Box>
-      <Box sx={{ display: "flex", gap: 1.8, fontSize: 12, color: TEXT_LIGHT, mt: 0.4 }}>
-        <span>{host?.tripsHosted || 0} trips hosted</span>
-        {host?.hqLocation && <><span>•</span><span>{host.hqLocation}</span></>}
-      </Box>
-    </Box>
-    {host?._id && (
-      <Link to={`/hosts/${host._id}`} style={{ textDecoration: "none" }}>
-        <Button variant="outlined" sx={{
-          fontSize: 13, fontWeight: 600, color: ORANGE, borderColor: ORANGE, borderWidth: "1.5px",
-          textTransform: "none", borderRadius: "8px", px: 1.8, py: 1,
-          "&:hover": { bgcolor: ORANGE, color: "#fff", borderColor: ORANGE },
-        }}>View Host Profile</Button>
-      </Link>
-    )}
-  </Box>
-);
+const TABS = [
+  ["td-overview", "Overview"], ["td-host", "Host"], ["td-itinerary", "Itinerary"],
+  ["td-inclusions", "Inclusions"], ["td-reviews", "Reviews"], ["td-info", "Good to know"],
+];
 
-const TabBar = ({ active, onChange, tabs }) => (
-  <Box sx={{ display: "flex", borderBottom: `1px solid ${LINE}`, mb: 3.5, overflowX: "auto" }}>
-    {tabs.map((t) => (
-      <Button key={t} onClick={() => onChange(t)} sx={{
-        fontSize: 14, fontWeight: 600, textTransform: "none", color: active === t ? ORANGE : TEXT_LIGHT,
-        py: 1.8, px: 0.5, mr: 3.5, minWidth: "auto", borderRadius: 0,
-        borderBottom: `2px solid ${active === t ? ORANGE : "transparent"}`, whiteSpace: "nowrap",
-        "&:hover": { bgcolor: "transparent", color: TEXT_DARK },
-      }}>{t}</Button>
-    ))}
-  </Box>
-);
-
-const OverviewSection = ({ overview, highlights = [] }) => (
-  <Box sx={{ mb: 4.5 }}>
-    <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>About this trip</Typography>
-    <Typography sx={{ fontSize: 15, color: TEXT, lineHeight: 1.7, mb: 1.5, whiteSpace: "pre-line" }}>
-      {overview || "A small-group experience through some of India's most remote landscapes."}
-    </Typography>
-    {highlights.length > 0 && (
-      <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0, mt: 2.5, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.4 }}>
-        {highlights.map((h, i) => (
-          <Box component="li" key={i} sx={{ display: "flex", gap: 1.4, alignItems: "flex-start" }}>
-            <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: ORANGE, flexShrink: 0, mt: "8px" }} />
-            <Typography sx={{ fontSize: 14.5, color: TEXT_DARK, lineHeight: 1.55 }}>{h}</Typography>
-          </Box>
-        ))}
-      </Box>
-    )}
-  </Box>
-);
-
-const ItineraryTimeline = ({ itinerary = [], totalDays }) => {
-  const [expanded, setExpanded] = useState(false);
-  const shown = expanded ? itinerary : itinerary.slice(0, 3);
-  return (
-  <Box sx={{ mb: 4.5 }}>
-    <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>Itinerary</Typography>
-    {shown.length ? shown.map((day, i) => (
-      <Box key={i} sx={{
-        display: "flex", gap: 2.2, py: 2.2, borderBottom: i < itinerary.length - 1 ? `1px solid ${LINE_SOFT}` : "none", position: "relative",
-        "&::before": i < itinerary.length - 1 ? { content: '""', position: "absolute", left: 24, top: 60, bottom: -1, width: "1px", bgcolor: LINE } : {},
-      }}>
-        <Box sx={{ flexShrink: 0, width: 48, height: 48, borderRadius: "50%", bgcolor: ORANGE_TINT, color: ORANGE, display: "grid", placeItems: "center", fontWeight: 800, fontSize: 14, position: "relative", zIndex: 2 }}>
-          {String(i + 1).padStart(2, "0")}
-        </Box>
-        <Box>
-          <Typography sx={{ fontSize: 16, fontWeight: 700, color: TEXT_DARK, mb: 0.5 }}>{day.title}</Typography>
-          {day.description && <Typography sx={{ fontSize: 14, color: TEXT_LIGHT, lineHeight: 1.6, whiteSpace: "pre-line" }}>{day.description}</Typography>}
-          {day.tags?.length > 0 && (
-            <Box sx={{ display: "flex", gap: 0.7, flexWrap: "wrap", mt: 1.2 }}>
-              {day.tags.map((t, ti) => <Chip key={ti} label={t} size="small" sx={{ bgcolor: "#fff", border: `1px solid ${LINE}`, fontSize: 11, fontWeight: 600, color: TEXT_LIGHT, height: 22 }} />)}
-            </Box>
-          )}
-        </Box>
-      </Box>
-    )) : <Typography sx={{ fontSize: 14, color: TEXT_LIGHT }}>Detailed day-by-day itinerary shared on enquiry.</Typography>}
-    {itinerary.length > 3 && (
-      <Button onClick={() => setExpanded((e) => !e)} endIcon={<KeyboardArrowDown sx={{ fontSize: 16, transform: expanded ? "rotate(180deg)" : "none", transition: "transform .2s" }} />} sx={{
-        mt: 2, color: TEXT, border: `1px solid ${LINE}`, fontSize: 13.5, fontWeight: 600, textTransform: "none", borderRadius: "10px", px: 2, py: 1,
-        "&:hover": { borderColor: TEXT_DARK, color: TEXT_DARK },
-      }}>{expanded ? "Show less" : `Show full ${totalDays || itinerary.length}-day itinerary`}</Button>
-    )}
-  </Box>
-  );
-};
-
-const CallbackForm = ({ tripTitle, userId }) => {
-  const [cb, setCb] = useState({ name: "", phone: "", email: "" });
-  const [sent, setSent] = useState(false);
-  const [enquir, { isLoading }] = useEnquirMutation();
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!cb.name.trim() || (!cb.phone.trim() && !cb.email.trim())) return;
-    try { await enquir({ Name: cb.name, Phone: cb.phone, Email: cb.email, Message: `Callback request for trip: ${tripTitle}`, userId }).unwrap(); } catch { /* noop */ }
-    setSent(true);
-  };
-  const fieldSx = {
-    "& .MuiOutlinedInput-root": { borderRadius: "10px", fontSize: 14, height: 42, bgcolor: "#fff",
-      "& fieldset": { borderColor: LINE, borderWidth: "1.5px" }, "&:hover fieldset": { borderColor: TEXT_LIGHT }, "&.Mui-focused fieldset": { borderColor: ORANGE } },
-  };
-  return (
-    <Box sx={{ bgcolor: "#fff", borderRadius: "14px", border: "1px solid #efeae5", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2)", overflow: "hidden", mt: 1.5 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, px: 2, py: 1.2, bgcolor: ORANGE_TINT, borderBottom: "1px solid #efeae5" }}>
-        <Box sx={{ width: 32, height: 32, borderRadius: "9px", bgcolor: "#fff", display: "grid", placeItems: "center", color: ORANGE }}><WhatsApp sx={{ fontSize: 17 }} /></Box>
-        <Box>
-          <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: ORANGE }}>Born to Roam?</Typography>
-          <Typography sx={{ fontSize: 16, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.1 }}>Let&apos;s Talk</Typography>
-        </Box>
-      </Box>
-      {sent ? (
-        <Box sx={{ p: 2.5 }}><Typography sx={{ fontSize: 13.5, color: GREEN, fontWeight: 600 }}>Thanks! Our team will reach out shortly.</Typography></Box>
-      ) : (
-        <Box component="form" onSubmit={submit} sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.2 }}>
-          <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.5 }}>Full Name <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
-            <TextField fullWidth size="small" placeholder="e.g. John Smith" value={cb.name} onChange={(e) => setCb({ ...cb, name: e.target.value })} sx={fieldSx} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.5 }}>Phone No. <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
-            <TextField fullWidth size="small" placeholder="Enter your 10 digit number" value={cb.phone} onChange={(e) => setCb({ ...cb, phone: e.target.value })} sx={fieldSx} />
-          </Box>
-          <Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: CHARCOAL, mb: 0.5 }}>Email ID <Box component="span" sx={{ color: ORANGE }}>*</Box></Typography>
-            <TextField fullWidth size="small" placeholder="john@example.com" value={cb.email} onChange={(e) => setCb({ ...cb, email: e.target.value })} sx={fieldSx} />
-          </Box>
-          <Button type="submit" disabled={isLoading} fullWidth sx={{ bgcolor: CHARCOAL, color: "#fff", fontSize: 14, fontWeight: 700, py: 1.3, borderRadius: "10px", textTransform: "none", mt: 0.4, "&:hover": { bgcolor: "#222" } }}>{isLoading ? "Sending…" : "Submit Request"}</Button>
-          <Typography sx={{ fontSize: 10.5, color: TEXT_LIGHTER, textAlign: "center", lineHeight: 1.4 }}>By submitting, you agree to receive a call &amp; WhatsApp updates from Nomadic Townies.</Typography>
-        </Box>
-      )}
-    </Box>
-  );
-};
-
-const InclusionsGrid = ({ included = [], excluded = [] }) => (
-  <Box sx={{ mb: 4.5 }}>
-    <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>What&apos;s included</Typography>
-    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
-      <Box sx={{ bgcolor: BG_SOFT, borderRadius: "12px", p: 2.2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-          <CheckCircle sx={{ color: GREEN, fontSize: 18 }} />
-          <Typography sx={{ fontSize: 15, fontWeight: 700, color: TEXT_DARK }}>Included</Typography>
-        </Box>
-        {(included.length ? included : ["Details shared on enquiry"]).map((item, i) => (
-          <Box key={i} sx={{ display: "flex", gap: 1.2, fontSize: 13.5, color: TEXT, mb: 1 }}>
-            <CheckCircle sx={{ fontSize: 14, color: GREEN, flexShrink: 0, mt: 0.3 }} /><span>{item}</span>
-          </Box>
-        ))}
-      </Box>
-      <Box sx={{ bgcolor: BG_SOFT, borderRadius: "12px", p: 2.2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-          <Cancel sx={{ color: "#DC2626", fontSize: 18 }} />
-          <Typography sx={{ fontSize: 15, fontWeight: 700, color: TEXT_DARK }}>Not included</Typography>
-        </Box>
-        {(excluded.length ? excluded : ["Anything not mentioned in Included"]).map((item, i) => (
-          <Box key={i} sx={{ display: "flex", gap: 1.2, fontSize: 13.5, color: TEXT, mb: 1 }}>
-            <Cancel sx={{ fontSize: 14, color: "#DC2626", flexShrink: 0, mt: 0.3 }} /><span>{item}</span>
-          </Box>
-        ))}
-      </Box>
-    </Box>
-  </Box>
-);
-
-const ReviewsSection = ({ rating, reviewCount, breakdown = {}, reviews = [] }) => (
-  <Box sx={{ mb: 4.5 }}>
-    <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>What travellers are saying</Typography>
-    <Box sx={{ display: "flex", gap: 3, alignItems: "center", p: 2.5, bgcolor: BG_SOFT, borderRadius: "12px", mb: 2.5, flexWrap: "wrap" }}>
-      <Box>
-        <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 46, fontWeight: 700, color: TEXT_DARK, lineHeight: 1 }}>{rating || "4.9"}</Typography>
-        <Box sx={{ color: "#f59e0b", fontSize: 16, mt: 0.5 }}>★★★★★</Box>
-        <Typography sx={{ fontSize: 13, color: TEXT_LIGHT, mt: 0.3 }}>{reviewCount || 0} reviews</Typography>
-      </Box>
-      <Box sx={{ flex: 1, minWidth: 200, display: "flex", flexDirection: "column", gap: 0.8 }}>
-        {[5, 4, 3, 2, 1].map((stars) => (
-          <Box key={stars} sx={{ display: "flex", alignItems: "center", gap: 1.2, fontSize: 12, color: TEXT_LIGHT }}>
-            <Box sx={{ width: 30, color: TEXT_DARK, fontWeight: 500 }}>{stars}★</Box>
-            <Box sx={{ flex: 1, height: 6, bgcolor: LINE, borderRadius: "3px", overflow: "hidden" }}>
-              <Box sx={{ height: "100%", bgcolor: "#f59e0b", width: `${breakdown[stars] || 0}%`, borderRadius: "3px" }} />
-            </Box>
-            <Box sx={{ width: 24, textAlign: "right" }}>{Math.round((breakdown[stars] || 0) * (reviewCount || 0) / 100)}</Box>
-          </Box>
-        ))}
-      </Box>
-    </Box>
-    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.8 }}>
-      {reviews.map((r, i) => (
-        <Box key={i} sx={{ p: 2.2, bgcolor: "#fff", border: `1px solid ${LINE}`, borderRadius: "12px" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 1.2 }}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: ORANGE_TINT, color: ORANGE, fontSize: 14, fontWeight: 800 }}>{(r.name || "U")[0]}</Avatar>
-            <Box>
-              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: TEXT_DARK }}>{r.name}</Typography>
-              <Typography sx={{ fontSize: 11.5, color: TEXT_LIGHTER }}>{[r.date, r.tripType].filter(Boolean).join(" · ")}</Typography>
-            </Box>
-            <Box sx={{ ml: "auto", color: "#f59e0b", fontSize: 13 }}>{"★".repeat(r.rating || 5)}</Box>
-          </Box>
-          <Typography sx={{ fontSize: 13.5, color: TEXT, lineHeight: 1.6 }}>&ldquo;{r.text}&rdquo;</Typography>
-        </Box>
-      ))}
-    </Box>
-  </Box>
-);
-
-const PriceSidebar = ({ trip, onBookNow }) => (
-  <Box sx={{ bgcolor: "#fff", borderRadius: "14px", border: "1px solid #efeae5", boxShadow: "0 10px 28px -14px rgba(31,39,51,.2)", overflow: "hidden" }}>
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1, px: 2, py: 1.2, bgcolor: ORANGE_TINT, borderBottom: "1px solid #efeae5" }}>
-      <Box sx={{ width: 22, height: 22, borderRadius: "6px", bgcolor: "#fff", display: "grid", placeItems: "center", border: `1px solid ${ORANGE_TINT}`, color: ORANGE }}>💳</Box>
-      <Typography sx={{ fontSize: 11, fontWeight: 500, color: CHARCOAL, lineHeight: 1.3 }}>Pay a little now, adventure a lot — flexible payments at checkout.</Typography>
-    </Box>
-    <Box sx={{ p: "12px 18px 14px" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
-        <Typography sx={{ fontSize: 11, fontWeight: 600, color: "#8b837b" }}>Starting from</Typography>
-        {trip.tripOff ? <Box sx={{ bgcolor: GREEN_TINT, color: GREEN, fontSize: 10, fontWeight: 700, px: 1, py: 0.4, borderRadius: "999px" }}>✦ {trip.tripOff}% OFF</Box> : null}
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, flexWrap: "wrap", mb: 1.4 }}>
-        <Typography component="b" sx={{ fontSize: 30, fontWeight: 800, color: "#16223a", letterSpacing: "-.02em", lineHeight: 1 }}>₹{(trip.price || 0).toLocaleString("en-IN")}</Typography>
-        {trip.strikePrice > trip.price ? <Typography component="s" sx={{ fontSize: 13, fontWeight: 600, color: "#b3aba3" }}>₹{trip.strikePrice.toLocaleString("en-IN")}</Typography> : null}
-        <Typography component="em" sx={{ fontSize: 12, fontWeight: 600, color: "#8b837b", fontStyle: "normal" }}>/ person</Typography>
-      </Box>
-      <Button fullWidth onClick={onBookNow} endIcon={<ArrowForward sx={{ fontSize: 15 }} />} sx={{
-        bgcolor: ORANGE, color: "#fff", fontSize: 14, fontWeight: 700, textTransform: "none", py: 1.6, borderRadius: "10px",
-        boxShadow: "0 10px 18px -8px rgba(210,75,42,.55)", "&:hover": { bgcolor: ORANGE_HOVER, transform: "translateY(-1px)" },
-      }}>Book Now</Button>
-    </Box>
-    <Box sx={{ p: "14px 18px", borderTop: "1px solid #efeae5", bgcolor: "#FAF7F2" }}>
-      {[
-        { ic: "🛡️", text: "Secure payments · verified host" },
-        { ic: "✓", text: "Hand-picked, community-first trip" },
-        { ic: "💬", text: "24/7 trip support · WhatsApp" },
-      ].map((t, i) => (
-        <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1.2, fontSize: 12, color: TEXT, mb: i < 2 ? 1 : 0 }}>
-          <span style={{ color: GREEN }}>{t.ic}</span>{t.text}
-        </Box>
-      ))}
-    </Box>
-  </Box>
-);
-
-// ─── Main component ──────────────────────────────────────────
 export default function TripDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { userDbData } = useSelector((s) => s.global);
   const { data: tripsRes } = useGetTripsQuery();
   const { data: revRes } = useGetAllReviewsQuery();
-  const [activeTab, setActiveTab] = useState("Overview");
-  const [favorited, setFavorited] = useState(false);
+  const [active, setActive] = useState("Overview");
+  const [itineraryOpen, setItineraryOpen] = useState(false);
   const [openL, setOpenL] = useState(false);
-  const [shareAnchor, setShareAnchor] = useState(null);
-  const [copied, setCopied] = useState(false);
-  const sectionRefs = {
-    Overview: useRef(null), Itinerary: useRef(null), Inclusions: useRef(null),
-    Reviews: useRef(null), "Other Info": useRef(null),
-  };
-  const scrollToSection = (tab) => {
-    setActiveTab(tab);
-    sectionRefs[tab]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const rootRef = useRef(null);
 
   const raw = useMemo(() => {
     const list = Array.isArray(tripsRes?.data) ? tripsRes.data : [];
@@ -421,140 +210,358 @@ export default function TripDetail() {
 
   const trip = useMemo(() => mapTrip(raw, revRes?.data), [raw, revRes]);
 
-  // scroll-spy: highlight the tab of the section currently in view (active tab turns orange)
   useEffect(() => {
     if (!trip) return undefined;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]?.target?.dataset?.tab) setActiveTab(visible[0].target.dataset.tab);
-      },
-      { rootMargin: "-130px 0px -55% 0px", threshold: 0 }
-    );
-    Object.entries(sectionRefs).forEach(([tab, ref]) => {
-      if (ref.current) { ref.current.dataset.tab = tab; observer.observe(ref.current); }
-    });
-    return () => observer.disconnect();
+    const onScroll = () => {
+      const root = rootRef.current;
+      if (!root) return;
+      let cur = active;
+      TABS.forEach(([id, label]) => {
+        const el = root.querySelector(`#${id}`);
+        if (el && el.getBoundingClientRect().top <= 150) cur = label;
+      });
+      setActive((prev) => (cur !== prev ? cur : prev));
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trip?._id]);
+  }, [trip?.id]);
 
-  if (tripsRes && !raw) return <Box sx={{ bgcolor: BG_SOFT, minHeight: "60vh", display: "grid", placeItems: "center", color: TEXT_LIGHT }}>Trip not found.</Box>;
-  if (!trip) return <Box sx={{ bgcolor: BG_SOFT, minHeight: "60vh", display: "grid", placeItems: "center", color: TEXT_LIGHT }}>Loading…</Box>;
+  if (tripsRes && !raw) return <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6B7280" }}>Trip not found.</div>;
+  if (!trip) return <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6B7280" }}>Loading…</div>;
+
+  const goTo = (id, label) => () => {
+    setActive(label);
+    const el = rootRef.current?.querySelector(`#${id}`);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 118, behavior: "smooth" });
+  };
 
   const handleBookNow = () => {
     if (!userDbData) { setOpenL(true); return; }
-    // Phase 2: keep the existing, working booking flow. Phase 4 repoints to /payment/:tripId (BookingFlow).
-    navigate("/payment", { state: { paymentDetail: raw } });
+    navigate("/payment", { state: { paymentDetail: raw } }); // unchanged booking flow
   };
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const shareText = trip?.title ? `${trip.title} — Nomadic Townies` : "Nomadic Townies";
-  const openShare = async (e) => {
-    if (navigator.share) { try { await navigator.share({ title: shareText, url: shareUrl }); return; } catch { /* fall through to menu */ } }
-    setShareAnchor(e.currentTarget);
-  };
-  const shareTo = (kind) => {
-    const u = encodeURIComponent(shareUrl); const t = encodeURIComponent(shareText);
-    const links = {
-      whatsapp: `https://wa.me/?text=${t}%20${u}`,
-      telegram: `https://t.me/share/url?url=${u}&text=${t}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
-      email: `mailto:?subject=${t}&body=${u}`,
-    };
-    if (kind === "copy") { navigator.clipboard?.writeText(shareUrl); setCopied(true); }
-    else window.open(links[kind], "_blank", "noopener,noreferrer");
-    setShareAnchor(null);
-  };
+  const goHost = () => { if (trip.host?.id) { navigate(`/hosts/${trip.host.id}`); window.scrollTo(0, 0); } };
+
+  const fullItinerary = trip.itinerary;
+  const itineraryMore = fullItinerary.length > 4;
+  const itinerary = (itineraryOpen ? fullItinerary : fullItinerary.slice(0, 4))
+    .map((d, i) => ({ ...d, num: String(i + 1).padStart(2, "0") }));
+
+  const sectionH2 = { margin: "0 0 16px", fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(22px,2.6vw,27px)", letterSpacing: "-.01em", color: "#221C17" };
+  const card = { background: "#FFFDF9", border: "1px solid #E6DDCF", borderRadius: "16px" };
 
   return (
-    <Box sx={{ bgcolor: BG_SOFT, minHeight: "100vh", textAlign: "left", "& .MuiTypography-root": { textAlign: "left" } }}>
+    <div className="td-page" ref={rootRef} style={{ paddingBottom: 88 }}>
       <Helmet>
-        <title>{trip.title ? `${trip.title} | Book Now | Nomadic Townies` : "Trip Details"}</title>
-        <meta name="description" content={trip.overview ? trip.overview.slice(0, 150) : "Book this experience with Nomadic Townies."} />
-        <link rel="canonical" href={`https://nomadictownies.com/trips/${trip.slug}`} />
+        <title>{`${trip.title} | Book Now | Nomadic Townies`}</title>
+        <meta name="description" content={trip.overview ? trip.overview.slice(0, 150) : "Book this host-led experience with Nomadic Townies."} />
+        <link rel="canonical" href={`https://www.nomadictownies.com/trips/${trip.slug}`} />
       </Helmet>
+      <style>{TD_CSS}</style>
       <LoginModal openL={openL} setOpenL={setOpenL} />
 
-      <Box sx={{ maxWidth: "1280px", mx: "auto", px: { xs: 2, md: 4 }, pt: 3, pb: 8 }}>
-        <Breadcrumb title={trip.title} />
-        <HeroGallery images={trip.images} />
+      {/* TOP BAR */}
+      <header style={{ display: "flex", alignItems: "center", gap: "14px", padding: "clamp(13px,1.8vw,18px) clamp(16px,4vw,48px)", background: "#FFFDF9", borderBottom: "1px solid #E6DDCF", position: "sticky", top: 0, zIndex: 30 }}>
+        <button type="button" className="td-ghost" aria-label="Back" onClick={() => navigate(-1)} style={{ width: 38, height: 38, flex: "none", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #E6DDCF", background: "#fff", borderRadius: "10px", cursor: "pointer", fontSize: "17px", color: "#221C17" }}>←</button>
+        <div style={{ display: "flex", alignItems: "center", gap: "7px", font: `500 12.5px/1 ${BODY}`, color: "#9A9080", minWidth: 0, overflow: "hidden" }}>
+          <span style={{ cursor: "pointer" }} onClick={() => navigate("/")}>Home</span><span>›</span>
+          <span style={{ cursor: "pointer" }} onClick={() => navigate("/experiences")}>Experiences</span><span>›</span>
+          <span style={{ color: "#221C17", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{trip.title}</span>
+        </div>
+      </header>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 430px" }, gap: { xs: 3, lg: 3.5 }, alignItems: "start" }}>
-          <Box>
-            <Typography sx={{ fontFamily: PLAYFAIR, fontSize: { xs: 26, md: 36 }, fontWeight: 700, color: TEXT_DARK, lineHeight: 1.12, letterSpacing: "-.02em", mb: 1, mt: 0.5 }}>{trip.title}</Typography>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(18px,2.5vw,32px) clamp(16px,4vw,48px) 0" }}>
+        {/* HERO GALLERY */}
+        <div className="td-hero" style={{ borderRadius: "22px", overflow: "hidden", marginBottom: "26px", position: "relative" }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className={i === 0 ? "td-hero-a" : "td-hero-hide td-thumb"} style={{ position: "relative", overflow: "hidden", minHeight: i === 0 ? 250 : undefined, background: HERO_GRADS[i] }}>
+              {trip.images[i] && <img src={trip.images[i]} alt={i === 0 ? trip.title : ""} loading={i === 0 ? "eager" : "lazy"} onError={(e) => { e.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+              {i === 0 && trip.trending && (
+                <span style={{ position: "absolute", left: 18, top: 18, display: "inline-flex", alignItems: "center", gap: "6px", padding: "7px 13px", borderRadius: "99px", background: "rgba(34,28,23,.6)", color: "#F4EEE4", font: `700 11px/1 ${BODY}`, letterSpacing: ".04em", textTransform: "uppercase" }}>★ Trending experience</span>
+              )}
+            </div>
+          ))}
+          {trip.photoCount > 0 && (
+            <span style={{ position: "absolute", right: 18, bottom: 18, display: "inline-flex", alignItems: "center", gap: "7px", padding: "9px 15px", background: "#FFFDF9", color: "#221C17", border: "1px solid #E6DDCF", borderRadius: "10px", font: `600 13px/1 ${BODY}` }}>All {trip.photoCount} photos</span>
+          )}
+        </div>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, fontSize: 14, color: TEXT_LIGHT, flexWrap: "wrap", mb: 2.2 }}>
-              {trip.location && <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}><LocationOn sx={{ fontSize: 16, color: TEXT_LIGHTER }} /> {trip.location}</Box>}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}><AccessTime sx={{ fontSize: 16, color: TEXT_LIGHTER }} /> {trip.nights}N · {trip.days}D</Box>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.7, color: TEXT_DARK, fontWeight: 600 }}>
-                <Star sx={{ fontSize: 16, color: "#f59e0b" }} />{trip.rating} <Box component="span" sx={{ color: TEXT_LIGHT, fontWeight: 500 }}>({trip.reviewCount} reviews)</Box>
-              </Box>
-              <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-                <IconButton onClick={() => setFavorited(!favorited)} size="small">{favorited ? <Favorite sx={{ color: ORANGE }} /> : <FavoriteBorder sx={{ color: TEXT_LIGHT }} />}</IconButton>
-                <IconButton size="small" onClick={openShare} aria-label="Share trip"><Share sx={{ color: TEXT_LIGHT }} /></IconButton>
-                <Menu anchorEl={shareAnchor} open={Boolean(shareAnchor)} onClose={() => setShareAnchor(null)} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} transformOrigin={{ vertical: "top", horizontal: "right" }}>
-                  <MenuItem onClick={() => shareTo("copy")}><ListItemIcon><ContentCopy fontSize="small" /></ListItemIcon>Copy link</MenuItem>
-                  <MenuItem onClick={() => shareTo("whatsapp")}><ListItemIcon><WhatsApp fontSize="small" sx={{ color: "#25D366" }} /></ListItemIcon>WhatsApp</MenuItem>
-                  <MenuItem onClick={() => shareTo("telegram")}><ListItemIcon><Telegram fontSize="small" sx={{ color: "#229ED9" }} /></ListItemIcon>Telegram</MenuItem>
-                  <MenuItem onClick={() => shareTo("facebook")}><ListItemIcon><Facebook fontSize="small" sx={{ color: "#1877F2" }} /></ListItemIcon>Facebook</MenuItem>
-                  <MenuItem onClick={() => shareTo("email")}><ListItemIcon><Email fontSize="small" sx={{ color: TEXT_LIGHT }} /></ListItemIcon>Email</MenuItem>
-                </Menu>
-              </Box>
-            </Box>
+        {/* GRID */}
+        <div className="td-grid">
+          {/* ===== MAIN ===== */}
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ margin: 0, fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(28px,3.8vw,42px)", lineHeight: 1.06, letterSpacing: "-.02em", color: "#221C17", textWrap: "balance" }}>{trip.title}</h1>
+            <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap", marginTop: "14px" }}>
+              {trip.location && <span style={{ display: "flex", alignItems: "center", gap: "6px", font: `500 14.5px/1 ${BODY}`, color: "#726A5E" }}><span style={{ color: ACCENT, display: "flex" }}><Ic w={15} paths={["M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z", "M12 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"]} /></span>{trip.location}</span>}
+              {trip.duration && <span style={{ display: "flex", alignItems: "center", gap: "6px", font: `500 14.5px/1 ${BODY}`, color: "#726A5E" }}><span style={{ color: ACCENT, display: "flex" }}><Ic w={15} paths={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z", "M12 7v5l3 2"]} /></span>{trip.duration}</span>}
+              {trip.hasReviews ? (
+                <span style={{ display: "flex", alignItems: "center", gap: "6px", font: `600 14.5px/1 ${BODY}`, color: "#221C17" }}><span style={{ color: "#E0922F", display: "flex" }}><Ic w={15} fill="#E0922F" paths={["m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.8L12 17l-6.2 3.5 1.6-6.8L2 9.1l7-.6L12 2Z"]} /></span>{trip.rating} <span style={{ color: "#9A9080", fontWeight: 500 }}>({trip.reviewCount} reviews)</span></span>
+              ) : (
+                <span style={{ display: "flex", alignItems: "center", gap: "6px", font: `600 13.5px/1 ${BODY}`, color: "#9A9080" }}>New experience</span>
+              )}
+            </div>
 
-            {trip.host && <HostStrip host={trip.host} />}
-
-            {/* sticky tab bar — scrolls to sections; all sections stay on the page */}
-            <Box sx={{ position: "sticky", top: 0, zIndex: 10, bgcolor: BG_SOFT, pt: 1 }}>
-              <TabBar active={activeTab} onChange={scrollToSection} tabs={["Overview", "Itinerary", "Inclusions", "Reviews", "Other Info"]} />
-            </Box>
-
-            <Box ref={sectionRefs.Overview} sx={{ scrollMarginTop: "84px" }}>
-              <OverviewSection overview={trip.overview} highlights={trip.highlights} />
-            </Box>
-            <Box ref={sectionRefs.Itinerary} sx={{ scrollMarginTop: "84px" }}>
-              <ItineraryTimeline itinerary={trip.itinerary} totalDays={trip.days} />
-            </Box>
-            <Box ref={sectionRefs.Inclusions} sx={{ scrollMarginTop: "84px" }}>
-              <InclusionsGrid included={trip.inclusions} excluded={trip.exclusions} />
-            </Box>
-            <Box ref={sectionRefs.Reviews} sx={{ scrollMarginTop: "84px" }}>
-              <ReviewsSection rating={trip.rating} reviewCount={trip.reviewCount} breakdown={trip.ratingBreakdown} reviews={trip.reviews} />
-            </Box>
-            {(splitList(raw?.ThingsToCarry).length > 0 || splitList(raw?.Cancellation).length > 0) && (
-              <Box ref={sectionRefs["Other Info"]} sx={{ scrollMarginTop: "84px", mb: 4.5 }}>
-                <Typography sx={{ fontFamily: PLAYFAIR, fontSize: 24, fontWeight: 700, color: TEXT_DARK, mb: 1.8 }}>Other information</Typography>
-                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
-                  {splitList(raw?.ThingsToCarry).length > 0 && (
-                    <Box sx={{ bgcolor: BG_SOFT, borderRadius: "12px", p: 2.2 }}>
-                      <Typography sx={{ fontSize: 15, fontWeight: 700, color: TEXT_DARK, mb: 1.5 }}>Things to carry</Typography>
-                      {splitList(raw.ThingsToCarry).map((x, i) => <Box key={i} sx={{ display: "flex", gap: 1.2, fontSize: 13.5, color: TEXT, mb: 1 }}><span style={{ color: ORANGE }}>•</span><span>{x}</span></Box>)}
-                    </Box>
-                  )}
-                  {splitList(raw?.Cancellation).length > 0 && (
-                    <Box sx={{ bgcolor: BG_SOFT, borderRadius: "12px", p: 2.2 }}>
-                      <Typography sx={{ fontSize: 15, fontWeight: 700, color: TEXT_DARK, mb: 1.5 }}>Cancellation policy</Typography>
-                      {splitList(raw.Cancellation).map((x, i) => <Box key={i} sx={{ display: "flex", gap: 1.2, fontSize: 13.5, color: TEXT, mb: 1 }}><span style={{ color: ORANGE }}>•</span><span>{x}</span></Box>)}
-                    </Box>
-                  )}
-                </Box>
-              </Box>
+            {trip.categories.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "18px" }}>
+                {trip.categories.map((c, i) => <span key={i} style={{ padding: "7px 14px", borderRadius: "99px", background: "#F3EDE3", color: "#5A5247", font: `600 13px/1 ${BODY}` }}>{c.label}</span>)}
+              </div>
             )}
-          </Box>
 
-          <Box sx={{
-            position: { lg: "sticky" }, top: { lg: 16 }, alignSelf: "start",
-            maxHeight: { lg: "calc(100vh - 32px)" }, overflowY: { lg: "auto" }, pr: { lg: 0.5 },
-            "&::-webkit-scrollbar": { width: 6 }, "&::-webkit-scrollbar-thumb": { background: LINE, borderRadius: 3 },
-          }}>
-            <PriceSidebar trip={trip} onBookNow={handleBookNow} />
-            <CallbackForm tripTitle={trip.title} userId={userDbData?._id} />
-          </Box>
-        </Box>
-      </Box>
+            {/* quick facts */}
+            {trip.facts.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: "12px", marginTop: "24px" }}>
+                {trip.facts.map((f) => (
+                  <div key={f.key} style={{ ...card, padding: "16px 18px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", color: ACCENT, marginBottom: "9px" }}><Ic paths={FACT_ICONS[f.key]} /></div>
+                    <div style={{ font: `400 12px/1 ${BODY}`, color: "#9A9080" }}>{f.label}</div>
+                    <div style={{ marginTop: "4px", font: `700 15px/1.25 ${BODY}`, color: "#221C17" }}>{f.value}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* STICKY TABS */}
+            <div style={{ position: "sticky", top: 64, zIndex: 20, background: "#F4EEE4", paddingTop: "16px", marginTop: "30px" }}>
+              <div style={{ display: "flex", gap: "28px", borderBottom: "1px solid #E6DDCF", overflowX: "auto" }}>
+                {TABS.map(([id, label]) => (
+                  <button key={id} type="button" className="td-tab" onClick={goTo(id, label)} style={{ padding: "14px 2px", font: `600 14px/1 ${BODY}`, color: active === label ? ACCENT : "#8A8073", borderBottom: `2px solid ${active === label ? ACCENT : "transparent"}`, whiteSpace: "nowrap" }}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* OVERVIEW */}
+            <section id="td-overview" className="td-sec" style={{ marginTop: "34px" }}>
+              <h2 style={sectionH2}>About this experience</h2>
+              <p style={{ margin: 0, font: `400 16.5px/1.75 ${BODY}`, color: "#5A5247", whiteSpace: "pre-line", maxWidth: "68ch" }}>{trip.overview || "Details coming soon."}</p>
+              {trip.highlights.length > 0 && (
+                <>
+                  <div style={{ font: `700 12px/1 ${BODY}`, letterSpacing: ".08em", textTransform: "uppercase", color: "#A89C8A", margin: "26px 0 14px" }}>Highlights</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "12px" }}>
+                    {trip.highlights.map((h, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "11px", font: `400 15px/1.55 ${BODY}`, color: "#3C3228" }}>
+                        <span style={{ flex: "none", width: 22, height: 22, marginTop: 1, borderRadius: "7px", background: "#F6E4DC", color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center" }}><Ic w={13} paths={["M20 6 9 17l-5-5"]} /></span>
+                        <span>{h.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </section>
+
+            {/* HOST */}
+            {trip.host && (
+              <section id="td-host" className="td-sec" style={{ marginTop: "40px", background: "#221C17", borderRadius: "22px", padding: "clamp(24px,3vw,34px)", color: "#F4EEE4", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", right: -50, top: -50, width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle,rgba(233,98,47,.26),transparent 66%)" }} />
+                <div style={{ position: "relative" }}>
+                  <div style={{ font: `700 12px/1 ${BODY}`, letterSpacing: ".12em", textTransform: "uppercase", color: "#F0B49C", marginBottom: "18px" }}>Meet your host</div>
+                  <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "flex-start" }}>
+                    <div style={{ position: "relative", flex: "none" }}>
+                      <div style={{ width: 80, height: 80, borderRadius: "18px", background: `linear-gradient(150deg,#E9622F,${ACCENT})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: DISPLAY, fontWeight: 700, fontSize: "33px", color: "#FFF6EF" }}>{trip.host.initial}</div>
+                      {trip.host.verified && <span style={{ position: "absolute", right: -8, bottom: -8, width: 30, height: 30, borderRadius: "50%", background: "#5BBF7A", border: "3px solid #221C17", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}><Ic w={15} paths={["M20 6 9 17l-5-5"]} /></span>}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 240 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                        <span style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "24px", letterSpacing: "-.01em", color: "#F8F4ED" }}>{trip.host.name}</span>
+                        {trip.host.verified && <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "5px 10px", borderRadius: "99px", background: "rgba(91,191,122,.18)", border: "1px solid rgba(91,191,122,.4)", color: "#A8E6BC", font: `700 10px/1 ${BODY}`, letterSpacing: ".04em", textTransform: "uppercase" }}>Verified host</span>}
+                      </div>
+                      <div style={{ display: "flex", gap: "18px", flexWrap: "wrap", marginTop: "10px" }}>
+                        <span style={{ font: `600 13px/1 ${BODY}`, color: "#E6DDCF" }}>{trip.host.tripsHosted} <span style={{ color: "#9C9388", fontWeight: 400 }}>trips hosted</span></span>
+                        {trip.host.years && <span style={{ font: `600 13px/1 ${BODY}`, color: "#E6DDCF" }}>{trip.host.years} <span style={{ color: "#9C9388", fontWeight: 400 }}>hosting</span></span>}
+                      </div>
+                    </div>
+                  </div>
+                  {trip.host.bio && <p style={{ margin: "18px 0 0", font: `400 15px/1.7 ${BODY}`, color: "#C9BFAE", maxWidth: "68ch" }}>{trip.host.bio}</p>}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "24px", marginTop: "20px" }}>
+                    {trip.host.languages.length > 0 && (
+                      <div>
+                        <div style={{ font: `700 11px/1 ${BODY}`, letterSpacing: ".08em", textTransform: "uppercase", color: "#8A8073", marginBottom: "8px" }}>Speaks</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>{trip.host.languages.map((l, i) => <span key={i} style={{ padding: "5px 11px", borderRadius: "99px", border: "1px solid rgba(244,238,228,.22)", font: `600 12px/1 ${BODY}`, color: "#E6DDCF" }}>{l.label}</span>)}</div>
+                      </div>
+                    )}
+                    {trip.host.regions.length > 0 && (
+                      <div>
+                        <div style={{ font: `700 11px/1 ${BODY}`, letterSpacing: ".08em", textTransform: "uppercase", color: "#8A8073", marginBottom: "8px" }}>Regions</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>{trip.host.regions.map((r, i) => <span key={i} style={{ padding: "5px 11px", borderRadius: "99px", border: "1px solid rgba(244,238,228,.22)", font: `600 12px/1 ${BODY}`, color: "#E6DDCF" }}>{r.label}</span>)}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "22px" }}>
+                    <button type="button" className="td-cta" onClick={goHost} style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 22px", font: `700 14px/1 ${BODY}`, color: "#fff", background: ACCENT, border: "none", borderRadius: "11px", cursor: "pointer" }}>View host profile →</button>
+                    <button type="button" onClick={goHost} style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 20px", font: `700 14px/1 ${BODY}`, color: "#F4EEE4", background: "transparent", border: "1px solid rgba(244,238,228,.3)", borderRadius: "11px", cursor: "pointer" }}>Message host</button>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* ITINERARY */}
+            {fullItinerary.length > 0 && (
+              <section id="td-itinerary" className="td-sec" style={{ marginTop: "40px" }}>
+                <h2 style={{ ...sectionH2, marginBottom: "18px" }}>Day-by-day itinerary</h2>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  {itinerary.map((d, i) => (
+                    <div key={i} style={{ display: "flex", gap: "16px", position: "relative", paddingBottom: "22px" }}>
+                      <div style={{ position: "relative", flex: "none", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <span style={{ width: 46, height: 46, borderRadius: "50%", background: "#FBF6EE", border: "1.5px solid #EAD9C9", color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: DISPLAY, fontWeight: 700, fontSize: "14px", zIndex: 2 }}>{d.num}</span>
+                        <span style={{ flex: 1, width: "1.5px", background: "#E6DDCF", marginTop: "4px" }} />
+                      </div>
+                      <div style={{ paddingTop: "5px", minWidth: 0 }}>
+                        <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "17px", color: "#221C17" }}>{d.title}</div>
+                        {d.desc && <p style={{ margin: "6px 0 0", font: `400 14.5px/1.7 ${BODY}`, color: "#726A5E", whiteSpace: "pre-line", maxWidth: "66ch" }}>{d.desc}</p>}
+                        {d.tags.length > 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>{d.tags.map((t, j) => <span key={j} style={{ padding: "4px 10px", borderRadius: "99px", background: "#FFFDF9", border: "1px solid #E6DDCF", font: `600 11px/1 ${BODY}`, color: "#8A8073" }}>{typeof t === "string" ? t : t.label}</span>)}</div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {itineraryMore && (
+                  <button type="button" onClick={() => setItineraryOpen((v) => !v)} className="td-ghost" style={{ marginTop: "6px", display: "inline-flex", alignItems: "center", gap: "8px", padding: "11px 20px", border: "1px solid #E6DDCF", background: "#FFFDF9", borderRadius: "11px", font: `600 13.5px/1 ${BODY}`, color: "#5A5247", cursor: "pointer" }}>
+                    {itineraryOpen ? "Show less" : `Show full ${fullItinerary.length}-day itinerary`}
+                  </button>
+                )}
+              </section>
+            )}
+
+            {/* INCLUSIONS / EXCLUSIONS */}
+            {(trip.inclusions.length > 0 || trip.exclusions.length > 0) && (
+              <section id="td-inclusions" className="td-sec" style={{ marginTop: "40px" }}>
+                <h2 style={{ ...sectionH2, marginBottom: "18px" }}>What&apos;s included</h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: "16px" }}>
+                  {trip.inclusions.length > 0 && (
+                    <div style={{ ...card, padding: "22px 24px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "16px" }}><span style={{ color: "#2E7D4F" }}><Ic w={19} paths={["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z", "m8 12 3 3 5-6"]} /></span><span style={{ font: `700 15px/1 ${BODY}`, color: "#221C17" }}>Included</span></div>
+                      <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {trip.inclusions.map((it, i) => <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px", font: `400 14.5px/1.55 ${BODY}`, color: "#5A5247" }}><span style={{ flex: "none", color: "#2E7D4F", marginTop: 2 }}><Ic w={14} paths={["M20 6 9 17l-5-5"]} /></span><span>{it.label}</span></li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {trip.exclusions.length > 0 && (
+                    <div style={{ ...card, padding: "22px 24px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "16px" }}><span style={{ color: "#C0392B" }}><Ic w={19} paths={["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z", "m15 9-6 6M9 9l6 6"]} /></span><span style={{ font: `700 15px/1 ${BODY}`, color: "#221C17" }}>Not included</span></div>
+                      <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {trip.exclusions.map((e, i) => <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px", font: `400 14.5px/1.55 ${BODY}`, color: "#5A5247" }}><span style={{ flex: "none", color: "#C0392B", marginTop: 2 }}><Ic w={14} paths={["M18 6 6 18M6 6l12 12"]} /></span><span>{e.label}</span></li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {/* REVIEWS */}
+            <section id="td-reviews" className="td-sec" style={{ marginTop: "40px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+                <h2 style={{ ...sectionH2, margin: 0 }}>Trip reviews</h2>
+                <span style={{ padding: "4px 11px", borderRadius: "99px", background: "#F3EDE3", color: "#8A8073", font: `600 11px/1 ${BODY}` }}>This experience only</span>
+              </div>
+              {!trip.hasReviews ? (
+                <div style={{ marginTop: "14px", textAlign: "center", padding: "44px 24px", background: "#FFFDF9", border: "1px dashed #E0D7C8", borderRadius: "16px" }}>
+                  <p style={{ margin: "0 0 6px", font: `700 16px/1.4 ${BODY}`, color: "#221C17" }}>No reviews yet</p>
+                  <p style={{ margin: "0 auto", maxWidth: 420, font: `400 14px/1.55 ${BODY}`, color: "#8A8073" }}>This is a new experience. Be one of the first to travel {trip.host ? `with ${trip.host.name}` : "with this host"} and share your story.</p>
+                </div>
+              ) : (
+                <>
+                  <p style={{ margin: "0 0 18px", font: `400 13.5px/1.4 ${BODY}`, color: "#9A9080" }}>From travellers who booked this trip — separate from host and brand reviews.</p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "26px", alignItems: "center", padding: "22px 26px", background: "#FBF6EE", borderRadius: "16px", marginBottom: "20px" }}>
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "46px", lineHeight: 1, color: "#221C17" }}>{trip.rating}</div>
+                      <div style={{ marginTop: "5px", color: "#E0922F", fontSize: "14px", letterSpacing: "2px" }}>★★★★★</div>
+                      <div style={{ marginTop: "4px", font: `500 12px/1 ${BODY}`, color: "#8A8073" }}>{trip.reviewCount} reviews</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 200, display: "flex", flexDirection: "column", gap: "7px" }}>
+                      {trip.ratingBars.map((bar) => (
+                        <div key={bar.stars} style={{ display: "flex", alignItems: "center", gap: "10px" }}><span style={{ font: `600 12px/1 ${BODY}`, color: "#8A8073", width: 28 }}>{bar.stars}★</span><span style={{ flex: 1, height: 7, borderRadius: "99px", background: "#EAE0D0", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: bar.pct, background: ACCENT }} /></span></div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "14px" }}>
+                    {trip.reviews.map((rv, i) => (
+                      <div key={i} style={{ padding: "18px 20px", border: "1px solid #E6DDCF", borderRadius: "14px", background: "#FFFDF9" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "11px" }}>
+                          <span style={{ width: 38, height: 38, flex: "none", borderRadius: "50%", background: "#F6E4DC", color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", font: `700 15px/1 ${BODY}` }}>{rv.initial}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}><div style={{ font: `600 14px/1.2 ${BODY}`, color: "#221C17" }}>{rv.name}</div>{rv.date && <div style={{ font: `400 11.5px/1 ${BODY}`, color: "#9A9080", marginTop: 2 }}>{rv.date}</div>}</div>
+                          <span style={{ color: "#E0922F", fontSize: "12px" }}>{rv.stars}</span>
+                        </div>
+                        <p style={{ margin: "12px 0 0", font: `400 14px/1.65 ${BODY}`, color: "#5A5247" }}>{rv.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </section>
+
+            {/* GOOD TO KNOW */}
+            {trip.infoGroups.length > 0 && (
+              <section id="td-info" className="td-sec" style={{ marginTop: "40px" }}>
+                <h2 style={{ ...sectionH2, marginBottom: "18px" }}>Good to know</h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {trip.infoGroups.map((g, i) => (
+                    <details key={i} className="td-acc" open={!!g.open} style={{ border: "1px solid #E6DDCF", borderRadius: "14px", background: "#FFFDF9", overflow: "hidden" }}>
+                      <summary style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px", padding: "17px 20px", fontFamily: DISPLAY, fontWeight: 700, fontSize: "16px", color: "#221C17" }}>{g.title}<span className="td-acc-ic" style={{ flex: "none", width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "#F6E4DC", color: ACCENT, transition: "transform .2s ease", fontSize: "16px" }}>+</span></summary>
+                      <div style={{ padding: "0 20px 18px" }}>
+                        {g.kind === "list" && (
+                          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "10px" }}>
+                            {g.items.map((it, j) => <li key={j} style={{ display: "flex", alignItems: "flex-start", gap: "10px", font: `400 14.5px/1.6 ${BODY}`, color: "#5A5247" }}><span style={{ flex: "none", width: 6, height: 6, marginTop: 8, borderRadius: "50%", background: ACCENT }} /><span>{typeof it === "string" ? it : it.label}</span></li>)}
+                          </ul>
+                        )}
+                        {g.kind === "text" && <p style={{ margin: 0, font: `400 14.5px/1.7 ${BODY}`, color: "#5A5247", whiteSpace: "pre-line", maxWidth: "70ch" }}>{g.text}</p>}
+                        {g.kind === "faq" && (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                            {g.faqs.map((q, j) => <div key={j}><div style={{ font: `600 14.5px/1.4 ${BODY}`, color: "#221C17" }}>{q.q}</div><p style={{ margin: "5px 0 0", font: `400 14px/1.6 ${BODY}`, color: "#726A5E", maxWidth: "70ch" }}>{q.a}</p></div>)}
+                          </div>
+                        )}
+                      </div>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* ===== BOOKING SIDEBAR ===== */}
+          <aside className="td-side" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ background: "#FFFDF9", border: "1px solid #E6DDCF", borderRadius: "18px", overflow: "hidden", boxShadow: "0 12px 30px -16px rgba(60,42,28,.28)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "9px", padding: "12px 20px", background: "#FBF6EE", borderBottom: "1px solid #EAD9C9" }}>
+                <span style={{ font: `500 12px/1.35 ${BODY}`, color: "#8A6A4E" }}>Pay a little now, adventure a lot — flexible payments at checkout.</span>
+              </div>
+              <div style={{ padding: "18px 22px 20px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "5px" }}>
+                  <span style={{ font: `600 11px/1 ${BODY}`, color: "#9A9080" }}>Starting from</span>
+                  {trip.hasOff && <span style={{ padding: "4px 10px", borderRadius: "99px", background: "#E0EFE4", color: "#2E7D4F", font: `700 10px/1 ${BODY}` }}>✦ {trip.off}% OFF</span>}
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "9px", flexWrap: "wrap", marginBottom: "16px" }}>
+                  <span style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "32px", letterSpacing: "-.02em", color: "#221C17" }}>₹ {trip.price}</span>
+                  {trip.hasStrike && <span style={{ font: `600 13px/1 ${BODY}`, color: "#B3ABA3", textDecoration: "line-through" }}>₹ {trip.strikePrice}</span>}
+                  <span style={{ font: `500 12px/1 ${BODY}`, color: "#9A9080" }}>/ person</span>
+                </div>
+                <button type="button" className="td-cta" onClick={handleBookNow} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "15px", font: `700 15px/1 ${BODY}`, color: "#fff", background: ACCENT, border: "none", borderRadius: "12px", cursor: "pointer", boxShadow: "0 8px 20px rgba(205,72,42,.26)" }}>Book now <span style={{ fontSize: "16px" }}>→</span></button>
+                <p style={{ margin: "10px 0 0", textAlign: "center", font: `400 11.5px/1.4 ${BODY}`, color: "#9A9080" }}>Select a batch date on the next step</p>
+              </div>
+              <div style={{ padding: "14px 22px", borderTop: "1px solid #EFE7DA", background: "#FBF6EE", display: "flex", flexDirection: "column", gap: "10px" }}>
+                {["Secure payments · verified host", "Hand-picked, community-first trip", "On-platform host support"].map((t, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px", font: `400 12.5px/1.3 ${BODY}`, color: "#5A5247" }}><span style={{ color: "#2E7D4F", flex: "none", display: "flex" }}><Ic w={15} paths={["M20 6 9 17l-5-5"]} /></span>{t}</div>
+                ))}
+              </div>
+            </div>
+
+            {trip.host && (
+              <div style={{ background: "#FFFDF9", border: "1px solid #E6DDCF", borderRadius: "18px", padding: "18px 22px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "11px" }}>
+                  <span style={{ width: 42, height: 42, flex: "none", borderRadius: "11px", background: `linear-gradient(150deg,#E9622F,${ACCENT})`, color: "#FFF6EF", display: "flex", alignItems: "center", justifyContent: "center", font: `700 16px/1 ${BODY}` }}>{trip.host.initial}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}><div style={{ font: `400 11px/1 ${BODY}`, color: "#9A9080" }}>Your host</div><div style={{ marginTop: 3, font: `600 14px/1.2 ${BODY}`, color: "#221C17" }}>{trip.host.name}</div></div>
+                </div>
+                <button type="button" className="td-ghost" onClick={goHost} style={{ width: "100%", marginTop: "14px", padding: "12px", font: `700 13px/1 ${BODY}`, color: "#221C17", background: "#fff", border: "1px solid #E0D7C8", borderRadius: "11px", cursor: "pointer" }}>Message on Nomadic Townies</button>
+              </div>
+            )}
+          </aside>
+        </div>
+      </div>
+
+      {/* MOBILE STICKY CTA */}
+      <div className="td-mcta" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 40, display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", background: "#FFFDF9", borderTop: "1px solid #E6DDCF" }}>
+        <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: "19px", color: "#221C17" }}>₹ {trip.price}</div><div style={{ font: `400 11px/1 ${BODY}`, color: "#9A9080" }}>per person</div></div>
+        <button type="button" className="td-cta" onClick={handleBookNow} style={{ flex: "none", padding: "14px 30px", font: `700 15px/1 ${BODY}`, color: "#fff", background: ACCENT, border: "none", borderRadius: "12px", cursor: "pointer" }}>Book now →</button>
+      </div>
 
       <Footer />
-      <Snackbar open={copied} autoHideDuration={2000} onClose={() => setCopied(false)} message="Link copied to clipboard" anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />
-    </Box>
+    </div>
   );
 }
