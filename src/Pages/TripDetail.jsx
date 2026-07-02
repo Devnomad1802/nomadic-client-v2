@@ -201,6 +201,7 @@ export default function TripDetail() {
   const [active, setActive] = useState("Overview");
   const [itineraryOpen, setItineraryOpen] = useState(false);
   const [openL, setOpenL] = useState(false);
+  const [lbIndex, setLbIndex] = useState(null); // gallery lightbox: null = closed
   const rootRef = useRef(null);
 
   const raw = useMemo(() => {
@@ -226,6 +227,21 @@ export default function TripDetail() {
     return () => window.removeEventListener("scroll", onScroll);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trip?.id]);
+
+  // Gallery lightbox: keyboard nav + lock body scroll while open.
+  useEffect(() => {
+    if (lbIndex === null) return undefined;
+    const imgs = trip?.images || [];
+    const onKey = (e) => {
+      if (e.key === "Escape") setLbIndex(null);
+      else if (e.key === "ArrowRight") setLbIndex((x) => (x + 1) % imgs.length);
+      else if (e.key === "ArrowLeft") setLbIndex((x) => (x - 1 + imgs.length) % imgs.length);
+    };
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prevOverflow; };
+  }, [lbIndex, trip?.images]);
 
   if (tripsRes && !raw) return <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6B7280" }}>Trip not found.</div>;
   if (!trip) return <div style={{ minHeight: "60vh", display: "grid", placeItems: "center", color: "#6B7280" }}>Loading…</div>;
@@ -275,15 +291,12 @@ export default function TripDetail() {
         {/* HERO GALLERY */}
         <div className="td-hero" style={{ borderRadius: "22px", overflow: "hidden", marginBottom: "26px", position: "relative" }}>
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className={i === 0 ? "td-hero-a" : "td-hero-hide td-thumb"} style={{ position: "relative", overflow: "hidden", minHeight: i === 0 ? 250 : undefined, background: HERO_GRADS[i] }}>
+            <div key={i} onClick={() => trip.images[i] && setLbIndex(i)} className={i === 0 ? "td-hero-a" : "td-hero-hide td-thumb"} style={{ position: "relative", overflow: "hidden", minHeight: i === 0 ? 250 : undefined, background: HERO_GRADS[i], cursor: trip.images[i] ? "pointer" : "default" }}>
               {trip.images[i] && <img src={trip.images[i]} alt={i === 0 ? trip.title : ""} loading={i === 0 ? "eager" : "lazy"} onError={(e) => { e.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
-              {i === 0 && trip.trending && (
-                <span style={{ position: "absolute", left: 18, top: 18, display: "inline-flex", alignItems: "center", gap: "6px", padding: "7px 13px", borderRadius: "99px", background: "rgba(34,28,23,.6)", color: "#F4EEE4", font: `700 11px/1 ${BODY}`, letterSpacing: ".04em", textTransform: "uppercase" }}>★ Trending experience</span>
-              )}
             </div>
           ))}
           {trip.photoCount > 0 && (
-            <span style={{ position: "absolute", right: 18, bottom: 18, display: "inline-flex", alignItems: "center", gap: "7px", padding: "9px 15px", background: "#FFFDF9", color: "#221C17", border: "1px solid #E6DDCF", borderRadius: "10px", font: `600 13px/1 ${BODY}` }}>All {trip.photoCount} photos</span>
+            <button type="button" onClick={() => setLbIndex(0)} className="td-ghost" style={{ position: "absolute", right: 18, bottom: 18, display: "inline-flex", alignItems: "center", gap: "7px", padding: "9px 15px", background: "#FFFDF9", color: "#221C17", border: "1px solid #E6DDCF", borderRadius: "10px", font: `600 13px/1 ${BODY}`, cursor: "pointer" }}>All {trip.photoCount} photos</button>
           )}
         </div>
 
@@ -332,21 +345,23 @@ export default function TripDetail() {
 
             {/* OVERVIEW */}
             <section id="td-overview" className="td-sec" style={{ marginTop: "34px" }}>
-              <h2 style={sectionH2}>About this experience</h2>
-              <p style={{ margin: 0, font: `400 16.5px/1.75 ${BODY}`, color: "#5A5247", whiteSpace: "pre-line", maxWidth: "68ch" }}>{trip.overview || "Details coming soon."}</p>
-              {trip.highlights.length > 0 && (
-                <>
-                  <div style={{ font: `700 12px/1 ${BODY}`, letterSpacing: ".08em", textTransform: "uppercase", color: "#A89C8A", margin: "26px 0 14px" }}>Highlights</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "12px" }}>
-                    {trip.highlights.map((h, i) => (
-                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "11px", font: `400 15px/1.55 ${BODY}`, color: "#3C3228" }}>
-                        <span style={{ flex: "none", width: 22, height: 22, marginTop: 1, borderRadius: "7px", background: "#F6E4DC", color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center" }}><Ic w={13} paths={["M20 6 9 17l-5-5"]} /></span>
-                        <span>{h.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
+              <h2 style={{ ...sectionH2, marginBottom: "18px" }}>About this experience</h2>
+              <div style={{ ...card, padding: "clamp(20px,2.4vw,28px)" }}>
+                <p style={{ margin: 0, font: `400 16px/1.75 ${BODY}`, color: "#3C3228", whiteSpace: "pre-line" }}>{trip.overview || "Details coming soon."}</p>
+                {trip.highlights.length > 0 && (
+                  <>
+                    <div style={{ font: `700 12px/1 ${BODY}`, letterSpacing: ".08em", textTransform: "uppercase", color: "#A89C8A", margin: "24px 0 14px", paddingTop: "20px", borderTop: "1px solid #EFE7DA" }}>Highlights</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: "12px" }}>
+                      {trip.highlights.map((h, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "11px", font: `400 15px/1.55 ${BODY}`, color: "#3C3228" }}>
+                          <span style={{ flex: "none", width: 22, height: 22, marginTop: 1, borderRadius: "7px", background: "#F6E4DC", color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center" }}><Ic w={13} paths={["M20 6 9 17l-5-5"]} /></span>
+                          <span>{h.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </section>
 
             {/* HOST */}
@@ -559,7 +574,24 @@ export default function TripDetail() {
         <button type="button" className="td-cta" onClick={handleBookNow} style={{ flex: "none", padding: "14px 30px", font: `700 15px/1 ${BODY}`, color: "#fff", background: ACCENT, border: "none", borderRadius: "12px", cursor: "pointer" }}>Book now →</button>
       </div>
 
-      <Footer />
+      {/* GALLERY LIGHTBOX */}
+      {lbIndex !== null && trip.images[lbIndex] && (
+        <div onClick={() => setLbIndex(null)} style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(20,16,12,.94)", display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(52px,8vw,72px) clamp(12px,4vw,64px)" }}>
+          <button type="button" aria-label="Close" onClick={() => setLbIndex(null)} style={{ position: "absolute", top: 16, right: 16, width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "rgba(255,255,255,.12)", color: "#fff", border: "none", cursor: "pointer", fontSize: "20px" }}>✕</button>
+          {trip.images.length > 1 && (
+            <button type="button" aria-label="Previous" onClick={(e) => { e.stopPropagation(); setLbIndex((x) => (x - 1 + trip.images.length) % trip.images.length); }} style={{ position: "absolute", left: "clamp(8px,2vw,24px)", top: "50%", transform: "translateY(-50%)", width: 46, height: 46, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "rgba(255,255,255,.12)", color: "#fff", border: "none", cursor: "pointer", fontSize: "24px" }}>‹</button>
+          )}
+          <img src={trip.images[lbIndex]} alt={`${trip.title} — photo ${lbIndex + 1}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: "12px", boxShadow: "0 20px 60px rgba(0,0,0,.5)" }} />
+          {trip.images.length > 1 && (
+            <button type="button" aria-label="Next" onClick={(e) => { e.stopPropagation(); setLbIndex((x) => (x + 1) % trip.images.length); }} style={{ position: "absolute", right: "clamp(8px,2vw,24px)", top: "50%", transform: "translateY(-50%)", width: 46, height: 46, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "rgba(255,255,255,.12)", color: "#fff", border: "none", cursor: "pointer", fontSize: "24px" }}>›</button>
+          )}
+          <div style={{ position: "absolute", bottom: 18, left: 0, right: 0, textAlign: "center", font: `600 13px/1 ${BODY}`, color: "rgba(255,255,255,.85)" }}>{lbIndex + 1} / {trip.images.length}</div>
+        </div>
+      )}
+
+      <div style={{ marginTop: "clamp(40px,6vw,72px)" }}>
+        <Footer />
+      </div>
     </div>
   );
 }
