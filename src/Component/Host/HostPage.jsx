@@ -414,7 +414,7 @@ const HostPage = () => {
           <section className="hd-card">
             <div className="hd-section-head">
               <h2>Trips by {firstName}</h2>
-              {trips.length > 0 && <span className="hd-chip-fill" style={{ cursor: "pointer" }} onClick={() => navigate("/all-packages")}>View all trips</span>}
+              {trips.length > 0 && <span className="hd-chip-fill" style={{ cursor: "pointer" }} onClick={() => navigate("/experiences")}>View all trips</span>}
             </div>
             {trips.length > 0 ? (
               <div className="hd-trips">
@@ -551,7 +551,7 @@ const HostPage = () => {
               </div>
             </div>
             <button type="button" className="hd-cta" onClick={openChat}><IcChat /> Send message</button>
-            <button type="button" className="hd-ghost" onClick={() => navigate("/all-packages")}><IcBox /> View trips</button>
+            <button type="button" className="hd-ghost" onClick={() => navigate("/experiences")}><IcBox /> View trips</button>
             <div className="hd-safety">
               <IcLock />
               <span>For your safety, all conversations stay on Nomadic Townies. We never share personal contact details.</span>
@@ -628,7 +628,7 @@ const HostPage = () => {
             kept private on both sides. In the meantime, browse {firstName}&apos;s trips
             to find your next experience.
           </p>
-          <button type="button" className="hd-cta" onClick={() => { closeChat(); navigate("/all-packages"); }}>
+          <button type="button" className="hd-cta" onClick={() => { closeChat(); navigate("/experiences"); }}>
             <IcBox /> Browse trips
           </button>
         </div>
@@ -653,7 +653,7 @@ const HostPage = () => {
 
       {/* ---------- mobile sticky cta ---------- */}
       <div className="hd-mobile-cta">
-        <button type="button" className="hd-ghost" style={{ marginTop: 0 }} onClick={() => navigate("/all-packages")}>View trips</button>
+        <button type="button" className="hd-ghost" style={{ marginTop: 0 }} onClick={() => navigate("/experiences")}>View trips</button>
         <button type="button" className="hd-cta" onClick={openChat}>Send message</button>
       </div>
 

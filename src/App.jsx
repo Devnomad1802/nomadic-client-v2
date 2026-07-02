@@ -84,7 +84,7 @@ function App() {
 
             {/* ── SEO-friendly routes (canonical) ── */}
             <Route
-              path="/all-packages"
+              path="/experiences"
               element={<AllPackages allpkgbg={bannerData[0]?.allPakeges} />}
             />
             <Route
@@ -99,7 +99,8 @@ function App() {
             <Route path="/category/:slug" element={<CategorieDetails />} />
 
             {/* ── 301-equivalent redirects for old URLs (backward compatibility) ── */}
-            <Route path="/all_Packages" element={<Navigate to="/all-packages" replace />} />
+            <Route path="/all-packages" element={<Navigate to="/experiences" replace />} />
+            <Route path="/all_Packages" element={<Navigate to="/experiences" replace />} />
             <Route path="/about_us" element={<Navigate to="/about-us" replace />} />
             <Route path="/contact_us" element={<Navigate to="/contact-us" replace />} />
             <Route path="/CategorieDetails/:id" element={<Navigate to="/category/:id" replace />} />

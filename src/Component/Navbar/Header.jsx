@@ -20,7 +20,7 @@ const array1 = [
   },
   {
     name: "All Experiences",
-    link1: "/all-packages",
+    link1: "/experiences",
   },
   {
     name: "About Us",

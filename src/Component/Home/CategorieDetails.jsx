@@ -117,7 +117,7 @@ const CategorieDetails = () => {
         <div className="crumb">
           <a onClick={() => navigate("/")} style={{ cursor: "pointer" }}>Home</a>
           <span>›</span>
-          <a onClick={() => navigate("/all-packages")} style={{ cursor: "pointer" }}>All Experiences</a>
+          <a onClick={() => navigate("/experiences")} style={{ cursor: "pointer" }}>All Experiences</a>
           <span>›</span>
           <span className="cur">{displayName}</span>
         </div>
@@ -213,7 +213,7 @@ const CategorieDetails = () => {
               <h2>New {displayName} trips are on the way</h2>
               <p>We&apos;re a young platform and our hosts are busy planning the next batch of <b>{displayName}</b> adventures. Be the first to know when they go live.</p>
               <div className="empty-actions">
-                <button className="btn btn-orange" onClick={() => navigate("/all-packages")}>
+                <button className="btn btn-orange" onClick={() => navigate("/experiences")}>
                   Explore all trips
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </button>

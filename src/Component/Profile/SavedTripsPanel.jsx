@@ -53,7 +53,7 @@ const SavedTripsPanel = () => {
       <div className="nt-empty-ic">♥</div>
       <div className="nt-empty-t">No saved trips</div>
       <p>Tap the heart on any experience to save it for later.</p>
-      <button className="nt-cta nt-cta-sm" onClick={() => navigate("/all-packages")}>Browse experiences</button>
+      <button className="nt-cta nt-cta-sm" onClick={() => navigate("/experiences")}>Browse experiences</button>
     </div>
   );
 

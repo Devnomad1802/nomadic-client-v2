@@ -93,7 +93,7 @@ const NotFound = () => {
               Go Home
             </Button>
             <Button
-              onClick={() => navigate("/all-packages")}
+              onClick={() => navigate("/experiences")}
               variant="outlined"
               sx={{
                 borderColor: "#CD482A",

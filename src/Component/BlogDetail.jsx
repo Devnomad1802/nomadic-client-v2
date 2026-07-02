@@ -387,7 +387,7 @@ const AuthorBio = ({ author, location, bio }) => {
             borderRadius: "999px", textTransform: "none",
             "&:hover": { bgcolor: ORANGE_HOVER },
           }}>More from the journal →</Button>
-          <Button component={RouterLink} to="/all-packages" sx={{
+          <Button component={RouterLink} to="/experiences" sx={{
             fontSize: 13, fontWeight: 600, px: 2.2, py: 1, borderRadius: "999px", textTransform: "none",
             color: TEXT_DARK, border: `1.5px solid ${TEXT_DARK}`,
             "&:hover": { bgcolor: TEXT_DARK, color: "#fff" },

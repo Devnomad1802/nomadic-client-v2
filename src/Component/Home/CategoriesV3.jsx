@@ -70,7 +70,7 @@ const CategoriesV3 = ({ sectionTitle, sectionSubtitle }) => {
             <h2 className="section-h">{title}</h2>
             <p className="section-sub" style={{ marginTop: 8 }}>{subtitle}</p>
           </div>
-          <button className="btn btn-ghost btn-md" onClick={() => navigate("/all-packages")}>
+          <button className="btn btn-ghost btn-md" onClick={() => navigate("/experiences")}>
             View All <ArrowForwardIcon sx={{ fontSize: 15 }} />
           </button>
         </div>

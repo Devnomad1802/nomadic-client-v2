@@ -22,7 +22,7 @@ const FirstSection = ({ homebg, toggle, homeVideo }) => {
   };
   const goSearch = () => {
     const q = heroSearch.trim();
-    navigate(q ? `/all-packages?q=${encodeURIComponent(q)}` : "/all-packages");
+    navigate(q ? `/experiences?q=${encodeURIComponent(q)}` : "/experiences");
   };
 
   return (
@@ -176,7 +176,7 @@ const FirstSection = ({ homebg, toggle, homeVideo }) => {
                   >
                     <Button
                       variant="simplebtn"
-                      onClick={() => navigate("/all-packages")}
+                      onClick={() => navigate("/experiences")}
                       sx={{
                         textTransform: "capitalize",
                         fontSize: "14px",

@@ -115,7 +115,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
               A curated marketplace for transformative travel experiences.
             </p>
             <div className="hero-ctas">
-              <button className="btn btn-orange btn-xl" onClick={() => navigate("/all-packages")}>
+              <button className="btn btn-orange btn-xl" onClick={() => navigate("/experiences")}>
                 Explore Experiences <ArrowForwardIcon sx={{ fontSize: 18 }} />
               </button>
               <button
@@ -254,7 +254,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
                 Browse curated trips, join a like-minded crew, and book your spot in minutes.
               </p>
               <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                <button className="btn btn-orange btn-lg" onClick={() => navigate("/all-packages")}>Explore Trips</button>
+                <button className="btn btn-orange btn-lg" onClick={() => navigate("/experiences")}>Explore Trips</button>
                 <button className="btn btn-lg" style={{ background: "rgba(255,255,255,.1)", color: "rgba(255,255,255,.9)", border: "1.5px solid rgba(255,255,255,.22)" }} onClick={() => navigate("/hosts")}>Meet Our Hosts</button>
               </div>
             </div>
@@ -286,7 +286,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
             Stop scrolling for travel inspiration. Start finding experiences designed to actually change you.
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn btn-lg" style={{ background: "#fff", color: "var(--orange)", fontWeight: 700, boxShadow: "0 6px 20px rgba(0,0,0,.2)" }} onClick={() => navigate("/all-packages")}>Explore All Experiences</button>
+            <button className="btn btn-lg" style={{ background: "#fff", color: "var(--orange)", fontWeight: 700, boxShadow: "0 6px 20px rgba(0,0,0,.2)" }} onClick={() => navigate("/experiences")}>Explore All Experiences</button>
             <button className="btn btn-lg" style={{ background: "rgba(255,255,255,.12)", color: "#fff", border: "1.5px solid rgba(255,255,255,.3)" }} onClick={() => setOpene(true)}>Enquire Now</button>
           </div>
         </div>

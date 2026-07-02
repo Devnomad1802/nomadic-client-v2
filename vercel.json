@@ -1,4 +1,8 @@
 {
+  "redirects": [
+    { "source": "/all-packages", "destination": "/experiences", "statusCode": 301 },
+    { "source": "/all_Packages", "destination": "/experiences", "statusCode": 301 }
+  ],
   "rewrites": [
     { "source": "/((?!google27f213b3ca0c1525\\.html|robots\\.txt|sitemap\\.xml).*)", "destination": "/" }
   ]

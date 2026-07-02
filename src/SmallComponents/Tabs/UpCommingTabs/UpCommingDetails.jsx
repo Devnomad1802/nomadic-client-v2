@@ -97,7 +97,7 @@ const UpcommingDetails = () => {
       <Container maxWidth="xl" sx={{ pt: { xs: 10, lg: 2 }, pb: 0, px: { xs: 2, md: 3 } }}>
         <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb" sx={{ mb: 2, fontSize: "14px" }}>
           <Link underline="hover" color="inherit" href="/" sx={{ cursor: "pointer" }}>Home</Link>
-          <Link underline="hover" color="inherit" href="/all-packages" sx={{ cursor: "pointer" }}>Trips</Link>
+          <Link underline="hover" color="inherit" href="/experiences" sx={{ cursor: "pointer" }}>Trips</Link>
           <Typography color="text.primary" sx={{ fontSize: "14px" }}>{item?.title || "Trip Details"}</Typography>
         </Breadcrumbs>
       </Container>

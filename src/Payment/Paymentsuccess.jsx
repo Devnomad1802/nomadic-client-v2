@@ -359,7 +359,7 @@ const Paymentsuccess = () => {
           {/* CTAs */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <button className="btn-primary" onClick={() => navigate("/")}>{Ic.home(17)} Back to home</button>
-            <button className="btn-secondary" onClick={() => navigate("/all-packages")}>Explore more trips {Ic.arrow(16)}</button>
+            <button className="btn-secondary" onClick={() => navigate("/experiences")}>Explore more trips {Ic.arrow(16)}</button>
           </div>
         </div>
       </div>

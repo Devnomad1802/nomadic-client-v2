@@ -143,7 +143,7 @@ const BecomeHostModal = ({ open, onClose }) => {
                       <div className="bh-step next"><span className="bh-step-dot next">3</span><span>Approved</span></div>
                     </div>
                     <div className="bh-success-actions">
-                      <button className="bh-btn-light" onClick={() => { onClose?.(); navigate("/all-packages"); }}>Explore experiences</button>
+                      <button className="bh-btn-light" onClick={() => { onClose?.(); navigate("/experiences"); }}>Explore experiences</button>
                       <button className="bh-btn-ghost" onClick={reset}>Submit another</button>
                     </div>
                   </div>

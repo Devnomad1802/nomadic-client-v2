@@ -118,7 +118,7 @@ const MyTripsPanel = () => {
       <div className="nt-empty-ic">⛰</div>
       <div className="nt-empty-t">No bookings yet</div>
       <p>When you book an experience it&apos;ll show up here.</p>
-      <button className="nt-cta nt-cta-sm" onClick={() => navigate("/all-packages")}>Explore experiences</button>
+      <button className="nt-cta nt-cta-sm" onClick={() => navigate("/experiences")}>Explore experiences</button>
     </div>
   );
 
