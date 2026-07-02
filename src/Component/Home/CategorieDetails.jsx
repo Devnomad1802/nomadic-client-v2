@@ -117,7 +117,7 @@ const CategorieDetails = () => {
         <div className="crumb">
           <a onClick={() => navigate("/")} style={{ cursor: "pointer" }}>Home</a>
           <span>›</span>
-          <a onClick={() => navigate("/all-packages")} style={{ cursor: "pointer" }}>All Packages</a>
+          <a onClick={() => navigate("/all-packages")} style={{ cursor: "pointer" }}>All Experiences</a>
           <span>›</span>
           <span className="cur">{displayName}</span>
         </div>

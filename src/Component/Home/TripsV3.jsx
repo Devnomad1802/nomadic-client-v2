@@ -99,7 +99,7 @@ const TripsV3 = () => {
             <p className="section-sub" style={{ marginTop: 8 }}>Curated experiences leaving in the next few weeks — browse, filter and book your spot.</p>
           </div>
           <Link to="/all-packages" className="btn btn-outline btn-md">
-            View All Packages <ArrowForwardIcon sx={{ fontSize: 16 }} />
+            View All Experiences <ArrowForwardIcon sx={{ fontSize: 16 }} />
           </Link>
         </div>
 

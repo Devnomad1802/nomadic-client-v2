@@ -138,7 +138,7 @@ const Trending = () => {
                         </Box>
                         <img
                           src={`${item?.cardImage}`}
-                          alt={item?.title ? `${item.title} - Adventure Trip | Nomadic Townies` : "Adventure trip package by Nomadic Townies"}
+                          alt={item?.title ? `${item.title} - Adventure Trip | Nomadic Townies` : "Adventure trip experience by Nomadic Townies"}
                           loading="lazy"
                           style={{
                             width: "100%",

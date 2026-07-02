@@ -101,7 +101,7 @@ const Breadcrumb = ({ title }) => (
   <Box sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: 13, color: TEXT_LIGHT, mb: 2 }}>
     <Link to="/" style={{ color: TEXT_LIGHT, textDecoration: "none" }}>Home</Link>
     <span>›</span>
-    <Link to="/all-packages" style={{ color: TEXT_LIGHT, textDecoration: "none" }}>All Packages</Link>
+    <Link to="/all-packages" style={{ color: TEXT_LIGHT, textDecoration: "none" }}>All Experiences</Link>
     <span>›</span>
     <Typography component="span" sx={{ color: TEXT_DARK, fontWeight: 500, fontSize: 13 }}>{title}</Typography>
   </Box>

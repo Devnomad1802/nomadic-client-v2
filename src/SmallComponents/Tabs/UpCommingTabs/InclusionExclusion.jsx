@@ -52,7 +52,7 @@ const array2 = [
           " Personal expenses like tips to drivers, camera/video camera charges, camel safari, river rafting, laundry, telephone bills, tips, etc.",
       },
       {
-        typo1: "Any lunch and other meals not mentioned in package inclusions.",
+        typo1: "Any lunch and other meals not mentioned in experience inclusions.",
       },
       {
         typo1:

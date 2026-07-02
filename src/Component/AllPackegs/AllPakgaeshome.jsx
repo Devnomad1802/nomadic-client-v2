@@ -58,7 +58,7 @@ const AllPakgaeshome = ({ allpkgbg, onSearch, initialSearch = "" }) => {
                   fontSize: { xs: "33px", sm: "40px", md: "48px" },
                 }}
               >
-                All Packages
+                All Experiences
               </Typography>{" "}
               <CustomField
                 name="search"

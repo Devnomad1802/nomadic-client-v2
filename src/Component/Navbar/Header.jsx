@@ -19,7 +19,7 @@ const array1 = [
     link1: "/",
   },
   {
-    name: "All Packages",
+    name: "All Experiences",
     link1: "/all-packages",
   },
   {

@@ -13,7 +13,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 
 const footerLinks = [
-  { name: "All Packages", link: "/all-packages" },
+  { name: "All Experiences", link: "/all-packages" },
   { name: "About Us", link: "/about-us" },
   { name: "Careers", link: "/careers" },
   { name: "Blogs", link: "/blogs" },

@@ -286,7 +286,7 @@ const HomeV3 = ({ homebg, homeVideo, toggle, categorySectionTitle, categorySecti
             Stop scrolling for travel inspiration. Start finding experiences designed to actually change you.
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn btn-lg" style={{ background: "#fff", color: "var(--orange)", fontWeight: 700, boxShadow: "0 6px 20px rgba(0,0,0,.2)" }} onClick={() => navigate("/all-packages")}>Explore All Packages</button>
+            <button className="btn btn-lg" style={{ background: "#fff", color: "var(--orange)", fontWeight: 700, boxShadow: "0 6px 20px rgba(0,0,0,.2)" }} onClick={() => navigate("/all-packages")}>Explore All Experiences</button>
             <button className="btn btn-lg" style={{ background: "rgba(255,255,255,.12)", color: "#fff", border: "1.5px solid rgba(255,255,255,.3)" }} onClick={() => setOpene(true)}>Enquire Now</button>
           </div>
         </div>
