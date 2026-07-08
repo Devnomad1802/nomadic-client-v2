@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./becomeHost.css";
-import { useEnquirMutation } from "../services/EnquirApi";
+import { useEnquirMutation, useApplyHostMutation } from "../services/EnquirApi";
 import { logof } from "../Images";
 
 const ILLUS = "https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?auto=format&fit=crop&w=700&q=72";
@@ -35,6 +35,7 @@ const BecomeHostModal = ({ open, onClose }) => {
   const navigate = useNavigate();
   const { userDbData } = useSelector((s) => s.global);
   const [enquir, { isLoading }] = useEnquirMutation();
+  const [applyHost] = useApplyHostMutation();
   const [form, setForm] = useState(empty);
   const [errors, setErrors] = useState({});
   const [done, setDone] = useState(false);
@@ -73,6 +74,16 @@ const BecomeHostModal = ({ open, onClose }) => {
       `Experience: ${form.years}`, `Group size: ${form.groupSize}`,
       form.website ? `Website/Social: ${form.website}` : null, "", `About: ${form.about}`,
     ].filter(Boolean).join("\n");
+    // Dedicated host-application pipeline (admin reviews under Host Applications).
+    const cat2 = form.category === "Other" ? form.categoryOther : form.category;
+    try {
+      await applyHost({
+        fullName: form.fullName, email: form.email, mobile: form.mobile, city: form.city,
+        category: cat2, about: form.about, years: form.years, groupSize: form.groupSize,
+        website: form.website, userId: userDbData?._id,
+      }).unwrap();
+    } catch { /* fall back to enquiry below */ }
+    // Keep the legacy enquiry too so nothing is lost during transition.
     try { await enquir({ Name: form.fullName, Email: form.email, Phone: form.mobile, Message, userId: userDbData?._id }).unwrap(); } catch { /* follow up regardless */ }
     setDone(true);
     document.querySelector(".bhm-dialog .bhpg")?.scrollTo(0, 0);

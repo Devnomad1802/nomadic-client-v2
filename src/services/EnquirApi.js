@@ -11,7 +11,15 @@ const EnquirApi = api.injectEndpoints({
         body: { Name, Phone, Email, Message, userId },
       }),
     }),
+    // "Become a Host" application → dedicated host-application pipeline.
+    applyHost: builder.mutation({
+      query: (body) => ({
+        url: "/host-portal/apply",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useEnquirMutation } = EnquirApi;
+export const { useEnquirMutation, useApplyHostMutation } = EnquirApi;
