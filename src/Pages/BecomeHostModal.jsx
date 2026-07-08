@@ -74,7 +74,10 @@ const BecomeHostModal = ({ open, onClose }) => {
       `Experience: ${form.years}`, `Group size: ${form.groupSize}`,
       form.website ? `Website/Social: ${form.website}` : null, "", `About: ${form.about}`,
     ].filter(Boolean).join("\n");
-    // Dedicated host-application pipeline (admin reviews under Host Applications).
+    // Dedicated host-application pipeline ONLY (admin reviews under Host
+    // Applications). Enquiries stay reserved for customer enquiries — the
+    // legacy enquiry is used solely as a fallback if the application API
+    // is unavailable, so no submission is ever lost.
     const cat2 = form.category === "Other" ? form.categoryOther : form.category;
     try {
       await applyHost({
@@ -82,9 +85,9 @@ const BecomeHostModal = ({ open, onClose }) => {
         category: cat2, about: form.about, years: form.years, groupSize: form.groupSize,
         website: form.website, userId: userDbData?._id,
       }).unwrap();
-    } catch { /* fall back to enquiry below */ }
-    // Keep the legacy enquiry too so nothing is lost during transition.
-    try { await enquir({ Name: form.fullName, Email: form.email, Phone: form.mobile, Message, userId: userDbData?._id }).unwrap(); } catch { /* follow up regardless */ }
+    } catch {
+      try { await enquir({ Name: form.fullName, Email: form.email, Phone: form.mobile, Message, userId: userDbData?._id }).unwrap(); } catch { /* follow up regardless */ }
+    }
     setDone(true);
     document.querySelector(".bhm-dialog .bhpg")?.scrollTo(0, 0);
   };
