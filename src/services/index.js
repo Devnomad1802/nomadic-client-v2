@@ -8,3 +8,4 @@ export * from "./TrendingApi";
 export * from "./blogApi";
 export * from "./FavriotApis";
 export * from "./host";
+export * from "./HostChatApi";

@@ -1,9 +1,16 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./hostPage.css";
 import Footer from "../Footer";
+import { useSelector } from "react-redux";
+import {
+  useStartHostChatMutation,
+  useGetMyHostChatsMutation,
+  useSendHostChatMessageMutation,
+  useMarkHostChatReadMutation,
+} from "../../services";
 import {
   useGetHostByIdQuery,
   useGetHostTripsQuery,
@@ -232,10 +239,53 @@ const HostPage = () => {
     }
   };
 
-  /* ---- chat drawer (placeholder — real messaging built later) ---- */
+  /* ---- chat drawer (live platform chat) ---- */
+  const { userDbData } = useSelector((store) => store.global) || {};
   const [chatOpen, setChatOpen] = useState(false);
-  const openChat = () => setChatOpen(true);
+  const [convo, setConvo] = useState(null); // Enquire doc for me + this host
+  const [chatText, setChatText] = useState("");
+  const [chatWarn, setChatWarn] = useState("");
+  const [chatSending, setChatSending] = useState(false);
+  const chatEndRef = useRef(null);
+  const [startHostChat] = useStartHostChatMutation();
+  const [getMyHostChats] = useGetMyHostChatsMutation();
+  const [sendHostChatMessage] = useSendHostChatMessageMutation();
+  const [markHostChatRead] = useMarkHostChatReadMutation();
+
+  const openChat = async () => {
+    setChatOpen(true);
+    setChatWarn("");
+    if (!userDbData?._id || !host?._id) return;
+    try {
+      const res = await getMyHostChats().unwrap();
+      const mine = (res?.data || []).find((c) => `${c.hostId}` === `${host._id}`);
+      if (mine) {
+        setConvo(mine);
+        if (mine.userUnread > 0) markHostChatRead({ id: mine._id }).catch(() => {});
+      }
+    } catch { /* not logged in / offline — composer still shows */ }
+  };
   const closeChat = () => setChatOpen(false);
+
+  const sendChat = async () => {
+    const text = chatText.trim();
+    if (!text || chatSending) return;
+    if (!userDbData?._id) { setChatWarn("Please log in to message this host."); return; }
+    setChatSending(true);
+    setChatWarn("");
+    try {
+      const res = convo?._id
+        ? await sendHostChatMessage({ id: convo._id, message: text }).unwrap()
+        : await startHostChat({ hostId: host._id, message: text }).unwrap();
+      setConvo(res?.data || convo);
+      setChatText("");
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 60);
+    } catch (err) {
+      setChatWarn(err?.data?.error || err?.data?.message || "Couldn't send your message. Please try again.");
+    } finally {
+      setChatSending(false);
+    }
+  };
 
   /* ---- gallery lightbox ---- */
   const [lightbox, setLightbox] = useState(null); // index or null
@@ -619,17 +669,36 @@ const HostPage = () => {
           <span>Keep it on-platform. For your safety we never share personal contact details.</span>
         </div>
 
-        <div className="hd-soon">
-          <span className="hd-soon-ic"><IcChat /></span>
-          <h3>Messaging is coming soon</h3>
-          <p>
-            Secure, on-platform messaging with {firstName} is on the way. You&apos;ll
-            be able to ask questions and plan your trip here — with contact details
-            kept private on both sides. In the meantime, browse {firstName}&apos;s trips
-            to find your next experience.
-          </p>
-          <button type="button" className="hd-cta" onClick={() => { closeChat(); navigate("/experiences"); }}>
-            <IcBox /> Browse trips
+        <div className="hd-thread">
+          {(convo?.chat || []).length === 0 && (
+            <div className="hd-thread-empty">
+              Say hello to {firstName} — ask about trips, dates or anything you need. Replies land right here.
+            </div>
+          )}
+          {(convo?.chat || []).map((m, i) => (
+            <div key={i} className={`hd-msg ${m.MessageBy === "user" ? "me" : "them"}`}>
+              <div className="hd-msg-bubble">{m.Message}</div>
+              <div className="hd-msg-time">
+                {m.timeStamp ? new Date(m.timeStamp).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : ""}
+              </div>
+            </div>
+          ))}
+          <div ref={chatEndRef} />
+        </div>
+
+        {chatWarn && <div className="hd-chat-warn">{chatWarn}</div>}
+
+        <div className="hd-composer">
+          <input
+            type="text"
+            value={chatText}
+            onChange={(e) => setChatText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") sendChat(); }}
+            placeholder={userDbData ? `Message ${firstName}…` : "Log in to send a message"}
+            disabled={chatSending}
+          />
+          <button type="button" className="hd-cta hd-send" onClick={sendChat} disabled={chatSending || !chatText.trim()}>
+            {chatSending ? "…" : "Send"}
           </button>
         </div>
       </div>
