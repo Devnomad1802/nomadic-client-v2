@@ -6,11 +6,13 @@ import { setUserDbData, setAuthenticated } from "../../slices";
 import { useEditUserProfileMutation } from "../../services";
 import MyTripsPanel from "./MyTripsPanel";
 import SavedTripsPanel from "./SavedTripsPanel";
+import ReviewsPanel from "./ReviewsPanel";
 
 const TABS = [
   { key: "account", icon: "◍", label: "My Account" },
   { key: "trips", icon: "⛰", label: "My Trips" },
   { key: "saved", icon: "♥", label: "Saved Trips" },
+  { key: "reviews", icon: "✎", label: "My Reviews" },
   { key: "settings", icon: "⚙", label: "Settings" },
   { key: "logout", icon: "⏻", label: "Logout" },
 ];
@@ -215,6 +217,14 @@ const UserProfile = () => {
             </>
           )}
 
+          {tab === "reviews" && (
+            <>
+              <h2 className="nt-h2">My Reviews</h2>
+              <p className="nt-sub">Review your completed trips and see what you&apos;ve shared.</p>
+              <div className="nt-embed"><ReviewsPanel notify={ping} /></div>
+            </>
+          )}
+
           {tab === "settings" && (
             <>
               <h2 className="nt-h2">Settings</h2>
@@ -397,6 +407,40 @@ const css = `
 .nt-card-dur{font-size:12.5px;color:var(--muted)}
 .nt-card-cta{margin-top:8px;padding:10px;font-size:13.5px;font-weight:700;color:var(--accent);background:transparent;border:1.5px solid var(--accent);border-radius:10px;cursor:pointer}
 .nt-card-cta:hover{background:var(--accent);color:#fff}
+/* Reviews tab */
+.nt-rv-h{margin:22px 0 0;font-weight:700;font-size:17px;color:var(--ink)}
+.nt-rv-empty{margin-top:12px;padding:16px 18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:14px}
+.nt-rv-pending{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+.nt-rv-card{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff}
+.nt-rv-img{width:72px;height:54px;border-radius:10px;object-fit:cover;flex-shrink:0}
+.nt-rv-ph{background:linear-gradient(135deg,#E9DFCF,#D8CFC0)}
+.nt-rv-body{flex:1;min-width:0}
+.nt-rv-title{font-weight:700;font-size:15px;color:var(--ink)}
+.nt-rv-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.nt-rv-list{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+.nt-rv-item{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:#fff}
+.nt-rv-item-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.nt-rv-text{margin:8px 0 0;font-size:14px;line-height:1.55;color:var(--text,#4B5563)}
+.nt-rv-photos{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.nt-rv-photos img{width:64px;height:64px;border-radius:10px;object-fit:cover}
+.nt-stars{display:inline-flex;gap:2px}
+.nt-star{background:none;border:none;padding:0;color:#D8CFC0;line-height:1}
+.nt-star.on{color:#F0A03C}
+.nt-rv-overlay{position:fixed;inset:0;background:rgba(34,28,23,.45);z-index:1400;display:flex;align-items:center;justify-content:center;padding:16px}
+.nt-rv-modal{width:100%;max-width:520px;max-height:90vh;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:24px}
+.nt-rv-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.nt-rv-x{background:none;border:none;font-size:16px;color:var(--muted);cursor:pointer;padding:4px}
+.nt-rv-ta{resize:vertical;margin-top:8px;width:100%}
+.nt-rv-rec{display:flex;gap:10px;margin-top:8px}
+.nt-chiplet{padding:9px 18px;font-size:13.5px;font-weight:600;color:var(--muted);background:#fff;border:1.5px solid var(--line);border-radius:999px;cursor:pointer}
+.nt-chiplet.on{border-color:var(--accent);color:var(--accent);background:var(--badge)}
+.nt-rv-photo-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.nt-rv-thumb{position:relative;width:64px;height:64px}
+.nt-rv-thumb img{width:100%;height:100%;border-radius:10px;object-fit:cover}
+.nt-rv-thumb-x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--ink);color:#fff;font-size:10px;cursor:pointer;line-height:1}
+.nt-rv-add{width:64px;height:64px;border:1.5px dashed var(--line);border-radius:10px;background:none;font-size:22px;color:var(--muted);cursor:pointer}
+.nt-rv-add:hover{border-color:var(--accent);color:var(--accent)}
+.nt-rv-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
 @media(max-width:860px){
   .nt-grid{grid-template-columns:1fr}
   .nt-side{position:static}
