@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet-async";
 import "./hostPage.css";
 import Footer from "../Footer";
 import { useSelector } from "react-redux";
+import { setActiveChatConvo } from "../../utils/chatUiState";
 import {
   useStartHostChatMutation,
   useGetMyHostChatsMutation,
@@ -265,7 +266,33 @@ const HostPage = () => {
       }
     } catch { /* not logged in / offline — composer still shows */ }
   };
-  const closeChat = () => setChatOpen(false);
+  const closeChat = () => { setChatOpen(false); setActiveChatConvo(null); };
+
+  // Publish the on-screen conversation so the global notifier stays quiet for it.
+  useEffect(() => {
+    setActiveChatConvo(chatOpen && convo?._id ? String(convo._id) : null);
+    return () => setActiveChatConvo(null);
+  }, [chatOpen, convo?._id]);
+
+  // Poll while the drawer is open so host replies appear without refresh.
+  useEffect(() => {
+    if (!chatOpen || !userDbData?._id || !host?._id) return undefined;
+    const iv = setInterval(async () => {
+      try {
+        const res = await getMyHostChats().unwrap();
+        const mine = (res?.data || []).find((c) => `${c.hostId}` === `${host._id}`);
+        if (mine) {
+          setConvo((prev) => {
+            const grew = (mine.chat?.length || 0) > (prev?.chat?.length || 0);
+            if (grew) setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 60);
+            return mine;
+          });
+          if (mine.userUnread > 0) markHostChatRead({ id: mine._id }).catch(() => {});
+        }
+      } catch { /* next tick */ }
+    }, 5000);
+    return () => clearInterval(iv);
+  }, [chatOpen, userDbData?._id, host?._id, getMyHostChats, markHostChatRead]);
 
   const sendChat = async () => {
     const text = chatText.trim();

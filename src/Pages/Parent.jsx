@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "../Component/Navbar/Navbar";
 import WhatsAppFloat from "../SmallComponents/WhatsAppFloat";
+import ChatNotifier from "../SmallComponents/ChatNotifier";
 
 const Parent = () => {
   return (
@@ -28,6 +29,7 @@ const Parent = () => {
       </Box>
 
       <WhatsAppFloat />
+      <ChatNotifier />
     </Box>
   );
 };
