@@ -1073,3 +1073,7 @@
 .hd-composer input{flex:1;height:44px;padding:0 14px;border:1px solid #E6DDCF;border-radius:11px;font-size:14px;outline:none;background:#FFFDF9}
 .hd-composer input:focus{border-color:#CF4A2C}
 .hd-send{width:auto;padding:0 18px;height:44px;margin:0}
+
+/* chat date separators */
+.hd-daysep{display:flex;align-items:center;justify-content:center;margin:6px 0 2px}
+.hd-daysep span{font-size:11px;font-weight:600;color:#8A8073;background:#F3EDE3;padding:3px 12px;border-radius:99px}

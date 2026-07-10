@@ -22,6 +22,23 @@ import {
 
 /* ---------------- helpers ---------------- */
 const initialOf = (s) => (s ? s.trim()[0]?.toUpperCase() : "H");
+
+// Chat time helpers — always the viewer's local timezone.
+const msgTime = (ts) => {
+  if (!ts) return "";
+  const d = new Date(ts);
+  return isNaN(d) ? "" : d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+};
+const dayKey = (ts) => { const d = new Date(ts); return isNaN(d) ? "" : d.toDateString(); };
+const dayLabel = (ts) => {
+  const d = new Date(ts);
+  if (isNaN(d)) return "";
+  const today = new Date();
+  const y = new Date(); y.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === y.toDateString()) return "Yesterday";
+  return d.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" });
+};
 const firstNameOf = (s, fallback) => (s ? s.split(" ")[0] : fallback);
 const fmtDate = (d) => {
   if (!d) return "";
@@ -724,14 +741,18 @@ const HostPage = () => {
               Say hello to {firstName} — ask about trips, dates or anything you need. Replies land right here.
             </div>
           )}
-          {(convo?.chat || []).map((m, i) => (
-            <div key={i} className={`hd-msg ${m.MessageBy === "user" ? "me" : "them"}`}>
-              <div className="hd-msg-bubble">{m.Message}</div>
-              <div className="hd-msg-time">
-                {m.timeStamp ? new Date(m.timeStamp).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : ""}
+          {(convo?.chat || []).map((m, i, arr) => {
+            const showSep = i === 0 || dayKey(m.timeStamp) !== dayKey(arr[i - 1]?.timeStamp);
+            return (
+              <div key={i}>
+                {showSep && m.timeStamp && <div className="hd-daysep"><span>{dayLabel(m.timeStamp)}</span></div>}
+                <div className={`hd-msg ${m.MessageBy === "user" ? "me" : "them"}`}>
+                  <div className="hd-msg-bubble">{m.Message}</div>
+                  <div className="hd-msg-time">{msgTime(m.timeStamp)}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={chatEndRef} />
         </div>
 
