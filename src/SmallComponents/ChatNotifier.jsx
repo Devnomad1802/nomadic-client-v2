@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useGetMyHostChatsMutation } from "../services";
 import { getActiveChatConvo } from "../utils/chatUiState";
 
@@ -35,6 +36,7 @@ const chime = () => {
 // (userUnread grows) shows a bottom-right toast + chime — unless that
 // conversation's drawer is open on screen.
 const ChatNotifier = () => {
+  const navigate = useNavigate();
   const { userDbData } = useSelector((store) => store.global) || {};
   const [getMyHostChats] = useGetMyHostChatsMutation();
   const [toasts, setToasts] = useState([]);
@@ -62,6 +64,7 @@ const ChatNotifier = () => {
             const lastHostMsg = [...(r.chat || [])].reverse().find((m) => (m.MessageBy || "").toLowerCase() !== "user");
             const t = {
               key: `${id}-${Date.now()}`,
+              hostId: String(r.hostId || ""),
               title: `${r.host?.name || "Host"} replied`,
               preview: String(lastHostMsg?.Message || "New message").slice(0, 80),
             };
@@ -83,7 +86,16 @@ const ChatNotifier = () => {
   return (
     <div style={{ position: "fixed", right: 16, bottom: 16, zIndex: 1400, display: "flex", flexDirection: "column", gap: 10 }}>
       {toasts.map((t) => (
-        <div key={t.key} style={{ background: "#221C17", color: "#FFF6EF", borderRadius: 12, padding: "12px 16px", maxWidth: 320, boxShadow: "0 10px 30px -10px rgba(0,0,0,.45)" }}>
+        <div
+          key={t.key}
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            setToasts((list) => list.filter((x) => x.key !== t.key));
+            if (t.hostId) navigate(`/hosts/${t.hostId}?chat=1`);
+          }}
+          style={{ background: "#221C17", color: "#FFF6EF", borderRadius: 12, padding: "12px 16px", maxWidth: 320, boxShadow: "0 10px 30px -10px rgba(0,0,0,.45)", cursor: "pointer" }}
+        >
           <div style={{ fontWeight: 700, fontSize: 13.5 }}>{t.title}</div>
           <div style={{ fontSize: 12.5, opacity: 0.85, marginTop: 3, lineHeight: 1.4 }}>{t.preview}</div>
         </div>

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./hostPage.css";
 import Footer from "../Footer";
@@ -267,6 +267,28 @@ const HostPage = () => {
     } catch { /* not logged in / offline — composer still shows */ }
   };
   const closeChat = () => { setChatOpen(false); setActiveChatConvo(null); };
+
+  // Deep-link from a notification: /hosts/:id?chat=1 opens the drawer directly.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const chatInputRef = useRef(null);
+  useEffect(() => {
+    if (searchParams.get("chat") === "1" && host?._id && !chatOpen) {
+      openChat();
+      searchParams.delete("chat");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, host?._id]);
+
+  // Focus the composer + jump to the newest message whenever the drawer opens.
+  useEffect(() => {
+    if (!chatOpen) return;
+    const t = setTimeout(() => {
+      chatInputRef.current?.focus();
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 200);
+    return () => clearTimeout(t);
+  }, [chatOpen, convo?._id]);
 
   // Publish the on-screen conversation so the global notifier stays quiet for it.
   useEffect(() => {
@@ -717,6 +739,7 @@ const HostPage = () => {
 
         <div className="hd-composer">
           <input
+            ref={chatInputRef}
             type="text"
             value={chatText}
             onChange={(e) => setChatText(e.target.value)}
