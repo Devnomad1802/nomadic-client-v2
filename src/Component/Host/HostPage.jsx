@@ -1,10 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./hostPage.css";
 import Footer from "../Footer";
 import { useSelector } from "react-redux";
+import { setActiveChatConvo } from "../../utils/chatUiState";
 import {
   useStartHostChatMutation,
   useGetMyHostChatsMutation,
@@ -21,6 +22,23 @@ import {
 
 /* ---------------- helpers ---------------- */
 const initialOf = (s) => (s ? s.trim()[0]?.toUpperCase() : "H");
+
+// Chat time helpers — always the viewer's local timezone.
+const msgTime = (ts) => {
+  if (!ts) return "";
+  const d = new Date(ts);
+  return isNaN(d) ? "" : d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+};
+const dayKey = (ts) => { const d = new Date(ts); return isNaN(d) ? "" : d.toDateString(); };
+const dayLabel = (ts) => {
+  const d = new Date(ts);
+  if (isNaN(d)) return "";
+  const today = new Date();
+  const y = new Date(); y.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return "Today";
+  if (d.toDateString() === y.toDateString()) return "Yesterday";
+  return d.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" });
+};
 const firstNameOf = (s, fallback) => (s ? s.split(" ")[0] : fallback);
 const fmtDate = (d) => {
   if (!d) return "";
@@ -265,7 +283,55 @@ const HostPage = () => {
       }
     } catch { /* not logged in / offline — composer still shows */ }
   };
-  const closeChat = () => setChatOpen(false);
+  const closeChat = () => { setChatOpen(false); setActiveChatConvo(null); };
+
+  // Deep-link from a notification: /hosts/:id?chat=1 opens the drawer directly.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const chatInputRef = useRef(null);
+  useEffect(() => {
+    if (searchParams.get("chat") === "1" && host?._id && !chatOpen) {
+      openChat();
+      searchParams.delete("chat");
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, host?._id]);
+
+  // Focus the composer + jump to the newest message whenever the drawer opens.
+  useEffect(() => {
+    if (!chatOpen) return;
+    const t = setTimeout(() => {
+      chatInputRef.current?.focus();
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 200);
+    return () => clearTimeout(t);
+  }, [chatOpen, convo?._id]);
+
+  // Publish the on-screen conversation so the global notifier stays quiet for it.
+  useEffect(() => {
+    setActiveChatConvo(chatOpen && convo?._id ? String(convo._id) : null);
+    return () => setActiveChatConvo(null);
+  }, [chatOpen, convo?._id]);
+
+  // Poll while the drawer is open so host replies appear without refresh.
+  useEffect(() => {
+    if (!chatOpen || !userDbData?._id || !host?._id) return undefined;
+    const iv = setInterval(async () => {
+      try {
+        const res = await getMyHostChats().unwrap();
+        const mine = (res?.data || []).find((c) => `${c.hostId}` === `${host._id}`);
+        if (mine) {
+          setConvo((prev) => {
+            const grew = (mine.chat?.length || 0) > (prev?.chat?.length || 0);
+            if (grew) setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 60);
+            return mine;
+          });
+          if (mine.userUnread > 0) markHostChatRead({ id: mine._id }).catch(() => {});
+        }
+      } catch { /* next tick */ }
+    }, 5000);
+    return () => clearInterval(iv);
+  }, [chatOpen, userDbData?._id, host?._id, getMyHostChats, markHostChatRead]);
 
   const sendChat = async () => {
     const text = chatText.trim();
@@ -675,14 +741,18 @@ const HostPage = () => {
               Say hello to {firstName} — ask about trips, dates or anything you need. Replies land right here.
             </div>
           )}
-          {(convo?.chat || []).map((m, i) => (
-            <div key={i} className={`hd-msg ${m.MessageBy === "user" ? "me" : "them"}`}>
-              <div className="hd-msg-bubble">{m.Message}</div>
-              <div className="hd-msg-time">
-                {m.timeStamp ? new Date(m.timeStamp).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : ""}
+          {(convo?.chat || []).map((m, i, arr) => {
+            const showSep = i === 0 || dayKey(m.timeStamp) !== dayKey(arr[i - 1]?.timeStamp);
+            return (
+              <div key={i}>
+                {showSep && m.timeStamp && <div className="hd-daysep"><span>{dayLabel(m.timeStamp)}</span></div>}
+                <div className={`hd-msg ${m.MessageBy === "user" ? "me" : "them"}`}>
+                  <div className="hd-msg-bubble">{m.Message}</div>
+                  <div className="hd-msg-time">{msgTime(m.timeStamp)}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={chatEndRef} />
         </div>
 
@@ -690,6 +760,7 @@ const HostPage = () => {
 
         <div className="hd-composer">
           <input
+            ref={chatInputRef}
             type="text"
             value={chatText}
             onChange={(e) => setChatText(e.target.value)}
