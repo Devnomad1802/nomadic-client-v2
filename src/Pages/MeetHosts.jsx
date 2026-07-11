@@ -46,9 +46,9 @@ const MeetHosts = () => {
     bio: h?.shortBio || h?.cardDescription || truncate(h?.hostOverview, 150) || h?.tagline || DEFAULT_BIO,
     image: h?.coverImage || h?.brandingLogo || DEFAULT_COVER,
     logo: h?.brandingLogo || "",
-    rating: Number(h?.rating) || 4.9,
-    // Real review count only — never fabricate. Hidden when the backend has none.
-    reviews: Number(h?.reviewsCount ?? h?.totalReviews) || 0,
+    // Review-derived rating from the server (null = no ratings yet). Never faked.
+    rating: h?.rating != null ? Number(h.rating) : null,
+    reviews: Number(h?.reviewCount ?? h?.reviewsCount ?? h?.totalReviews) || 0,
     experiences: h?.tripsHosted ?? 0,
     verified: h?.isVerified || h?.status === "approved",
     specialties: Array.isArray(h?.specialties) ? h.specialties : [],
@@ -154,7 +154,7 @@ const MeetHosts = () => {
                     {c.verified && <span className="badge badge-verified"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5.5 3.5 10.7 8 12 4.5-1.3 8-6.5 8-12V6L12 2Z" /></svg>Verified Host</span>}
                   </div>
                   <div className="host-avatar">{c.logo ? <img src={c.logo} alt={c.name} /> : <AvatarFallback />}</div>
-                  <span className="host-rating-pill"><StarSvg />{c.rating.toFixed(1)}{c.reviews > 0 && <em>({c.reviews})</em>}</span>
+                  <span className="host-rating-pill">{c.rating != null ? <><StarSvg />{c.rating.toFixed(1)}{c.reviews > 0 && <em>({c.reviews})</em>}</> : "New"}</span>
                 </div>
                 <div className="host-body">
                   <div className="host-name-row">

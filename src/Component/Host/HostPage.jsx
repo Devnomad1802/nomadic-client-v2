@@ -56,6 +56,25 @@ const starStr = (n) => {
   const r = Math.max(0, Math.min(5, Math.round(Number(n) || 0)));
   return "★".repeat(r) + "☆".repeat(5 - r);
 };
+
+// Decimal-accurate star row: each star fills 0–100% by the fractional rating,
+// so 4.4 → four full + one 40%-filled star. Synchronised with the numeric value.
+const StarRow = ({ value = 0, size = 16, dim = "#E0D8CB", gold = "#F5B301" }) => {
+  const v = Math.max(0, Math.min(5, Number(value) || 0));
+  return (
+    <span style={{ display: "inline-flex", gap: 2, lineHeight: 1 }} aria-label={`${v.toFixed(1)} out of 5`}>
+      {[0, 1, 2, 3, 4].map((i) => {
+        const fill = Math.max(0, Math.min(1, v - i));
+        return (
+          <span key={i} style={{ position: "relative", width: size, height: size, fontSize: size, lineHeight: 1, display: "inline-block" }}>
+            <span style={{ position: "absolute", inset: 0, color: dim }}>★</span>
+            <span style={{ position: "absolute", inset: 0, width: `${fill * 100}%`, overflow: "hidden", color: gold, whiteSpace: "nowrap" }}>★</span>
+          </span>
+        );
+      })}
+    </span>
+  );
+};
 const tripImg = (t) =>
   t?.Banner_Image || t?.cardImage || t?.bannerImage || t?.image || "";
 
@@ -161,10 +180,11 @@ const HostPage = () => {
   const location = [host?.city, host?.state].filter(Boolean).join(", ") || host?.location || host?.hqLocation || "";
   const verified = host?.isVerified || host?.status === "approved";
 
-  const avgRating = reviews.length
+  const hasReviews = reviews.length > 0;
+  const avgRating = hasReviews
     ? reviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / reviews.length
-    : 4.9;
-  const ratingStr = avgRating.toFixed(1);
+    : 0;
+  const ratingStr = hasReviews ? avgRating.toFixed(1) : "No ratings yet";
 
   const rawExp = host?.experience || (host?.foundedYear ? `${Math.max(1, new Date().getFullYear() - parseInt(host.foundedYear, 10))}` : "");
   const years = rawExp ? (/^\d+$/.test(`${rawExp}`.trim()) ? `${`${rawExp}`.trim()} yrs` : rawExp) : "—";
@@ -436,9 +456,9 @@ const HostPage = () => {
 
           <div className="hd-hero-stats">
             <div className="hd-hs">
-              <div className="hd-hs-stars">★★★★<span style={{ color: "rgba(244,238,228,.3)" }}>★</span></div>
-              <div className="hd-hs-num">{ratingStr}</div>
-              <div className="hd-hs-label">Rating</div>
+              <div className="hd-hs-stars"><StarRow value={avgRating} size={17} dim="rgba(244,238,228,.3)" /></div>
+              <div className="hd-hs-num">{hasReviews ? avgRating.toFixed(1) : "New"}</div>
+              <div className="hd-hs-label">{hasReviews ? "Rating" : "No ratings yet"}</div>
             </div>
             <div className="hd-hs">
               <div className="hd-hs-num gap">{tripsHosted}</div>
@@ -457,7 +477,7 @@ const HostPage = () => {
         <div className="hd-strip">
           <div className="hd-strip-cell"><div className="hd-strip-num">{tripsHosted}</div><div className="hd-strip-label">Trips hosted</div></div>
           <div className="hd-strip-cell"><div className="hd-strip-num">{travellersHosted}</div><div className="hd-strip-label">Travellers hosted</div></div>
-          <div className="hd-strip-cell"><div className="hd-strip-num"><span className="star">★</span> {ratingStr}</div><div className="hd-strip-label">{reviews.length} reviews</div></div>
+          <div className="hd-strip-cell"><div className="hd-strip-num">{hasReviews ? <><span className="star">★</span> {avgRating.toFixed(1)}</> : "New"}</div><div className="hd-strip-label">{hasReviews ? `${reviews.length} review${reviews.length > 1 ? "s" : ""}` : "No ratings yet"}</div></div>
           <div className="hd-strip-cell"><div className="hd-strip-num">{years}</div><div className="hd-strip-label">Experience</div></div>
         </div>
       </div>
@@ -561,9 +581,9 @@ const HostPage = () => {
             <h2>Traveller reviews</h2>
             <div className="hd-rev-summary">
               <div style={{ textAlign: "center" }}>
-                <div className="hd-rev-big">{ratingStr}</div>
-                <div className="hd-rev-stars">★★★★★</div>
-                <div className="hd-rev-count">{reviews.length} reviews</div>
+                <div className="hd-rev-big">{hasReviews ? avgRating.toFixed(1) : "—"}</div>
+                <div className="hd-rev-stars"><StarRow value={avgRating} size={18} /></div>
+                <div className="hd-rev-count">{hasReviews ? `${reviews.length} review${reviews.length > 1 ? "s" : ""}` : "No ratings yet"}</div>
               </div>
               <div className="hd-bars">
                 {ratingBars.map((bar) => (
