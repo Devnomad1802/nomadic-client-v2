@@ -107,7 +107,17 @@ const CategoriesV3 = ({ sectionTitle, sectionSubtitle }) => {
                         <span className="cat-price-val">₹{from.toLocaleString("en-IN")}</span>
                       </span>
                     )}
-                    <span dangerouslySetInnerHTML={{ __html: tpl.scene }} style={{ display: "contents" }} />
+                    {item?.Banner_Image ? (
+                      <img
+                        className="cat-photo"
+                        src={item.Banner_Image}
+                        alt={`${item?.Category || "Category"} trips`}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <span dangerouslySetInnerHTML={{ __html: tpl.scene }} style={{ display: "contents" }} />
+                    )}
                   </div>
                   <div className="cat-body">
                     <div className="cat-name">{tpl.name || item?.Category}</div>
