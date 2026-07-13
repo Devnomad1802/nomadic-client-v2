@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useCreateBalanceOrderMutation, useConfirmBalancePaymentMutation } from "../services";
+import { fmtDueDate } from "../utils/balanceDue";
 
-const inr = (n) => `₹ ${Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+const inr = (n) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const safeParse = (v, f) => { try { return typeof v === "string" ? JSON.parse(v) : (v ?? f); } catch { return f; } };
 const fmt = (d, opts = { day: "numeric", month: "short" }) => {
   if (!d) return "";
@@ -15,14 +17,15 @@ const Paymentsuccess = () => {
   const navigate = useNavigate();
   const { userDbData } = useSelector((store) => store.global) || {};
   const { data } = location?.state || {};
+  const [paying, setPaying] = useState(false);
+  const [createBalanceOrder] = useCreateBalanceOrderMutation();
+  const [confirmBalancePayment] = useConfirmBalancePaymentMutation();
 
-  // Direct URL / refresh: no booking payload → send home (booking lives in My Trips).
-  useEffect(() => {
-    if (!data) navigate("/");
-  }, [data, navigate]);
+  // Direct URL / refresh: no booking payload → home (booking lives in My Trips).
+  useEffect(() => { if (!data) navigate("/"); }, [data, navigate]);
   if (!data) return null;
 
-  // ── live booking snapshot (nothing hardcoded) ──
+  // ── live booking snapshot — nothing hardcoded ──
   const pd = safeParse(data.paymentDetail, {});
   const cd = safeParse(data.cardData, { cardSectionData: [], cardDate: {}, gstTax: 0 });
   const host = pd?.host || null;
@@ -32,187 +35,199 @@ const Paymentsuccess = () => {
   const subtotal = items.reduce((s, it) => s + Number(it.TitlePrice || 0) * Number(it.quantity || 0), 0);
   const fullTotal = Number(data.fullTripAmount || subtotal + Number(cd?.gstTax || 0) - Number(data.coupenDiscount || 0));
   const paid = Number(data.total || fullTotal);
-  const remaining = Math.max(0, Math.round(fullTotal - paid));
+  const remaining = isPartial ? Math.max(0, Math.round(fullTotal - paid)) : 0;
 
-  const travellers = Number(cd?.numberOfTravelers || data.travellersCount || 1);
   const start = cd?.cardDate?.batchDate;
   const end = cd?.cardDate?.endSelectDate;
-  const nights = pd?.nights, days = pd?.days;
-  const batchStr = [
-    start && end ? `${fmt(start)}–${fmt(end)}` : fmt(start) || "Dates to be confirmed",
-    nights && days ? `${nights}N/${days}D` : null,
-  ].filter(Boolean).join(" · ");
-  const daysToGo = (() => {
-    if (!start) return null;
-    const diff = Math.ceil((new Date(start) - new Date()) / 86400000);
-    return diff > 0 ? diff : null;
-  })();
-
+  const balanceBy = fmtDueDate(start); // departure − 15 days (platform rule)
+  const travellers = Number(cd?.numberOfTravelers || data.travellersCount || 1);
   const firstName = (userDbData?.name || "Traveller").split(" ")[0];
   const email = userDbData?.email || "your registered email";
   const tripTitle = pd?.title || "Your trip";
   const bookingId = data.bookingId || data.razorpayOrderId || "—";
-  const paymentRef = data.razorpayPaymentId || null;
+  const destination = pd?.location || "";
+
+  const stats = [
+    { label: "Batch", value: start && end ? `${fmt(start)}–${fmt(end)}` : fmt(start) || "TBC" },
+    pd?.nights && pd?.days ? { label: "Duration", value: `${pd.nights}N · ${pd.days}D` } : null,
+    { label: "Travellers", value: `${travellers} guest${travellers > 1 ? "s" : ""}` },
+    { label: "Booking ID", value: bookingId },
+    data.razorpayPaymentId ? { label: "Payment ref", value: data.razorpayPaymentId } : null,
+  ].filter(Boolean);
 
   const openChat = () => { if (host?._id) navigate(`/hosts/${host._id}?chat=1`); };
   const viewExperience = () => navigate(`/trips/${pd?.seoSlug || pd?._id || ""}`);
 
-  // summary rows — optional ones drop out cleanly
-  const rows = [
-    { label: "Booking ID", value: bookingId, mono: true },
-    { label: "Booking status", value: isPartial ? "Reserved — balance due" : "Confirmed", color: isPartial ? "#C8941E" : "#2E7D4F" },
-    { label: "Payment status", value: isPartial ? "Partially paid" : "Fully paid", color: isPartial ? "#C8941E" : "#2E7D4F" },
-    { label: "Batch · Duration", value: batchStr },
-    { label: "Travellers", value: `${travellers} guest${travellers > 1 ? "s" : ""}` },
-    { label: "Amount paid", value: inr(paid), color: "#2E7D4F" },
-    remaining > 0 && { label: "Remaining · due before departure", value: inr(remaining), color: "#C0392B" },
-    paymentRef && { label: "Payment reference", value: paymentRef, mono: true },
-  ].filter(Boolean);
-
-  const steps = isPartial
-    ? [
-        { title: "✓ Confirmed", sub: "Seats secured", color: "#2E7D4F" },
-        { title: "2 · Host chat", sub: "Pickup details soon", color: "#CF4A2C" },
-        { title: "3 · Balance", sub: `${inr(remaining)} before departure`, color: "#C8941E" },
-      ]
-    : [
-        { title: "✓ Confirmed", sub: "Seats secured", color: "#2E7D4F" },
-        { title: "2 · Host chat", sub: "Pickup details soon", color: "#CF4A2C" },
-        { title: "3 · Trip day", sub: start ? `Departs ${fmt(start, { day: "numeric", month: "short", year: "numeric" })}` : "Get packing", color: "#3C3228" },
-      ];
+  // Pay the remaining balance right here (same secure flow as My Trips).
+  const payBalance = async () => {
+    if (paying || !data._id) return;
+    setPaying(true);
+    try {
+      const so = await createBalanceOrder({ bookingId: data._id }).unwrap();
+      if (!so?.orderId || !so?.key) throw new Error("no order");
+      const rzp = new window.Razorpay({
+        key: so.key, amount: so.amount * 100, currency: so.currency || "INR",
+        name: "Nomadic Townies", description: "Trip Balance Payment", order_id: so.orderId,
+        handler: async (response) => {
+          try {
+            const res = await confirmBalancePayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }).unwrap();
+            navigate("/paymentsuccess", { state: { data: res?.data }, replace: true });
+          } catch { navigate("/paymentfail"); }
+        },
+      });
+      rzp.on("payment.failed", () => navigate("/paymentfail"));
+      rzp.open();
+    } catch {
+      navigate("/profile"); // fall back to My Trips pay flow
+    } finally {
+      setPaying(false);
+    }
+  };
 
   return (
-    <div className="psx">
+    <div className="ps2">
       <style>{css}</style>
+      <main className="ps2-main">
+        {/* success header */}
+        <div className="ps2-hero">
+          <div className="ps2-check">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2E7D4F" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+          </div>
+          <h1 className="ps2-h1">Payment successful — you&apos;re in!</h1>
+          <p className="ps2-sub">
+            Your ticket{destination ? ` to ${destination}` : ""} is confirmed, {firstName}. Save it, screenshot it, frame it.
+          </p>
+        </div>
 
-      <main className="psx-main">
-        {/* celebration header */}
-        <div className="psx-hero">
-          <svg className="psx-spark" style={{ "--r": "-12deg", left: "8%", top: 0 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#CF4A2C" strokeWidth="1.8" strokeLinecap="round"><path d="M12 3v5M12 16v5M3 12h5M16 12h5" /></svg>
-          <svg className="psx-spark" style={{ "--r": "16deg", right: "10%", top: 30, animationDelay: ".9s" }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E0922F" strokeWidth="1.9" strokeLinecap="round"><path d="M12 3v5M12 16v5M3 12h5M16 12h5" /></svg>
-          <div className="psx-badge-wrap">
-            <span className="psx-ring" />
-            <div className="psx-check">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2E7D4F" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+        {/* THE TICKET */}
+        <div className="ps2-ticket">
+          <div className="ps2-top">
+            <div className="ps2-glow" />
+            <div style={{ position: "relative" }}>
+              <div className="ps2-toprow">
+                <span className="ps2-kicker">Booking confirmed</span>
+                <span className="ps2-paid">✓ Paid ₹ {inr(paid)}</span>
+              </div>
+              <h2 className="ps2-trip">{tripTitle}</h2>
+              <div className="ps2-stats">
+                {stats.map((s) => (
+                  <div key={s.label}>
+                    <div className="ps2-stat-k">{s.label}</div>
+                    <div className="ps2-stat-v" style={s.label === "Payment ref" || s.label === "Booking ID" ? { fontFamily: "monospace", fontSize: 12, wordBreak: "break-all" } : undefined}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="psx-kicker">Payment successful</div>
-          <h1 className="psx-h1">
-            You&apos;re booked, {firstName}.<br />
-            <span className="psx-h1-em">The mountains are expecting you.</span>
-          </h1>
-          <div className="psx-chips">
-            <span className="psx-chip psx-chip--dark">{tripTitle}</span>
-            {start && (
-              <span className="psx-chip">{fmt(start)}{daysToGo ? ` · in ${daysToGo} day${daysToGo > 1 ? "s" : ""}` : ""}</span>
+
+          {/* perforated seam */}
+          <div className="ps2-seam">
+            <div className="ps2-notch ps2-notch--l" />
+            <div className="ps2-notch ps2-notch--r" />
+            <div className="ps2-dash" />
+          </div>
+
+          {/* bottom stub */}
+          <div className="ps2-stub">
+            {host?.name && (
+              <div className="ps2-hostrow">
+                <div style={{ position: "relative", flex: "none" }}>
+                  {host.logo
+                    ? <img className="ps2-host-av ps2-host-av--img" src={host.logo} alt={host.name} />
+                    : <div className="ps2-host-av">{host.name.charAt(0).toUpperCase()}</div>}
+                  {host.verified && (
+                    <span className="ps2-tick">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    </span>
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 170 }}>
+                  <div className="ps2-hostedby">Hosted by</div>
+                  <div className="ps2-hostname">{host.name}</div>
+                  <div className="ps2-hostline">{host.bio || "Your host · will message you here with pickup details"}</div>
+                </div>
+                {host._id && (
+                  <button type="button" className="ps-cta ps2-msg" onClick={openChat}>Message your host</button>
+                )}
+              </div>
             )}
-          </div>
-          <p className="psx-mail">Confirmation sent to {email}</p>
-        </div>
-
-        {/* summary */}
-        <div className="psx-card">
-          {rows.map((r, i) => (
-            <div className="psx-row" key={r.label} style={{ borderBottom: i === rows.length - 1 ? "none" : "1px solid #F1EADD" }}>
-              <span className="psx-row-k">{r.label}</span>
-              <span className="psx-row-v" style={{ color: r.color || "#3C3228", fontFamily: r.mono ? "monospace" : undefined, fontSize: r.mono ? 12 : undefined }}>{r.value}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* host */}
-        {host?.name && (
-          <div className="psx-host">
-            <div className="psx-host-av-wrap">
-              {host.logo
-                ? <img className="psx-host-av psx-host-av--img" src={host.logo} alt={host.name} />
-                : <div className="psx-host-av">{host.name.charAt(0).toUpperCase()}</div>}
-              {host.verified && (
-                <span className="psx-host-tick">
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+            {remaining > 0 && (
+              <div className="ps2-balance">
+                <span className="ps2-balance-t">
+                  Balance ₹ {inr(remaining)}{balanceBy ? <> due by <strong>{balanceBy}</strong></> : " due before departure"}
                 </span>
-              )}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="psx-host-name">{host.name}</div>
-              <div className="psx-host-sub">Your host · will message you here</div>
-            </div>
-            {host._id && (
-              <button type="button" className="ps-cta psx-host-btn" onClick={openChat}>Message</button>
+                <span className="ps2-paylink" role="button" tabIndex={0} onClick={payBalance}>
+                  {paying ? "Opening…" : "Pay balance →"}
+                </span>
+              </div>
             )}
           </div>
-        )}
-
-        {/* next steps */}
-        <div className="psx-steps">
-          {steps.map((s) => (
-            <div className="psx-step" key={s.title}>
-              <div className="psx-step-t" style={{ color: s.color }}>{s.title}</div>
-              <div className="psx-step-s">{s.sub}</div>
-            </div>
-          ))}
         </div>
 
         {/* actions */}
-        <button type="button" className="ps-cta psx-primary" onClick={() => navigate("/profile")}>View booking →</button>
-        <div className="psx-ghost-grid">
-          <button type="button" className="ps-ghost psx-ghost" onClick={() => navigate("/profile")}>Go to My Trips</button>
-          <button type="button" className="ps-ghost psx-ghost" onClick={viewExperience}>View experience</button>
+        <div className="ps2-actions">
+          <button type="button" className="ps-cta ps2-primary" onClick={() => navigate("/profile")}>View booking →</button>
+          <button type="button" className="ps-ghost ps2-ghost" onClick={() => navigate("/profile")}>Go to My Trips</button>
+          <button type="button" className="ps-ghost ps2-ghost" onClick={viewExperience}>View experience</button>
+          <button type="button" className="ps-ghost ps2-ghost" onClick={() => navigate("/experiences")}>Explore more experiences</button>
         </div>
-        <button type="button" className="ps-ghost psx-ghost psx-ghost--full" onClick={() => navigate("/experiences")}>Explore more experiences</button>
 
-        <p className="psx-foot">All conversations stay on Nomadic Townies — no phone or WhatsApp needed.</p>
+        <p className="ps2-foot">Confirmation sent to {email} · all conversations stay on Nomadic Townies.</p>
       </main>
     </div>
   );
 };
 
 const css = `
-.psx{background:#F4EEE4;min-height:100vh;font-family:'Hanken Grotesk','Inter',system-ui,sans-serif}
-.psx *{box-sizing:border-box}
-.psx-main{width:100%;max-width:560px;margin:0 auto;padding:clamp(32px,5vw,52px) clamp(16px,4vw,24px) 56px}
-.psx-hero{position:relative;text-align:center;margin-bottom:32px}
-.psx-spark{position:absolute;animation:psFloat 3.4s ease-in-out infinite}
-.psx-badge-wrap{position:relative;width:80px;height:80px;margin:0 auto}
-.psx-ring{position:absolute;inset:0;border-radius:50%;border:2px solid #5BBF7A;animation:psRing 2.2s cubic-bezier(.22,.61,.36,1) infinite}
-.psx-check{position:relative;width:80px;height:80px;border-radius:50%;background:linear-gradient(150deg,#E9F5EC,#D3EBDB);border:1px solid #BBDFC8;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -10px rgba(46,125,79,.35);animation:psPop .6s cubic-bezier(.22,.61,.36,1) both}
-.psx-kicker{margin-top:20px;font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#2E7D4F}
-.psx-h1{margin:10px 0 0;font-family:'Bricolage Grotesque','Playfair Display',Georgia,serif;font-weight:700;font-size:clamp(28px,5.4vw,32px);line-height:1.08;letter-spacing:-.02em;color:#221C17;text-wrap:balance}
-.psx-h1-em{font-style:italic;font-weight:600;color:#CF4A2C}
-.psx-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:18px}
-.psx-chip{padding:8px 14px;border-radius:99px;background:#FFFDF9;border:1px solid #E6DDCF;color:#3C3228;font-weight:600;font-size:12px;line-height:1}
-.psx-chip--dark{background:#221C17;border-color:#221C17;color:#F4EEE4;font-weight:700}
-.psx-mail{margin:14px 0 0;font-size:13px;line-height:1.5;color:#9A9080}
-.psx-card{background:#FFFDF9;border:1px solid #E6DDCF;border-radius:16px;overflow:hidden}
-.psx-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px}
-.psx-row-k{font-weight:500;font-size:13px;line-height:1.3;color:#8A8073}
-.psx-row-v{font-weight:600;font-size:13.5px;line-height:1.3;text-align:right;word-break:break-all}
-.psx-host{margin-top:14px;background:#221C17;border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:14px}
-.psx-host-av-wrap{position:relative;flex:none}
-.psx-host-av{width:50px;height:50px;border-radius:13px;background:linear-gradient(150deg,#E9622F,#CF4A2C);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:20px;color:#FFF6EF}
-.psx-host-av--img{object-fit:cover}
-.psx-host-tick{position:absolute;right:-5px;bottom:-5px;width:19px;height:19px;border-radius:50%;background:#5BBF7A;border:2px solid #221C17;display:flex;align-items:center;justify-content:center;color:#fff}
-.psx-host-name{font-weight:700;font-size:15px;line-height:1.2;color:#F8F4ED}
-.psx-host-sub{margin-top:3px;font-size:12px;line-height:1.4;color:#C9BFAE}
-.psx-host-btn{flex:none;padding:10px 15px;font-weight:700;font-size:12.5px;line-height:1;color:#fff;background:#CF4A2C;border:none;border-radius:9px;cursor:pointer}
-.psx-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px}
-.psx-step{background:#FFFDF9;border:1px solid #E6DDCF;border-radius:13px;padding:13px 14px}
-.psx-step-t{font-weight:700;font-size:12px;line-height:1}
-.psx-step-s{margin-top:5px;font-size:11.5px;line-height:1.4;color:#8A8073}
-.psx-primary{width:100%;margin-top:16px;padding:15px;font-weight:700;font-size:14.5px;line-height:1;color:#fff;background:#CF4A2C;border:none;border-radius:12px;cursor:pointer;box-shadow:0 8px 20px rgba(207,74,44,.24)}
-.psx-ghost-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.psx-ghost{padding:12px;font-weight:700;font-size:13px;line-height:1;color:#221C17;background:#FFFDF9;border:1px solid #E6DDCF;border-radius:11px;cursor:pointer}
-.psx-ghost--full{width:100%;margin-top:10px}
-.psx-foot{margin:22px 0 0;text-align:center;font-size:12px;line-height:1.5;color:#9A9080}
+.ps2{background:#F4EEE4;min-height:100vh;font-family:'Hanken Grotesk','Inter',system-ui,sans-serif}
+.ps2 *{box-sizing:border-box}
+.ps2-main{width:100%;max-width:640px;margin:0 auto;padding:clamp(32px,5vw,52px) clamp(16px,4vw,24px) 56px}
+.ps2-hero{text-align:center;margin-bottom:28px}
+.ps2-check{width:66px;height:66px;margin:0 auto;border-radius:50%;background:#E0EFE4;display:flex;align-items:center;justify-content:center;animation:psPop .6s cubic-bezier(.22,.61,.36,1) both}
+.ps2-h1{margin:16px 0 0;font-family:'Bricolage Grotesque','Playfair Display',Georgia,serif;font-weight:700;font-size:clamp(26px,4.6vw,30px);letter-spacing:-.02em;color:#221C17}
+.ps2-sub{margin:8px 0 0;font-size:15px;line-height:1.5;color:#726A5E}
+.ps2-ticket{filter:drop-shadow(0 20px 40px rgba(60,42,28,.24))}
+.ps2-top{position:relative;background:linear-gradient(150deg,#54514c,#33312e);border-radius:20px 20px 0 0;padding:28px 30px;overflow:hidden}
+.ps2-glow{position:absolute;right:-40px;top:-40px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(233,98,47,.32),transparent 66%)}
+.ps2-toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ps2-kicker{font-weight:700;font-size:11px;line-height:1;letter-spacing:.2em;text-transform:uppercase;color:#F0B49C}
+.ps2-paid{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;background:rgba(91,191,122,.16);border:1px solid rgba(91,191,122,.4);font-weight:700;font-size:10px;line-height:1;letter-spacing:.05em;text-transform:uppercase;color:#A8E6BC}
+.ps2-trip{margin:14px 0 0;font-family:'Bricolage Grotesque','Playfair Display',Georgia,serif;font-weight:700;font-size:clamp(23px,4vw,27px);line-height:1.06;letter-spacing:-.02em;color:#F8F4ED}
+.ps2-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:16px;margin-top:22px}
+.ps2-stat-k{font-weight:600;font-size:10px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:#9C9388}
+.ps2-stat-v{margin-top:5px;font-weight:600;font-size:14px;line-height:1.2;color:#F4EEE4}
+.ps2-seam{position:relative;height:28px;background:#33312e}
+.ps2-notch{position:absolute;top:0;width:28px;height:28px;border-radius:50%;background:#F4EEE4}
+.ps2-notch--l{left:-14px}.ps2-notch--r{right:-14px}
+.ps2-dash{position:absolute;left:22px;right:22px;top:50%;transform:translateY(-50%);border-top:2px dashed rgba(244,238,228,.3)}
+.ps2-stub{background:#FBF6EE;border:1px solid #EAD9C9;border-top:none;border-radius:0 0 20px 20px;padding:22px 30px}
+.ps2-hostrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ps2-host-av{width:54px;height:54px;border-radius:14px;background:linear-gradient(150deg,#E9622F,#CF4A2C);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:21px;color:#FFF6EF}
+.ps2-host-av--img{object-fit:cover}
+.ps2-tick{position:absolute;right:-5px;bottom:-5px;width:20px;height:20px;border-radius:50%;background:#5BBF7A;border:2px solid #FBF6EE;display:flex;align-items:center;justify-content:center;color:#fff}
+.ps2-hostedby{font-weight:600;font-size:10.5px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:#A89C8A}
+.ps2-hostname{margin-top:4px;font-family:'Bricolage Grotesque','Playfair Display',Georgia,serif;font-weight:700;font-size:17px;color:#221C17}
+.ps2-hostline{margin-top:2px;font-size:12px;line-height:1.4;color:#8A8073}
+.ps2-msg{flex:none;padding:11px 18px;font-weight:700;font-size:13px;line-height:1;color:#fff;background:#CF4A2C;border:none;border-radius:10px;cursor:pointer}
+.ps2-balance{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:16px;border-top:1px dashed #E0CFBE;flex-wrap:wrap}
+.ps2-balance-t{font-weight:500;font-size:13px;line-height:1.4;color:#9A6A2E}
+.ps2-balance-t strong{color:#5A5247}
+.ps2-paylink{font-weight:700;font-size:13px;line-height:1;color:#CF4A2C;cursor:pointer;white-space:nowrap}
+.ps2-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:26px}
+.ps2-primary{padding:14px;font-weight:700;font-size:14px;line-height:1;color:#fff;background:#CF4A2C;border:none;border-radius:12px;cursor:pointer}
+.ps2-ghost{padding:14px;font-weight:700;font-size:14px;line-height:1;color:#221C17;background:#FFFDF9;border:1px solid #E6DDCF;border-radius:12px;cursor:pointer}
+.ps2-foot{margin:22px 0 0;text-align:center;font-size:12px;line-height:1.5;color:#9A9080}
 .ps-cta{transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
 .ps-cta:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(207,74,44,.3);background:#C0421F}
 .ps-ghost{transition:background .16s ease,border-color .16s ease}
 .ps-ghost:hover{background:#FBF6EE;border-color:#CF4A2C}
 @keyframes psPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
-@keyframes psRing{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.9);opacity:0}}
-@keyframes psFloat{0%,100%{transform:translateY(0) rotate(var(--r,0deg))}50%{transform:translateY(-7px) rotate(var(--r,0deg))}}
-@media (prefers-reduced-motion:reduce){.psx-ring,.psx-spark,.psx-check{animation:none}}
-@media(max-width:480px){.psx-ghost-grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.ps2-check{animation:none}}
+@media(max-width:480px){.ps2-actions{grid-template-columns:1fr}.ps2-top,.ps2-stub{padding-left:20px;padding-right:20px}}
 `;
 
 export default Paymentsuccess;
