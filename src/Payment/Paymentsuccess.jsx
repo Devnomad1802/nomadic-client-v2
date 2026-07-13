@@ -121,16 +121,17 @@ const Paymentsuccess = () => {
     setTimeout(() => setCopied(false), 1800);
   };
 
-  const shareWhatsApp = () => {
-    const text = `I just booked ${tripTitle} with Nomadic Townies! Booking ID: ${bookingId}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-  };
   const shareTrip = () => {
     if (navigator.share) {
       navigator.share({ title: "Nomadic Townies", text: `Booked ${tripTitle}!`, url: window.location.origin }).catch(() => {});
     } else {
-      shareWhatsApp();
+      navigator.clipboard?.writeText(window.location.origin);
     }
+  };
+
+  // Platform chat with the host — same deep link the chat notifications use.
+  const messageHost = () => {
+    if (host?._id) navigate(`/hosts/${host._id}?chat=1`);
   };
 
   return (
@@ -229,6 +230,14 @@ const Paymentsuccess = () => {
                 <span className="det-lbl">{Ic.cal(14)} Booked on</span>
                 <span className="det-val">{fmtDate(data.DateOfBooking, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" })}</span>
               </div>
+              <div className="det-row">
+                <span className="det-lbl">{Ic.doc(14)} Booking Reference</span>
+                <span className="det-val" style={{ fontFamily: "monospace", fontSize: 12 }}>{bookingId}</span>
+              </div>
+              <div className="det-row">
+                <span className="det-lbl">{Ic.shield(14)} Payment Status</span>
+                <span className="det-val" style={{ color: isPartial ? "var(--orange)" : "var(--green)" }}>{isPartial ? "Partially paid" : "Fully paid"}</span>
+              </div>
               {data.razorpayPaymentId && (
                 <div className="det-row">
                   <span className="det-lbl">{Ic.wallet(14)} Razorpay Payment ID</span>
@@ -237,7 +246,6 @@ const Paymentsuccess = () => {
               )}
               <div className="cta-row" style={{ padding: "14px 0 0", borderTop: "none" }}>
                 <div className="share-row">
-                  <button className="share-btn" onClick={shareWhatsApp}>{Ic.whatsapp(15)} Share on WhatsApp</button>
                   <button className="share-btn" onClick={shareTrip}>{Ic.share(15)} Share</button>
                   <button className="share-btn" onClick={() => window.print()}>{Ic.download(15)} Download</button>
                 </div>
@@ -321,22 +329,30 @@ const Paymentsuccess = () => {
 
           {/* HOST CARD */}
           {host?.name && (
-            <div className="host-card">
-              <div className="host-av">{host.name.charAt(0).toUpperCase()}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="host-name">
-                  {host.name}
-                  {host.verified && (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "var(--green)", background: "var(--green-tint)", padding: "2px 7px", borderRadius: 999, marginLeft: 6, verticalAlign: "middle" }}>
-                      {Ic.verified(12)} Verified
-                    </span>
+            <div className="host-card host-card--hl">
+              <div className="host-card-label">Your host</div>
+              <div style={{ display: "flex", gap: 13, alignItems: "flex-start" }}>
+                {host.logo
+                  ? <img className="host-av-img" src={host.logo} alt={host.name} />
+                  : <div className="host-av">{host.name.charAt(0).toUpperCase()}</div>}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="host-name">
+                    {host.name}
+                    {host.verified && (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "var(--green)", background: "var(--green-tint)", padding: "2px 7px", borderRadius: 999, marginLeft: 6, verticalAlign: "middle" }}>
+                        {Ic.verified(12)} Verified
+                      </span>
+                    )}
+                  </div>
+                  <div className="host-meta">{host.location || "Verified host"} · Responds within a few hours</div>
+                  {host.bio && <p className="host-bio">{host.bio}</p>}
+                  {host._id && (
+                    <button className="host-msg-btn" onClick={messageHost}>{Ic.mail(15)} Message Your Host</button>
                   )}
+                  <p style={{ fontSize: 11, color: "var(--text-lighter)", marginTop: 8, textAlign: "center", lineHeight: 1.4 }}>
+                    Chat stays on Nomadic Townies — no personal contact details shared.
+                  </p>
                 </div>
-                <div className="host-meta">{host.location || "Verified host"} · Responds within a few hours</div>
-                <button className="whatsapp-btn" onClick={shareWhatsApp}>{Ic.whatsapp(17)} Message via Nomadic Townies</button>
-                <p style={{ fontSize: 11, color: "var(--text-lighter)", marginTop: 8, textAlign: "center", lineHeight: 1.4 }}>
-                  For booking support, contact us via Nomadic Townies only.
-                </p>
               </div>
             </div>
           )}
@@ -358,8 +374,12 @@ const Paymentsuccess = () => {
 
           {/* CTAs */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <button className="btn-primary" onClick={() => navigate("/")}>{Ic.home(17)} Back to home</button>
-            <button className="btn-secondary" onClick={() => navigate("/experiences")}>Explore more trips {Ic.arrow(16)}</button>
+            <button className="btn-primary" onClick={() => navigate("/profile")}>{Ic.doc(16)} Go to My Trips</button>
+            {(PaymentDetail?.seoSlug || PaymentDetail?._id) && (
+              <button className="btn-secondary" onClick={() => navigate(`/trips/${PaymentDetail.seoSlug || PaymentDetail._id}`)}>View Experience {Ic.arrow(16)}</button>
+            )}
+            <button className="btn-secondary" onClick={() => navigate("/experiences")}>Explore More Experiences {Ic.arrow(16)}</button>
+            <button className="btn-secondary" onClick={() => navigate("/")}>{Ic.home(16)} Back to home</button>
           </div>
         </div>
       </div>
@@ -453,8 +473,12 @@ const css = `
 .nt-success .host-av{width:48px;height:48px;border-radius:50%;background:var(--orange-tint);color:var(--orange);display:grid;place-items:center;font-family:var(--playfair);font-weight:700;font-size:19px;flex-shrink:0}
 .nt-success .host-name{font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:3px}
 .nt-success .host-meta{font-size:12.5px;color:var(--text-light)}
-.nt-success .whatsapp-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:#25D366;color:#fff;font-size:13.5px;font-weight:700;padding:11px;border-radius:10px;margin-top:12px;transition:background .15s}
-.nt-success .whatsapp-btn:hover{background:#1faa53}
+.nt-success .host-card--hl{display:block;border:1.5px solid var(--orange-tint-2);box-shadow:0 6px 18px -12px rgba(205,72,42,.35);position:relative}
+.nt-success .host-card-label{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent,#CF4A2C);color:var(--orange);background:var(--orange-tint);padding:3px 10px;border-radius:999px;margin-bottom:12px}
+.nt-success .host-av-img{width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.nt-success .host-bio{margin:6px 0 0;font-size:12.5px;color:var(--text-light);line-height:1.5}
+.nt-success .host-msg-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:var(--orange);color:#fff;font-size:13.5px;font-weight:700;padding:11px;border-radius:10px;margin-top:12px;box-shadow:0 6px 14px -8px rgba(205,72,42,.5);transition:background .15s}
+.nt-success .host-msg-btn:hover{background:var(--orange-hover)}
 .nt-success .cta-row{display:flex;gap:10px;padding:20px;border-top:1px solid var(--line);flex-wrap:wrap}
 .nt-success .btn-primary{flex:1;height:48px;background:var(--orange);color:#fff;font-size:14.5px;font-weight:700;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 8px 16px -8px rgba(205,72,42,.55);transition:all .18s}
 .nt-success .btn-primary:hover{background:var(--orange-hover);transform:translateY(-1px)}
@@ -471,7 +495,7 @@ const css = `
   body *{visibility:hidden!important}
   .nt-success,.nt-success *{visibility:visible!important}
   .nt-success{position:absolute;left:0;top:0;width:100%;background:#fff}
-  .nt-success .share-row,.nt-success .btn-ghost-sm,.nt-success .whatsapp-btn,.nt-success .btn-primary,.nt-success .btn-secondary,.nt-success .sidebar>div:last-child{display:none!important}
+  .nt-success .share-row,.nt-success .btn-ghost-sm,.nt-success .host-msg-btn,.nt-success .btn-primary,.nt-success .btn-secondary,.nt-success .sidebar>div:last-child{display:none!important}
   .nt-success .confirm-hero{background:#1a5f3f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .nt-success .main-grid{grid-template-columns:1fr 320px}
 }
