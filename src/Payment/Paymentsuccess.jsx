@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useCreateBalanceOrderMutation, useConfirmBalancePaymentMutation } from "../services";
+import { useGetTripsQuery } from "../services/TripApis";
 import { fmtDueDate } from "../utils/balanceDue";
 
 const inr = (n) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
@@ -20,6 +21,7 @@ const Paymentsuccess = () => {
   const [paying, setPaying] = useState(false);
   const [createBalanceOrder] = useCreateBalanceOrderMutation();
   const [confirmBalancePayment] = useConfirmBalancePaymentMutation();
+  const { data: tripsRes } = useGetTripsQuery();
 
   // Direct URL / refresh: no booking payload → home (booking lives in My Trips).
   useEffect(() => { if (!data) navigate("/"); }, [data, navigate]);
@@ -28,7 +30,19 @@ const Paymentsuccess = () => {
   // ── live booking snapshot — nothing hardcoded ──
   const pd = safeParse(data.paymentDetail, {});
   const cd = safeParse(data.cardData, { cardSectionData: [], cardDate: {}, gstTax: 0 });
-  const host = pd?.host || null;
+
+  // Host comes from the booking snapshot; older snapshots may lack _id (or the
+  // whole host), so fall back to the live trip's populated host.
+  const liveTrip = (tripsRes?.data || []).find((t) => `${t?._id}` === `${pd?._id || data.tripId}`);
+  const liveHost = liveTrip?.host && typeof liveTrip.host === "object" ? liveTrip.host : null;
+  const snapHost = pd?.host || null;
+  const host = snapHost || (liveHost && {
+    name: liveHost.hostTitle || liveHost.hostName || "",
+    bio: liveHost.shortBio || liveHost.tagline || "",
+    verified: !!liveHost.isVerified,
+    logo: liveHost.brandingLogo || null,
+  }) || null;
+  const hostChatId = snapHost?._id || (liveHost ? `${liveHost._id}` : null);
 
   const isPartial = data.paymentStatus === "firstPayment";
   const items = Array.isArray(cd?.cardSectionData) ? cd.cardSectionData : [];
@@ -55,7 +69,7 @@ const Paymentsuccess = () => {
     data.razorpayPaymentId ? { label: "Payment ref", value: data.razorpayPaymentId } : null,
   ].filter(Boolean);
 
-  const openChat = () => { if (host?._id) navigate(`/hosts/${host._id}?chat=1`); };
+  const openChat = () => { if (hostChatId) navigate(`/hosts/${hostChatId}?chat=1`); };
   const viewExperience = () => navigate(`/trips/${pd?.seoSlug || pd?._id || ""}`);
 
   // Pay the remaining balance right here (same secure flow as My Trips).
@@ -150,7 +164,7 @@ const Paymentsuccess = () => {
                   <div className="ps2-hostname">{host.name}</div>
                   <div className="ps2-hostline">{host.bio || "Your host · will message you here with pickup details"}</div>
                 </div>
-                {host._id && (
+                {hostChatId && (
                   <button type="button" className="ps-cta ps2-msg" onClick={openChat}>Message your host</button>
                 )}
               </div>
@@ -204,7 +218,7 @@ const css = `
 .ps2-notch{position:absolute;top:0;width:28px;height:28px;border-radius:50%;background:#F4EEE4}
 .ps2-notch--l{left:-14px}.ps2-notch--r{right:-14px}
 .ps2-dash{position:absolute;left:22px;right:22px;top:50%;transform:translateY(-50%);border-top:2px dashed rgba(244,238,228,.3)}
-.ps2-stub{background:#FBF6EE;border:1px solid #EAD9C9;border-top:none;border-radius:0 0 20px 20px;padding:22px 30px}
+.ps2-stub{text-align:left;background:#FBF6EE;border:1px solid #EAD9C9;border-top:none;border-radius:0 0 20px 20px;padding:22px 30px}
 .ps2-hostrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .ps2-host-av{width:54px;height:54px;border-radius:14px;background:linear-gradient(150deg,#E9622F,#CF4A2C);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:21px;color:#FFF6EF}
 .ps2-host-av--img{object-fit:cover}
