@@ -6,6 +6,7 @@ import {
   useCreateBalanceOrderMutation,
   useConfirmBalancePaymentMutation,
 } from "../../services";
+import { fmtDueDate } from "../../utils/balanceDue";
 
 const PER_PAGE = 3;
 
@@ -64,7 +65,7 @@ const MyTripsPanel = () => {
             pickDrop: (pd?.pickUp || pd?.dropOff) ? `${pd?.pickUp || "—"} – ${pd?.dropOff || "—"}` : "—",
             travellers: cd?.numberOfTravelers || b.travellersCount || 1,
             dateRange, bookedOn: fmt(b.DateOfBooking, true),
-            payByDate: a || "", status,
+            payByDate: fmtDueDate(cd?.cardDate?.batchDate), status,
             paid, remaining, gst, discount, itemTotal, items, couponCode: b.couponCode,
           };
         })
@@ -170,7 +171,7 @@ const MyTripsPanel = () => {
 
                 {b.remaining > 0 && (
                   <div className="nt-balance">
-                    <span>Balance of <strong>₹ {inr(b.remaining)}</strong>{b.payByDate ? <> can be paid up to <strong>{b.payByDate}</strong></> : " is due before departure"}.</span>
+                    <span>Balance of <strong>₹ {inr(b.remaining)}</strong>{b.payByDate ? <> is due by <strong>{b.payByDate}</strong></> : " is due before departure"}.</span>
                     <button className="nt-cta nt-cta-sm" onClick={() => payBalance(b)}>Proceed to pay ₹ {inr(b.remaining)}</button>
                   </div>
                 )}
