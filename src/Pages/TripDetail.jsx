@@ -116,6 +116,9 @@ const mapTrip = (raw, allReviews) => {
     images,
     trending: !!raw.Trending,
     price: inr(raw.price),
+    firstBookingPrice: toNum(raw.firstBookingPrice),
+    // Partial enabled: admin flag on (legacy = derive from a positive amount).
+    partialEnabled: raw.partialPaymentEnabled !== false && toNum(raw.firstBookingPrice) > 0,
     strikePrice: inr(raw.strikePrice),
     hasStrike: toNum(raw.strikePrice) > toNum(raw.price) && toNum(raw.strikePrice) > 0,
     off: toNum(raw.tripOff),
@@ -546,6 +549,11 @@ export default function TripDetail() {
                   <span style={{ font: `500 12px/1 ${BODY}`, color: "#9A9080" }}>/ person</span>
                 </div>
                 <button type="button" className="td-cta" onClick={handleBookNow} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "15px", font: `700 15px/1 ${BODY}`, color: "#fff", background: ACCENT, border: "none", borderRadius: "12px", cursor: "pointer", boxShadow: "0 8px 20px rgba(205,72,42,.26)" }}>Book now <span style={{ fontSize: "16px" }}>→</span></button>
+                {trip.partialEnabled && (
+                  <p style={{ margin: "10px 0 0", textAlign: "center", font: `600 11.5px/1.4 ${BODY}`, color: "#2E7D4F" }}>
+                    Book now for ₹ {inr(trip.firstBookingPrice)} — balance due 15 days before departure
+                  </p>
+                )}
                 <p style={{ margin: "10px 0 0", textAlign: "center", font: `400 11.5px/1.4 ${BODY}`, color: "#9A9080" }}>Select a batch date on the next step</p>
               </div>
               <div style={{ padding: "14px 22px", borderTop: "1px solid #EFE7DA", background: "#FBF6EE", display: "flex", flexDirection: "column", gap: "10px" }}>
