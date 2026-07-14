@@ -11,6 +11,7 @@ import Loading from "../SmallComponents/Loading";
 import Toastify from "../SmallComponents/Tostify";
 import { useSelector } from "react-redux";
 import LoginModal from "../Modals/LoginModal";
+import { fmtDueDate } from "../utils/balanceDue";
 
 // Brand tokens — kept consistent with the rest of the website
 // (terracotta #CD482A, Inter body + Playfair display headings).
@@ -335,30 +336,28 @@ const BookingOverview = () => {
   }, [userDbData]);
 
   // ----------------------- Partial-payment window -------------------------
-  // Book-now-pay-later is available until 15 days before the batch date.
+  // Book-now-pay-later is available until 15 days before the batch date,
+  // and only when the trip has partial payment enabled (admin toggle;
+  // legacy trips derive from a positive booking price).
   useEffect(() => {
-    if (cardData?.cardDate?.batchDate && firstPay > 0) {
+    const enabled = paymentDetail?.partialPaymentEnabled !== false;
+    if (enabled && cardData?.cardDate?.batchDate && firstPay > 0) {
       const cutoff = new Date(cardData.cardDate.batchDate);
       cutoff.setDate(cutoff.getDate() - 15);
       setPartialAvailable(cutoff > new Date());
     } else {
       setPartialAvailable(false);
     }
-  }, [cardData?.cardDate?.batchDate, firstPay]);
+  }, [cardData?.cardDate?.batchDate, firstPay, paymentDetail?.partialPaymentEnabled]);
 
   // Keep the selected amount in sync with the recomputed total.
   useEffect(() => {
     if (!partial) setSelectedValue(Total);
   }, [Total, partial]);
 
-  const balanceBy = cardData?.cardDate?.batchDate
-    ? new Date(cardData.cardDate.batchDate).toLocaleDateString("en", {
-        weekday: "short",
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
+  // Balance due = departure − 15 days (shared platform rule), not the
+  // departure date itself.
+  const balanceBy = fmtDueDate(cardData?.cardDate?.batchDate) || "—";
 
   // Selected amount-card styling helpers (plain style objects)
   const cardStyle = (active) => ({
