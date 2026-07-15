@@ -30,7 +30,7 @@ const ChevSvg = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
 );
 
-const CategoriesV3 = ({ sectionTitle, sectionSubtitle }) => {
+const CategoriesV3 = ({ sectionTitle, sectionSubtitle, showViewAll = true }) => {
   const navigate = useNavigate();
   const { data, isLoading } = useGetAllCategoriesQuery();
   const { data: tripData } = useGetTripsQuery();
@@ -70,9 +70,11 @@ const CategoriesV3 = ({ sectionTitle, sectionSubtitle }) => {
             <h2 className="section-h">{title}</h2>
             <p className="section-sub" style={{ marginTop: 8 }}>{subtitle}</p>
           </div>
-          <button className="btn btn-ghost btn-md" onClick={() => navigate("/experiences")}>
-            View All <ArrowForwardIcon sx={{ fontSize: 15 }} />
-          </button>
+          {showViewAll && (
+            <button className="btn btn-ghost btn-md" onClick={() => navigate("/experiences")}>
+              View All <ArrowForwardIcon sx={{ fontSize: 15 }} />
+            </button>
+          )}
         </div>
 
         {isLoading ? (
