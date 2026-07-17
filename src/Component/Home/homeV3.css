@@ -240,3 +240,8 @@
   object-position: center;
 }
 .cat-card:hover .cat-photo { transform: scale(1.04); transition: transform .35s ease; }
+
+/* Mobile: comfortable 40px touch height on interactive filter chips. */
+@media(max-width:560px){
+  .ntv3 .chip{min-height:40px;padding-top:0;padding-bottom:0;display:inline-flex;align-items:center}
+}
