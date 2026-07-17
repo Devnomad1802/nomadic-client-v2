@@ -442,7 +442,11 @@ const css = `
 .nt-rv-add:hover{border-color:var(--accent);color:var(--accent)}
 .nt-rv-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
 @media(max-width:860px){
-  .nt-grid{grid-template-columns:1fr}
+  /* minmax(0,1fr): a plain 1fr track has min-width:auto and grows to fit
+     no-wrap content (the tab strip), dragging the whole page wider than the
+     viewport. Clamp the track + let grid children shrink. */
+  .nt-grid{grid-template-columns:minmax(0,1fr)}
+  .nt-side,.nt-panel{min-width:0;max-width:100%}
   .nt-side{position:static}
   .nt-tabs{flex-direction:row;flex-wrap:wrap;gap:8px}
   .nt-tab{width:auto;flex:1 1 auto;justify-content:center}
