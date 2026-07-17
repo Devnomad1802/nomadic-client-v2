@@ -448,6 +448,56 @@ const css = `
   .nt-tab{width:auto;flex:1 1 auto;justify-content:center}
   .nt-pay{grid-template-columns:1fr}
 }
+/* Phone: compact app-like profile. Desktop untouched. */
+@media(max-width:560px){
+  .nt-profile{padding:16px 14px 40px}
+  /* header card: avatar + name in one row, tabs scroll horizontally */
+  .nt-side{padding:16px 14px;border-radius:18px}
+  .nt-side-top{flex-direction:row;text-align:left;gap:14px;padding-bottom:14px}
+  .nt-av-wrap{width:56px;height:56px;flex-shrink:0}
+  .nt-av-dot{width:16px;height:16px;border-width:2px}
+  .nt-name{margin-top:0;font-size:18px}
+  .nt-tabs{margin-top:12px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .nt-tabs::-webkit-scrollbar{display:none}
+  .nt-tab{flex:0 0 auto;min-height:44px;padding:10px 14px;font-size:14px;white-space:nowrap}
+  /* panel */
+  .nt-panel{padding:20px 16px;border-radius:18px;min-height:0}
+  .nt-h2{font-size:22px}
+  .nt-sub{font-size:14px}
+  .nt-form{grid-template-columns:1fr;gap:16px;margin-top:22px}
+  .nt-in{font-size:16px;padding:13px 14px} /* >=16px stops iOS focus zoom */
+  .nt-cta{width:100%;margin-top:24px;min-height:48px}
+  .nt-ghost{min-height:44px}
+  .nt-avatar-row{gap:14px;margin-top:20px}
+  /* my trips */
+  .nt-bk-head{padding:14px 14px;gap:10px}
+  .nt-bk-name{font-size:15px}
+  .nt-bk-body{padding:0 14px 16px}
+  .nt-bk-grid{grid-template-columns:1fr 1fr;gap:12px;padding:14px 0}
+  .nt-li-row{grid-template-columns:1fr auto;padding:10px 12px;font-size:13px}
+  .nt-li-qty{display:none} /* qty math hidden on tiny widths; total stays */
+  .nt-balance{flex-direction:column;align-items:stretch;text-align:left}
+  .nt-balance .nt-cta-sm{width:100%;justify-content:center;min-height:46px}
+  /* pagination: 40px+ taps */
+  .nt-pg-num{width:40px;height:40px}
+  .nt-pg-btn{min-height:40px}
+  /* saved trips */
+  .nt-saved{grid-template-columns:1fr;gap:14px}
+  .nt-heart{width:40px;height:40px}
+  .nt-card-cta{min-height:44px}
+  /* settings + logout */
+  .nt-toggle{padding:14px 14px}
+  .nt-danger{flex-direction:column;align-items:stretch;text-align:left}
+  .nt-danger-btn{width:100%;min-height:44px}
+  .nt-logout{min-height:340px}
+  .nt-logout-actions{width:100%;flex-direction:column-reverse}
+  .nt-logout-actions .nt-cta,.nt-logout-actions .nt-ghost{width:100%;margin-top:0}
+  /* review modal + toast fit small screens */
+  .nt-rv-modal{padding:18px 16px;border-radius:16px}
+  .nt-rv-actions{flex-direction:column-reverse;gap:8px}
+  .nt-rv-actions .nt-cta,.nt-rv-actions .nt-ghost{width:100%}
+  .nt-toast{width:calc(100% - 32px);max-width:420px;text-align:center}
+}
 `;
 
 export default UserProfile;
