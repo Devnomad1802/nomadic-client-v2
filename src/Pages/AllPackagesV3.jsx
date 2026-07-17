@@ -25,11 +25,11 @@ import { useGetTripsQuery, useGetAllReviewsQuery, useGetTrendingTripsQuery } fro
 import { useGetAllCategoriesQuery } from "../services/categoriesApis";
 import { TripCardSkeleton } from "../SmallComponents/Skeletons";
 import CategoriesV3 from "../Component/Home/CategoriesV3";
+import { listableTrips, nextDate, tripMonths, dateLabel } from "../utils/tripVisibility";
 import { useBookmark } from "../utils/useBookmark";
 import Footer from "../Component/Footer";
 import EnquirNow from "../Modals/EnquirNow";
 
-const SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const parseCats = (c) => {
   if (Array.isArray(c)) return c.flatMap(parseCats);
   if (typeof c === "string") {
@@ -39,15 +39,7 @@ const parseCats = (c) => {
   }
   return [];
 };
-const batchDates = (t) => {
-  let b = [];
-  try { b = t?.selectDate ? (typeof t.selectDate === "string" ? JSON.parse(t.selectDate) : t.selectDate) : []; } catch { b = []; }
-  const now = new Date(); now.setHours(0,0,0,0);
-  return (Array.isArray(b)?b:[]).map((x)=>x?.BatchDate && new Date(x.BatchDate)).filter((d)=>d&&!isNaN(d)&&d>=now).sort((a,b)=>a-b);
-};
-const nextDate = (t) => batchDates(t)[0] || null;
-const tripMonths = (t) => [...new Set(batchDates(t).map((d)=>SHORT[d.getMonth()]))];
-const fmtD = (d) => d ? d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) : null;
+const DATE_OPTS = { day: "2-digit", month: "short", year: "numeric" };
 const initial = (n) => (n ? n.trim()[0]?.toUpperCase() : "N");
 const avgRating = (t) => {
   const r = t?.ratings ?? t?.rating;
@@ -83,10 +75,9 @@ const AllPackagesV3 = ({ allpkgbg }) => {
 
   const catNames = useMemo(() => (Array.isArray(catRes?.data) ? catRes.data.map((c)=>c?.Category).filter(Boolean) : []), [catRes]);
 
-  const upcoming = useMemo(() => {
-    const all = Array.isArray(tripsRes?.data) ? tripsRes.data : [];
-    return all.map((t)=>({t,n:nextDate(t)})).filter((x)=>x.n).map((x)=>x.t);
-  }, [tripsRes]);
+  // Central listing rules: future-dated batch trips + customized (flexible)
+  // trips, soonest first — shared with the homepage so nothing is hidden.
+  const upcoming = useMemo(() => listableTrips(tripsRes?.data), [tripsRes]);
 
   const months = useMemo(() => {
     const seen = [];
@@ -104,7 +95,7 @@ const AllPackagesV3 = ({ allpkgbg }) => {
     if (sort === "price-asc") arr.sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));
     else if (sort === "price-desc") arr.sort((a,b)=>(Number(b.price)||0)-(Number(a.price)||0));
     else if (sort === "rating") arr.sort((a,b)=>avgRating(b)-avgRating(a));
-    else arr.sort((a,b)=>(nextDate(a)||0)-(nextDate(b)||0));
+    else arr.sort((a,b)=>((nextDate(a)?.getTime()??Infinity)-(nextDate(b)?.getTime()??Infinity)));
     return arr;
   }, [upcoming, cat, month, search, sort]);
 
@@ -226,7 +217,7 @@ const AllPackagesV3 = ({ allpkgbg }) => {
           ) : (
             <div className="trips-grid">
               {trips.map((trip) => {
-                const date = fmtD(nextDate(trip));
+                const date = dateLabel(trip, DATE_OPTS);
                 const tags = parseCats(trip.categories).slice(0, 1);
                 return (
                   <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
@@ -280,7 +271,7 @@ const AllPackagesV3 = ({ allpkgbg }) => {
             </div>
             <div className="trend-scroll">
               {trending.map((item, i) => {
-                const td = fmtD(nextDate(item));
+                const td = dateLabel(item, DATE_OPTS);
                 return (
                   <div key={item?._id || i} className="trend-card">
                     <div className="trend-img">

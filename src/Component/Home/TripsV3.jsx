@@ -9,6 +9,7 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useGetTripsQuery } from "../../services/TripApis";
 import { useBookmark } from "../../utils/useBookmark";
+import { listableTrips, tripMonths, dateLabel } from "../../utils/tripVisibility";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import { TripCardSkeleton } from "../../SmallComponents/Skeletons";
 
@@ -28,24 +29,6 @@ const parseCats = (c) => {
 const inCategory = (t, cat) =>
   parseCats(t?.categories).some((c) => (c || "").toLowerCase() === cat.toLowerCase());
 
-const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-const upcomingBatchDates = (trip) => {
-  let batches = [];
-  try {
-    batches = trip?.selectDate ? (typeof trip.selectDate === "string" ? JSON.parse(trip.selectDate) : trip.selectDate) : [];
-  } catch { batches = []; }
-  const now = new Date(); now.setHours(0, 0, 0, 0);
-  return (Array.isArray(batches) ? batches : [])
-    .map((b) => b?.BatchDate && new Date(b.BatchDate))
-    .filter((d) => d && !isNaN(d) && d >= now)
-    .sort((a, b) => a - b);
-};
-
-const nextBatchDate = (trip) => upcomingBatchDates(trip)[0] || null;
-const tripMonths = (trip) => [...new Set(upcomingBatchDates(trip).map((d) => SHORT_MONTHS[d.getMonth()]))];
-
-const fmtDate = (d) => d ? d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : null;
 const initial = (name) => (name ? name.trim()[0]?.toUpperCase() : "N");
 
 const TripsV3 = () => {
@@ -63,24 +46,15 @@ const TripsV3 = () => {
     return ["All", ...names];
   }, [catData]);
 
-  // all upcoming trips (with a future batch), soonest first
-  const upcomingAll = useMemo(() => {
-    const all = Array.isArray(data?.data) ? data.data : [];
-    return all
-      .map((t) => ({ t, next: nextBatchDate(t) }))
-      .filter((x) => x.next)
-      .sort((a, b) => a.next - b.next)
-      .map((x) => x.t);
-  }, [data]);
+  // Central listing rules: future-dated batch trips (soonest first) + all
+  // customized (flexible-date) trips — so nothing published is ever hidden.
+  const upcomingAll = useMemo(() => listableTrips(data?.data), [data]);
 
   // month chips derived from real batch dates, in chronological order
   const months = useMemo(() => {
     const seen = [];
     upcomingAll.forEach((t) =>
-      upcomingBatchDates(t).forEach((d) => {
-        const m = SHORT_MONTHS[d.getMonth()];
-        if (!seen.includes(m)) seen.push(m);
-      })
+      tripMonths(t).forEach((m) => { if (!seen.includes(m)) seen.push(m); })
     );
     return ["All", ...seen];
   }, [upcomingAll]);
@@ -127,7 +101,7 @@ const TripsV3 = () => {
         ) : (
           <div className="trips-grid">
             {trips.map((trip) => {
-              const date = fmtDate(nextBatchDate(trip));
+              const date = dateLabel(trip);
               const verified = Boolean(trip?.host);
               return (
                 <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
