@@ -25,6 +25,7 @@ import { useGetTripsQuery, useGetAllReviewsQuery, useGetTrendingTripsQuery } fro
 import { useGetAllCategoriesQuery } from "../services/categoriesApis";
 import { TripCardSkeleton } from "../SmallComponents/Skeletons";
 import CategoriesV3 from "../Component/Home/CategoriesV3";
+import { useBookmark } from "../utils/useBookmark";
 import Footer from "../Component/Footer";
 import EnquirNow from "../Modals/EnquirNow";
 
@@ -63,6 +64,7 @@ const stats = [
 
 const AllPackagesV3 = ({ allpkgbg }) => {
   const navigate = useNavigate();
+  const { isSaved, toggle } = useBookmark();
   const [searchParams] = useSearchParams();
   const { data: tripsRes, isLoading } = useGetTripsQuery();
   const { data: catRes } = useGetAllCategoriesQuery();
@@ -230,7 +232,7 @@ const AllPackagesV3 = ({ allpkgbg }) => {
                   <Link key={trip._id} to={`/trips/${trip.seoSlug || trip._id}`} className="tc">
                     <div className="tc-img">
                       {trip.cardImage ? <img className="tc-img-inner" src={trip.cardImage} alt={trip.title} loading="lazy" onError={(e) => { const p = e.currentTarget.parentElement; if (p) p.style.background = "linear-gradient(135deg,#1a3020,#2d6b4a)"; e.currentTarget.style.display = "none"; }} /> : <div className="tc-img-inner" style={{ background: "linear-gradient(135deg,#1a3020,#2d6b4a)" }} />}
-                      <button className="tc-fav" aria-label="Save" onClick={(e) => { e.preventDefault(); e.currentTarget.classList.toggle("on"); }}><FavoriteIcon sx={{ fontSize: 14 }} /></button>
+                      <button className={`tc-fav${isSaved(trip._id) ? " on" : ""}`} aria-label={isSaved(trip._id) ? "Remove from saved" : "Save"} aria-pressed={isSaved(trip._id)} onClick={(e) => toggle(trip._id, e)}><FavoriteIcon sx={{ fontSize: 14 }} /></button>
                       {trip.tripOff ? <span className="tc-off">{trip.tripOff}% OFF</span> : null}
                       <div className="tc-rating"><StarIcon sx={{ fontSize: 12, color: "#f5a623" }} />{avgRating(trip).toFixed(1)}</div>
                       {tags.length > 0 && <div className="tc-tags">{tags.map((t, i) => <span className="tc-tag" key={i}>{t}</span>)}</div>}

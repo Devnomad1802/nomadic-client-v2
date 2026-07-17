@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useBookmark } from "../../utils/useBookmark";
 import { Helmet } from "react-helmet-async";
 import "./catPage.css";
 import Footer from "../Footer";
@@ -44,6 +45,7 @@ const StarSvg = () => (<svg width="13" height="13" viewBox="0 0 24 24" fill="cur
 
 const CategorieDetails = () => {
   const navigate = useNavigate();
+  const { isSaved, toggle } = useBookmark();
   const { slug } = useParams();
   const categoryParam = decodeURIComponent(slug || "");
 
@@ -166,8 +168,16 @@ const CategorieDetails = () => {
                 const b = nextBatch(t);
                 return (
                   <a key={t._id} className="trip" onClick={() => navigate(`/trips/${t?.seoSlug || t?._id}`)} style={{ cursor: "pointer" }}>
-                    <div className="trip-img">
+                    <div className="trip-img" style={{ position: "relative" }}>
                       {tripImg(t) ? <img src={tripImg(t)} alt={`${t.title} — Nomadic Townies`} loading="lazy" /> : null}
+                      <button
+                        aria-label={isSaved(t._id) ? "Remove from saved" : "Save"}
+                        aria-pressed={isSaved(t._id)}
+                        onClick={(e) => toggle(t._id, e)}
+                        style={{ position: "absolute", top: 10, left: 10, width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", display: "grid", placeItems: "center", background: "rgba(255,255,255,.92)", color: isSaved(t._id) ? "#CF4A2C" : "#9A9080", boxShadow: "0 2px 8px rgba(0,0,0,.15)", zIndex: 2 }}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.5-9.5-9C1 8.5 2.5 5 6 5c2 0 3.2 1.2 4 2.3C10.8 6.2 12 5 14 5c3.5 0 5 3.5 3.5 7-2.5 4.5-9.5 9-9.5 9Z" /></svg>
+                      </button>
                       <span className="trip-rating"><StarSvg />{ratingOf(t).toFixed(1)}</span>
                     </div>
                     <div className="trip-body">
