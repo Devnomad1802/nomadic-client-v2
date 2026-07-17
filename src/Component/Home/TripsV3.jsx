@@ -8,6 +8,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useGetTripsQuery } from "../../services/TripApis";
+import { useBookmark } from "../../utils/useBookmark";
 import { useGetAllCategoriesQuery } from "../../services/categoriesApis";
 import { TripCardSkeleton } from "../../SmallComponents/Skeletons";
 
@@ -49,6 +50,7 @@ const initial = (name) => (name ? name.trim()[0]?.toUpperCase() : "N");
 
 const TripsV3 = () => {
   const navigate = useNavigate();
+  const { isSaved, toggle } = useBookmark();
   const { data, isLoading } = useGetTripsQuery();
   const { data: catData } = useGetAllCategoriesQuery();
   const [filter, setFilter] = useState("All");
@@ -133,7 +135,7 @@ const TripsV3 = () => {
                     {trip.cardImage
                       ? <img className="tc-img-inner" src={trip.cardImage} alt={trip.title} loading="lazy" onError={(e) => { const p = e.currentTarget.parentElement; if (p) p.style.background = "linear-gradient(135deg,#2c3e50,#4a6741)"; e.currentTarget.style.display = "none"; }} />
                       : <div className="tc-img-inner" style={{ background: "linear-gradient(135deg,#2c3e50,#4a6741)" }} />}
-                    <button className="tc-fav" aria-label="Save" onClick={(e) => { e.preventDefault(); e.currentTarget.classList.toggle("on"); }}>
+                    <button className={`tc-fav${isSaved(trip._id) ? " on" : ""}`} aria-label={isSaved(trip._id) ? "Remove from saved" : "Save"} aria-pressed={isSaved(trip._id)} onClick={(e) => toggle(trip._id, e)}>
                       <FavoriteIcon sx={{ fontSize: 14 }} />
                     </button>
                     {trip.tripOff ? <span className="tc-off">{trip.tripOff}% OFF</span> : null}

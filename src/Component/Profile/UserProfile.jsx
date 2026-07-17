@@ -496,6 +496,23 @@ const css = `
   .nt-logout{min-height:340px}
   .nt-logout-actions{width:100%;flex-direction:column-reverse}
   .nt-logout-actions .nt-cta,.nt-logout-actions .nt-ghost{width:100%;margin-top:0}
+  /* My Reviews — consistent spacing, aligned cards, right-sized CTA */
+  .nt-rv-h{margin-top:22px;font-size:15px}
+  .nt-rv-pending,.nt-rv-list{gap:10px;margin-top:10px}
+  .nt-rv-empty{margin-top:10px;font-size:13.5px}
+  /* pending card: image + text inline, Write-review button wraps full-width
+     below so it never crams the text or overflows */
+  .nt-rv-card{flex-wrap:wrap;align-items:center;gap:10px 12px;padding:12px}
+  .nt-rv-img{width:56px;height:56px}
+  .nt-rv-body{flex:1 1 140px;min-width:0}
+  .nt-rv-title{font-size:14.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nt-rv-meta{font-size:12px}
+  .nt-rv-card .nt-cta-sm{flex:1 1 100%;justify-content:center;margin-top:2px;padding:11px 16px;min-height:44px;font-size:13.5px}
+  /* submitted review item */
+  .nt-rv-item{padding:14px}
+  .nt-rv-item-head{gap:8px}
+  .nt-rv-text{font-size:13.5px;margin-top:8px}
+  .nt-rv-photos img{width:56px;height:56px}
   /* review modal + toast fit small screens */
   .nt-rv-modal{padding:18px 16px;border-radius:16px}
   .nt-rv-actions{flex-direction:column-reverse;gap:8px}

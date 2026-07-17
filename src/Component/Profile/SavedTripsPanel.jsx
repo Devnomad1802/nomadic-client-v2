@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useGetBookmarkedTripsMutation, useUpdateBookmarkMutation } from "../../services";
+import { setUserDbData } from "../../slices";
 import { extractRating } from "../../utils";
 
 const PER_PAGE = 6;
@@ -9,6 +10,7 @@ const inr = (n) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigit
 
 const SavedTripsPanel = () => {
   const { userDbData } = useSelector((store) => store.global) || {};
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [getBookmarkedTrips] = useGetBookmarkedTripsMutation();
   const [updateBookmark] = useUpdateBookmarkMutation();
@@ -34,8 +36,13 @@ const SavedTripsPanel = () => {
   const remove = async (tripId) => {
     if (!userDbData?._id) return;
     setRemoving((r) => ({ ...r, [tripId]: true }));
-    // optimistic
+    // optimistic — drop from the list AND from the global saved-ids so every
+    // heart across the site flips off immediately and stays in sync.
     setState((s) => ({ ...s, list: s.list.filter((t) => t._id !== tripId) }));
+    dispatch(setUserDbData({
+      ...userDbData,
+      bookmarks: (userDbData.bookmarks || []).filter((x) => `${x}` !== `${tripId}`),
+    }));
     try {
       await updateBookmark({ userId: userDbData._id, tripId, bookmark: false }).unwrap();
     } catch (e) {
