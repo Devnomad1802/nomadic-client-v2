@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useCreateBalanceOrderMutation, useConfirmBalancePaymentMutation } from "../services";
 import { useGetTripsQuery } from "../services/TripApis";
 import { fmtDueDate } from "../utils/balanceDue";
+import { downloadInvoice } from "../utils/invoiceDownload";
 
 const inr = (n) => Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const safeParse = (v, f) => { try { return typeof v === "string" ? JSON.parse(v) : (v ?? f); } catch { return f; } };
@@ -185,6 +186,7 @@ const Paymentsuccess = () => {
         {/* actions */}
         <div className="ps2-actions">
           <button type="button" className="ps-cta ps2-primary" onClick={() => navigate("/profile")}>View booking →</button>
+          <button type="button" className="ps-ghost ps2-ghost" onClick={() => downloadInvoice(data._id)}>⬇ Download invoice</button>
           <button type="button" className="ps-ghost ps2-ghost" onClick={() => navigate("/profile")}>Go to My Trips</button>
           <button type="button" className="ps-ghost ps2-ghost" onClick={viewExperience}>View experience</button>
           <button type="button" className="ps-ghost ps2-ghost" onClick={() => navigate("/experiences")}>Explore more experiences</button>
