@@ -7,6 +7,7 @@ import {
   useConfirmBalancePaymentMutation,
 } from "../../services";
 import { fmtDueDate } from "../../utils/balanceDue";
+import { downloadInvoice } from "../../utils/invoiceDownload";
 
 const PER_PAGE = 3;
 
@@ -176,7 +177,10 @@ const MyTripsPanel = () => {
                   </div>
                 )}
 
-                <button className="nt-policy" onClick={() => navigate("/cancellation-and-refund")}>Cancellation policy</button>
+                <div style={{ display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap" }}>
+                  <button className="nt-policy" onClick={() => downloadInvoice(b._id)}>⬇ Download invoice</button>
+                  <button className="nt-policy" onClick={() => navigate("/cancellation-and-refund")}>Cancellation policy</button>
+                </div>
               </div>
             )}
           </div>
